@@ -1,0 +1,10 @@
+- hosts: all
+  gather_facts: false
+  tasks:
+  - import_role:
+      name: "../../eos_ospf"
+  - name: Reset the config
+    eos_ospf:
+      state: deleted
+    register: result
+  - include: "eos_ospf/tests/cli/{{ test }}.yaml"

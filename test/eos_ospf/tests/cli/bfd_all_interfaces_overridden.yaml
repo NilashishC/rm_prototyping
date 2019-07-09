@@ -1,0 +1,37 @@
+- name: Set some values
+  set_fact:
+    proc_1:
+      processes:
+      - bfd:
+          all_interfaces: True
+        id: 100
+        vrf: blue
+    proc_2:
+      processes:
+      - bfd:
+          all_interfaces: True
+        id: 200
+        vrf: blue
+
+- name: Set the bfd_all_interfaces
+  eos_ospf:
+    config: "{{ proc_1 }}"
+    state: merged
+
+- name: Set the bfd_all_interfaces
+  eos_ospf:
+    config: "{{ proc_2 }}"
+    state: overridden
+  register: result
+
+- name: Reset config
+  eos_ospf:
+    state: deleted
+
+- name: Check the bfd_all_interfaces
+  assert:
+    that: "{{ result['before'] == proc_1 }}"
+
+- name: Check the bfd_all_interfaces
+  assert:
+    that: "{{ result['after'] == proc_2 }}"

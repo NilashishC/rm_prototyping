@@ -1,0 +1,54 @@
+- name: Set some values
+  set_fact:
+    processes:
+    - areas:
+      - area: 0.0.0.5
+        default_cost: 100
+        no_summary: true
+        type: stub
+      - area: 10.10.10.10
+        default_information:
+          metric: 5
+          metric_type: 1
+          nssa_only: true
+          originate: true
+        filters:
+        - 5.5.5.0/24
+        - 5.5.6.0/24
+        no_summary: true
+        nssa_only: true
+        type: nssa
+      - area: 10.10.10.11
+        ranges:
+        - cost: 20
+          not_advertise: true
+          range: 10.0.0.0/24
+        - range: 10.0.1.0/25
+        - range: 10.0.1.128/25
+        - cost: 10
+          range: 10.0.2.0/23
+        - range: 10.10.11.0/24
+      id: 100
+      vrf: blue
+
+- name: Set the areas
+  eos_ospf:
+    config:
+      processes: "{{ processes}}"
+    state: merged
+
+- name: Delete the areas
+  eos_ospf:
+    state: deleted
+  register: result
+
+- debug:
+    var: result
+
+- name: Check the areas
+  assert:
+    that: "{{ result['before']['processes'] == processes }}"
+
+- name: Check the areas
+  assert:
+    that: "{{ 'areas' not in result['after']['processes'][0] }}"

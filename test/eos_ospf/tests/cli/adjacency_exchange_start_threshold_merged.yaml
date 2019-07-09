@@ -1,0 +1,39 @@
+- name: Set some values
+  set_fact:
+    proc_1:
+      processes:
+      - adjacency:
+          exchange_start:
+            threshold: 11
+        id: 100
+        vrf: blue
+    proc_2:
+      processes:
+      - adjacency:
+          exchange_start:
+            threshold: 21
+        id: 100
+        vrf: blue
+
+- name: Set the adjacency_exchange_start_threshold
+  eos_ospf:
+    config: "{{ proc_1 }}"
+    state: merged
+
+- name: Set the adjacency_exchange_start_threshold
+  eos_ospf:
+    config: "{{ proc_2 }}"
+    state: merged
+  register: result
+
+- name: Reset config
+  eos_ospf:
+    state: deleted
+
+- name: Check the adjacency_exchange_start_threshold
+  assert:
+    that: "{{ result['before'] == proc_1 }}"
+
+- name: Check the adjacency_exchange_start_threshold
+  assert:
+    that: "{{ result['after'] == proc_2 }}"

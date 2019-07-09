@@ -1,0 +1,37 @@
+- name: Set some values
+  set_fact:
+    proc_1:
+      processes:
+      - auto_cost:
+          reference_bandwidth: 10000
+        id: 100
+        vrf: blue
+    proc_2:
+      processes:
+      - auto_cost:
+          reference_bandwidth: 20000
+        id: 100
+        vrf: blue
+
+- name: Set the auto_cost_reference_bandwidth
+  eos_ospf:
+    config: "{{ proc_1 }}"
+    state: merged
+
+- name: Set the auto_cost_reference_bandwidth
+  eos_ospf:
+    config: "{{ proc_2 }}"
+    state: merged
+  register: result
+
+- name: Reset config
+  eos_ospf:
+    state: deleted
+
+- name: Check the auto_cost_reference_bandwidth
+  assert:
+    that: "{{ result['before'] == proc_1 }}"
+
+- name: Check the auto_cost_reference_bandwidth
+  assert:
+    that: "{{ result['after'] == proc_2 }}"

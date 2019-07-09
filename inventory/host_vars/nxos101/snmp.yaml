@@ -1,0 +1,64 @@
+snmp:
+    traps:
+    -   names:
+        - cefcMIBEnableStatusNotification
+        - entity_fan_status_change
+        - entity_mib_change
+        - entity_module_inserted
+        - entity_module_removed
+        - entity_module_status_change
+        - entity_power_out_change
+        - entity_power_status_change
+        - entity_sensor
+        - entity_unrecognised_module
+        type: entity
+    -   names:
+        - coldStart
+        - warmStart
+        type: generic
+    -   names:
+        - notify-license-expiry
+        - notify-license-expiry-warning
+        - notify-licensefile-missing
+        - notify-no-license-for-feature
+        type: license
+    -   names:
+        - cErrDisableInterfaceEventRev1
+        - cieLinkDown
+        - cieLinkUp
+        - cmn-mac-move-notification
+        - delayed-link-state-change
+        - extended-linkDown
+        - extended-linkUp
+        - linkDown
+        - linkUp
+        type: link
+    -   names:
+        - redundancy_framework
+        type: rf
+    -   names:
+        - fallingAlarm
+        - hcFallingAlarm
+        - hcRisingAlarm
+        - risingAlarm
+        type: rmon
+    -   names:
+        - cpscEventRev1
+        type: storm-control
+    -   names:
+        - UpgradeJobStatusNotify
+        - UpgradeOpNotifyOnCompletion
+        type: upgrade
+    users:
+    -   algorithm: md5
+        group: network-admin
+        localized_key: true
+        password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+        privacy_password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+        username: admin
+    -   algorithm: md5
+        group: network-admin
+        localized_key: true
+        password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+        privacy_password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+        username: bthornto

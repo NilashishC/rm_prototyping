@@ -1,0 +1,141 @@
+---
+GENERATOR_VERSION: '1.0'
+
+ANSIBLE_METADATA: |
+    {
+      'metadata_version': '1.1',
+      'status': ['preview'],
+      'supported_by': 'network'
+    }
+NETWORK_OS: eos
+RESOURCE: ospf
+COPYRIGHT: Copyright 2019 Red Hat
+
+DOCUMENTATION: |
+  module: eos_ospf
+  version_added: 2.9
+  short_description: Manage the OSPF configuration on EOS
+  description: Manage the OSPF configuration on EOS
+  author: Bradley Thornton (cidrblock)
+  notes:
+    - Tested against EOS 4.21.1.1F
+  options:
+    config:
+      description: A list of OSPF processes
+      type: dict
+      suboptions:
+        processes:
+          description:
+          - A list of OSPF proccesses
+          type: list
+          elements: dict
+          suboptions:
+            adjacency:
+              description: Configure adjacency options for OSPF instance
+              type: dict
+              suboptions:
+                exchange_start:
+                  description: Configure exchange-start options for OSPF instance
+                  type: dict
+                  suboptions:
+                    threshold:
+                      description: Configure the maximum threshold of EXCH-START peers to bring up simultaneously
+                      type: int
+            areas:
+              description: Configure OSPF areas
+              type: list
+              elements: dict
+              suboptions:
+                area:
+                  description: The OSPF area
+                  type: str
+                default_cost:
+                  description: Specify the cost for default summary route in stub/NSSA area
+                  type: int
+                default_information:
+                  description: Configure default Type 7 LSA
+                  type: dict
+                  suboptions:
+                    metric:
+                      description: Metric for default route
+                      type: int
+                    metric_type:
+                      description: Metric type for default route
+                      type: int
+                      choices: [1,2]
+                    nssa_only:
+                      description: Limit default advertisement to this NSSA area
+                      type: bool
+                    originate:
+                      description: Originate default Type 7 LSA
+                      type: bool
+                filters:
+                  description: Specify filters for incoming summary LSAs
+                  type: list
+                  elements: str
+                no_summary:
+                  description: Filter all type-3 LSAs in the area
+                  type: bool
+                nssa_only:
+                  description: Disable Type-7 LSA p-bit setting
+                  type: bool
+                ranges:
+                  description: Configure route summarization
+                  type: list
+                  elements: dict
+                  suboptions:
+                    cost:
+                      description: Configure the metric
+                      type: int
+                    not_advertise:
+                      description: Disable Advertisement of the range
+                      type: bool
+                    range:
+                      description: The range for summarization
+                      type: str
+                type:
+                  description: The area type (stub/NSSA)
+                  type: str
+            auto_cost:
+              description: Set auto-cost
+              type: dict
+              suboptions:
+                reference_bandwidth:
+                  description: Set the reference bandwidth
+                  type: int
+            bfd:
+              description: Enable BFD
+              type: dict
+              suboptions:
+                all_interfaces:
+                  description: Enable BFD on all interfaces
+                  type: bool
+            compatible:
+              description: Set compatibility
+              type: dict
+              suboptions:
+                rfc1583:
+                  description: Compatible with RFC 1583
+                  type: bool
+            id:
+              description: The process ID
+              type: int
+            vrf:
+              description: The VPN Routing/Forwarding Instance
+              type: str
+
+    state:
+      description:
+        - The state the configuration should be left in.
+      type: str
+      choices:
+        - merged
+        - replaced
+        - overridden
+        - deleted
+      default: merged
+EXAMPLES:
+- merged_example_01.txt
+- replaced_example_01.txt
+- overridden_example_01.txt
+- deleted_example_01.txt

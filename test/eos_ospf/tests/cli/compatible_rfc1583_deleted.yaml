@@ -1,0 +1,26 @@
+- name: Set some values
+  set_fact:
+    proc_1:
+      processes:
+      - compatible:
+          rfc1583: true
+        id: 100
+        vrf: blue
+
+- name: Set the compatible_rfc1583
+  eos_ospf:
+    config: "{{ proc_1 }}"
+    state: merged
+
+- name: Reset config
+  eos_ospf:
+    state: deleted
+  register: result
+
+- name: Check the compatible_rfc1583
+  assert:
+    that: "{{ result['before'] == proc_1 }}"
+
+- name: Check the compatible_rfc1583
+  assert:
+    that: "{{ not result['after'] }}"

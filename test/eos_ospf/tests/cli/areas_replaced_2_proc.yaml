@@ -1,0 +1,70 @@
+- name: Set some values
+  set_fact:
+    proc1:
+      processes:
+      - areas:
+        - area: 0.0.0.5
+          default_cost: 100
+          no_summary: true
+          type: stub
+        - area: 10.10.10.10
+          default_information:
+            metric: 5
+            metric_type: 1
+            nssa_only: true
+            originate: true
+          filters:
+          - 5.5.5.0/24
+          - 5.5.6.0/24
+          no_summary: true
+          nssa_only: true
+          type: nssa
+        id: 100
+        vrf: blue
+    proc2:
+      processes:
+      - areas:
+        - area: 0.0.0.6
+          default_cost: 200
+        - area: 10.10.10.10
+          default_information:
+            metric: 6
+            originate: true
+          filters:
+          - 5.5.7.0/24
+          type: nssa
+        - area: 10.10.10.11
+          ranges:
+          - cost: 20
+            not_advertise: true
+            range: 10.0.0.0/24
+          - range: 10.0.1.0/25
+          - range: 10.0.1.128/25
+          - cost: 10
+            range: 10.0.2.0/23
+          - range: 10.10.11.0/24
+        id: 200
+        vrf: red
+
+- name: Set the area
+  eos_ospf:
+    config: "{{ proc1 }}"
+    state: merged
+
+- name: Set the areas
+  eos_ospf:
+    config: "{{ proc2 }}"
+    state: replaced
+  register: result
+
+- name: Reset config
+  eos_ospf:
+    state: deleted
+
+- name: Check the areas
+  assert:
+    that: "{{ result['before'] == proc1 }}"
+
+- name: Check the areas
+  assert:
+    that: "{{ result['after']['processes'] == proc1['processes'] + proc2['processes'] }}"
