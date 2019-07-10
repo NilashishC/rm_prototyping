@@ -1,0 +1,30 @@
+- name: Set some values
+  set_fact:
+    proc_1:
+      processes:
+      - default_information:
+          always: true
+          metric: 5
+          metric_type: 1
+          originate: true
+          route_map: foo
+        id: 100
+        vrf: blue
+
+- name: Set the default_information_originate
+  eos_ospf:
+    config: "{{ proc_1 }}"
+    state: merged
+
+- name: Reset config
+  eos_ospf:
+    state: deleted
+  register: result
+
+- name: Check the default_information_originate
+  assert:
+    that: "{{ result['before'] == proc_1 }}"
+
+- name: Check the default_information_originate
+  assert:
+    that: "{{ not result['after'] }}"

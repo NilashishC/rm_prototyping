@@ -147,6 +147,8 @@ class Ospf(ConfigBase, OspfArgs):
         commands.extend(self._compare_nos(state, process_nos, want,
                                           have))
         commands.extend(self._compare_areas(state, want, have))
+        commands.extend(self._compare_default_information(state, want, have))
+
         if commands and want:
             commands = self._tmplt.render(want, 'process_id', False) + commands
         elif commands and have:
@@ -255,6 +257,19 @@ class Ospf(ConfigBase, OspfArgs):
                                                   {'area': h_area}))
             if state in ['deleted', 'replaced']:
                 commands.extend(self._delete_area(h_area))
+        return commands
+
+    def _compare_default_information(self, _state, want, have):
+        commands = []
+        if self._get_from_dict(want, 'default_information.originate'):
+            wdi = self._get_from_dict(want, 'default_information')
+            hdi = self._get_from_dict(have, 'default_information')
+            if wdi != hdi:
+                commands.extend(self._tmplt.render(
+                    want, 'default_information', False))
+        else:
+            commands.extend(self._tmplt.render(
+                have, 'default_information', True))
         return commands
 
     def _delete_area(self, area):

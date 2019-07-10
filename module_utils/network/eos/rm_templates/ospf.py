@@ -30,6 +30,24 @@ def _tmplt_area_range(arange):
         command += ' cost {range[cost]}'.format(**arange)
     return command
 
+
+def _tmplt_default_information(proc):
+    command = "default-information originate"
+    if 'always' in proc['default_information'] and \
+            proc['default_information']['always']:
+        command += ' always'
+    if 'metric' in proc['default_information']:
+        command += ' metric'
+        command += ' {default_information[metric]}'.format(**proc)
+    if 'metric_type' in proc['default_information']:
+        command += ' metric-type'
+        command += ' {default_information[metric_type]}'.format(**proc)
+    if 'route_map' in proc['default_information']:
+        command += ' route-map'
+        command += ' {default_information[route_map]}'.format(**proc)
+    return command
+
+
 class OspfTemplate(Templator):
 
     PARSERS = {
@@ -153,8 +171,8 @@ class OspfTemplate(Templator):
                 \s+area\s(?P<area>\S+)\s
                 (?P<area_type>nssa|stub)\s
                 (?P<dio>default-information-originate)
-                (\smetric\s(?P<metric>\d+))?
-                (\smetric-type\s(?P<metric_type>\d))?
+                (\smetric\s(?P<adi_metric>\d+))?
+                (\smetric-type\s(?P<adi_metric_type>\d))?
                 (\s(?P<d_nssa_only>nssa-only))?$''', re.VERBOSE),
             'setval': _tmplt_area_default_information,
             'result': {
@@ -165,8 +183,8 @@ class OspfTemplate(Templator):
                                 'area': '{area}',
                                 'type': '{area_type}',
                                 'default_information': {
-                                    'metric': '{metric}',
-                                    'metric_type': '{metric_type}',
+                                    'metric': '{adi_metric}',
+                                    'metric_type': '{adi_metric_type}',
                                     'nssa_only': '{d_nssa_only}',
                                     'originate': True
                                 }
@@ -177,8 +195,8 @@ class OspfTemplate(Templator):
             },
             'cast': {
                 'dio': 'to_bool',
-                'metric': 'to_int',
-                'metric_type': 'to_int',
+                'adi_metric': 'to_int',
+                'adi_metric_type': 'to_int',
                 'd_nssa_only': 'true_or_none'
             }
         },
@@ -291,6 +309,35 @@ class OspfTemplate(Templator):
             },
             'cast': {
                 'rfc1583': 'true_or_none',
+            },
+        },
+        'default_information': {
+            'getval': re.compile(r'''
+                (\s+(?P<no_dio>no))?
+                \s+default-information\soriginate
+                (\s(?P<always>always))?
+                (\smetric\s(?P<di_metric>\d+))?
+                (\smetric-type\s(?P<di_metric_type>\d))?
+                (\sroute-map\s(?P<route_map>\S+))?$''', re.VERBOSE),
+            'setval': _tmplt_default_information,
+            'result': {
+                'processes': {
+                    '{process_id}_{vrf}': {
+                        'default_information': {
+                            'always': '{always}',
+                            'metric': '{di_metric}',
+                            'metric_type': '{di_metric_type}',
+                            'originate': '{no_dio}',
+                            'route_map': '{route_map}'
+                        }
+                    },
+                },
+            },
+            'cast': {
+                'always': 'true_or_none',
+                'di_metric': 'to_int',
+                'di_metric_type': 'to_int',
+                'no_dio': 'no_means_false',
             },
         },
     }

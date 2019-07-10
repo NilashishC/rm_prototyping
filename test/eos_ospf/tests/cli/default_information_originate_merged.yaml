@@ -1,0 +1,81 @@
+- name: Set some values
+  set_fact:
+    proc_1:
+      processes:
+      - default_information:
+          always: true
+          metric: 5
+          metric_type: 1
+          originate: true
+          route_map: rmap1
+        id: 100
+        vrf: blue
+    proc_2:
+      processes:
+      - default_information:
+          metric: 6
+          originate: true
+          route_map: rmap2
+        id: 100
+        vrf: blue
+    desired_2:
+      processes:
+      - default_information:
+          always: true
+          metric: 6
+          metric_type: 1
+          originate: true
+          route_map: rmap2
+        id: 100
+        vrf: blue
+    proc_3:
+      processes:
+      - default_information:
+          always: false
+          metric_type: 2
+        id: 100
+        vrf: blue
+    desired_3:
+      processes:
+      - default_information:
+          metric: 6
+          originate: true
+          route_map: rmap2
+        id: 100
+        vrf: blue
+
+- name: Set the default_information_originate proc_1
+  eos_ospf:
+    config: "{{ proc_1 }}"
+    state: merged
+
+- name: Set the default_information_originate proc_2
+  eos_ospf:
+    config: "{{ proc_2 }}"
+    state: merged
+  register: result_p2
+
+- name: Set the default_information_originate proc_3
+  eos_ospf:
+    config: "{{ proc_3 }}"
+    state: merged
+  register: result_p3
+
+- debug:
+    var: result_p3
+
+- name: Reset config
+  eos_ospf:
+    state: deleted
+
+- name: Check the default_information_originate proc_1
+  assert:
+    that: "{{ result_p2['before'] == proc_1 }}"
+
+- name: Check the default_information_originate proc_2
+  assert:
+    that: "{{ result_p3['before'] == desired_2 }}"
+
+- name: Check the default_information_originate proc_3
+  assert:
+    that: "{{ result_p3['after'] == desired_3 }}"

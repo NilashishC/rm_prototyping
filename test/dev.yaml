@@ -3,31 +3,11 @@
   tasks:
   - import_role:
       name: "../../eos_ospf"
-  - eos_config:
-      parents:
-      - router ospf 100
-      lines:
-      - area 0.0.0.5 default-cost 100
-      - area 0.0.0.5 stub no-summary
-      - area 10.10.10.10 nssa nssa-only
-      - area 10.10.10.10 nssa no-summary
-      - area 10.10.10.10 nssa default-information-originate metric 5 metric-type 1 nssa-only
-      - area 10.10.10.10 filter 5.5.5.0/24
-      - area 10.10.10.10 filter 5.5.6.0/24
-      - max-lsa 12000
-  - eos_config:
-      parents:
-      - router ospf 200 vrf blue
-      lines:
-      - auto-cost reference-bandwidth 10000
-      - area 10.1.1.0 default-cost 20
-      - area 10.10.10.10 range 10.0.0.0/8 not-advertise cost 20
-      - area 10.10.10.10 range 10.10.11.0/24
-      - area 10.10.10.10 range 11.0.0.0/8
-      - area 10.10.10.10 range 12.0.0.0/8
-      - area 10.10.10.10 range 13.0.0.0/8 cost 10
-      - max-lsa 12000
-      - adjacency exchange-start threshold 10
+  # - eos_config:
+  #     parents:
+  #     - router ospf 100
+  #     lines:
+  #     - default-information originate always metric 5 metric-type 1 route-map foo
   - eos_facts:
       gather_subset: '!min'
       gather_network_resources:
@@ -35,51 +15,51 @@
   - debug:
       var: ansible_network_resources
 
-  - name: Merge the config (idempotent)
-    eos_ospf:
-      config: "{{ ansible_network_resources['ospf'] }}"
-      state: merged
-
-  # - pause:
-  - name: Reset the config
-    eos_ospf:
-      state: deleted
-    register: result
-  - name: Merge the config (after delete)
-    eos_ospf:
-      config: "{{ ansible_network_resources['ospf'] }}"
-      state: merged
-
-  - eos_config:
-      parents:
-      - router ospf 100
-      lines:
-      - area 0.0.0.5 default-cost 100
-      - area 0.0.0.5 stub no-summary
-      - area 10.10.10.10 nssa nssa-only
-      - area 10.10.10.10 nssa no-summary
-      - area 10.10.10.10 nssa default-information-originate metric 5 metric-type 1 nssa-only
-      - area 10.10.10.10 filter 5.5.5.0/24
-      - area 10.10.10.10 filter 5.5.6.0/24
-      - max-lsa 12000
-  - eos_config:
-      parents:
-      - router ospf 200 vrf blue
-      lines:
-      - auto-cost reference-bandwidth 10000
-      - area 10.1.1.0 default-cost 20
-      - area 10.10.10.10 range 10.0.0.0/8 not-advertise cost 20
-      - area 10.10.10.10 range 10.10.11.0/24
-      - area 10.10.10.10 range 11.0.0.0/8
-      - area 10.10.10.10 range 12.0.0.0/8
-      - area 10.10.10.10 range 13.0.0.0/8 cost 10
-      - max-lsa 12000
-      - adjacency exchange-start threshold 10
-  # - name: pass to rm
-  #   nxos_snmp:
-  #     config:
-  #       communities:
-  #       - community: bleh
+  # - name: Merge the config (idempotent)
+  #   eos_ospf:
+  #     config: "{{ ansible_network_resources['ospf'] }}"
+  #     state: merged
+  #
+  # # - pause:
+  # - name: Reset the config
+  #   eos_ospf:
+  #     state: deleted
+  #   register: result
+  # - name: Merge the config (after delete)
+  #   eos_ospf:
+  #     config: "{{ ansible_network_resources['ospf'] }}"
+  #     state: merged
+  #
+  # - eos_config:
+  #     parents:
+  #     - router ospf 100
+  #     lines:
+  #     - area 0.0.0.5 default-cost 100
+  #     - area 0.0.0.5 stub no-summary
+  #     - area 10.10.10.10 nssa nssa-only
+  #     - area 10.10.10.10 nssa no-summary
+  #     - area 10.10.10.10 nssa default-information-originate metric 5 metric-type 1 nssa-only
+  #     - area 10.10.10.10 filter 5.5.5.0/24
+  #     - area 10.10.10.10 filter 5.5.6.0/24
+  #     - max-lsa 12000
+  # - eos_config:
+  #     parents:
+  #     - router ospf 200 vrf blue
+  #     lines:
+  #     - auto-cost reference-bandwidth 10000
+  #     - area 10.1.1.0 default-cost 20
+  #     - area 10.10.10.10 range 10.0.0.0/8 not-advertise cost 20
+  #     - area 10.10.10.10 range 10.10.11.0/24
+  #     - area 10.10.10.10 range 11.0.0.0/8
+  #     - area 10.10.10.10 range 12.0.0.0/8
+  #     - area 10.10.10.10 range 13.0.0.0/8 cost 10
+  #     - max-lsa 12000
+  #     - adjacency exchange-start threshold 10
+  # # - name: pass to rm
+  # #   nxos_snmp:
+  # #     config:
+  # #       communities:
+  # #       - community: bleh
   #         group: network-admin
   #         ipv4acl: '6'
   #         ipv6acl: '7'

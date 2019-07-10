@@ -117,6 +117,26 @@ DOCUMENTATION: |
                 rfc1583:
                   description: Compatible with RFC 1583
                   type: bool
+            default_information:
+              description: Control distribution of default information
+              type: dict
+              suboptions:
+                always:
+                  description: Always advertise default route
+                  type: bool
+                metric:
+                  description: Metric for default route
+                  type: int
+                metric_type:
+                  description: Metric type for default route
+                  type: int
+                  choices: [1,2]
+                originate:
+                  description: Originate default Type 7 LSA
+                  type: bool
+                route_map:
+                  description: Specify which route map to use
+                  type: str  
             id:
               description: The process ID
               type: int
