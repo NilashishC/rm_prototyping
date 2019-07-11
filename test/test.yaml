@@ -1,5 +1,5 @@
 - hosts: all
   gather_facts: False
   roles:
-  - "../../nxos_snmp"
-  - nxos_snmp
+  - "../../eos_ospf"
+  - eos_ospf

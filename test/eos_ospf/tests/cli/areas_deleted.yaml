@@ -51,4 +51,4 @@
 
 - name: Check the areas
   assert:
-    that: "{{ 'areas' not in result['after']['processes'][0] }}"
+    that: "{{ not result['after'] }}"
