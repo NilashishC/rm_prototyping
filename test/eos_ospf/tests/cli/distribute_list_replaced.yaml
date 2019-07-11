@@ -1,0 +1,39 @@
+- name: Set some values
+  set_fact:
+    proc_1:
+      processes:
+      - distribute_list:
+          name: dl1
+          type: route-map
+        id: 100
+        vrf: blue
+    proc_2:
+      processes:
+      - distribute_list:
+          name: dl2
+          type: prefix-list
+        id: 100
+        vrf: blue
+
+- name: Set the distribute_list
+  eos_ospf:
+    config: "{{ proc_1 }}"
+    state: merged
+
+- name: Set the distribute_list
+  eos_ospf:
+    config: "{{ proc_2 }}"
+    state: replaced
+  register: result
+
+- name: Reset config
+  eos_ospf:
+    state: deleted
+
+- name: Check the distribute_list
+  assert:
+    that: "{{ result['before'] == proc_1 }}"
+
+- name: Check the distribute_list
+  assert:
+    that: "{{ result['after'] == proc_2 }}"
