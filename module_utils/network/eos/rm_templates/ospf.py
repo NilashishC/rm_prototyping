@@ -340,4 +340,75 @@ class OspfTemplate(Templator):
                 'no_dio': 'no_means_false',
             },
         },
+        'distance.external': {
+            'getval': re.compile(r'''
+                \s+distance\sospf\sexternal\s
+                (?P<distance_external>\d+)$''', re.VERBOSE),
+            'setval': 'distance ospf external {distance[external]}',
+            'result': {
+                'processes': {
+                    '{process_id}_{vrf}': {
+                        'distance': {
+                            'external': '{distance_external}'
+                        }
+                    },
+                },
+            },
+            'cast': {
+                'distance_external': 'to_int',
+            },
+        },
+        'distance.intra_area': {
+            'getval': re.compile(r'''
+                \s+distance\sospf\sintra-area\s
+                (?P<distance_intra_area>\d+)$''', re.VERBOSE),
+            'setval': 'distance ospf intra-area {distance[intra_area]}',
+            'result': {
+                'processes': {
+                    '{process_id}_{vrf}': {
+                        'distance': {
+                            'intra_area': '{distance_intra_area}'
+                        }
+                    },
+                },
+            },
+            'cast': {
+                'distance_intra_area': 'to_int',
+            },
+        },
+        'distance.inter_area': {
+            'getval': re.compile(r'''
+                \s+distance\sospf\sinter-area\s
+                (?P<distance_inter_area>\d+)$''', re.VERBOSE),
+            'setval': 'distance ospf inter-area {distance[inter_area]}',
+            'result': {
+                'processes': {
+                    '{process_id}_{vrf}': {
+                        'distance': {
+                            'inter_area': '{distance_inter_area}'
+                        }
+                    },
+                },
+            },
+            'cast': {
+                'distance_inter_area': 'to_int',
+            },
+        },
+        'distribute_list': {
+            'getval': re.compile(r'''
+                \s+distribute-list\s
+                (?P<dl_type>\S+)\s
+                (?P<dl_name>\S+)\sin$''', re.VERBOSE),
+            'setval': 'distribute-list {distribute_list[type]} {distribute_list[name]} in',
+            'result': {
+                'processes': {
+                    '{process_id}_{vrf}': {
+                        'distribute_list': {
+                            'name': '{dl_name}',
+                            'type': '{dl_type}'
+                        }
+                    },
+                },
+            },
+        },
     }

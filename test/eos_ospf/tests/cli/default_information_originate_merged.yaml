@@ -61,9 +61,6 @@
     state: merged
   register: result_p3
 
-- debug:
-    var: result_p3
-
 - name: Reset config
   eos_ospf:
     state: deleted

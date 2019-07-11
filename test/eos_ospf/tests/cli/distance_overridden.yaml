@@ -1,0 +1,43 @@
+- name: Set some values
+  set_fact:
+    proc_1:
+      processes:
+      - distance:
+          inter_area: 100
+        id: 100
+        vrf: blue
+      - distance:
+          external: 200
+          inter_area: 200
+        id: 200
+    proc_2:
+      processes:
+      - distance:
+          external: 100
+          intra_area: 100
+        id: 100
+        vrf: blue
+
+
+- name: Set the distance
+  eos_ospf:
+    config: "{{ proc_1 }}"
+    state: merged
+
+- name: Set the distance
+  eos_ospf:
+    config: "{{ proc_2 }}"
+    state: overridden
+  register: result
+
+- name: Reset config
+  eos_ospf:
+    state: deleted
+
+- name: Check the distance
+  assert:
+    that: "{{ result['before'] == proc_1 }}"
+
+- name: Check the distance
+  assert:
+    that: "{{ result['after'] == proc_2 }}"

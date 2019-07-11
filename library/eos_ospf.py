@@ -161,7 +161,31 @@ options:
                 type: bool
               route_map:
                 description: Specify which route map to use
-                type: str  
+                type: str
+          distance:
+            description: Configure administrative distance
+            type: dict
+            suboptions:
+              external:
+                description: Routes external to the area
+                type: int
+              inter_area:
+                description: Routes from other areas
+                type: int
+              intra_area:
+                description: Routes within an area
+                type: int
+          distribute_list:
+            description: Specify the inbound distribute-list
+            type: dict
+            suboptions:
+              name:
+                description: Specify the name for the distribute list
+                type: str
+              type:
+                description: Specify the type of distribute list
+                type: str
+                choices: ['prefix-list', 'route-map']
           id:
             description: The process ID
             type: int

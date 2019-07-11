@@ -150,13 +150,23 @@ DOCUMENTATION: |
                 intra_area:
                   description: Routes within an area
                   type: int
+            distribute_list:
+              description: Specify the inbound distribute-list
+              type: dict
+              suboptions:
+                name:
+                  description: Specify the name for the distribute list
+                  type: str
+                type:
+                  description: Specify the type of distribute list
+                  type: str
+                  choices: ['prefix-list', 'route-map']
             id:
               description: The process ID
               type: int
             vrf:
               description: The VPN Routing/Forwarding Instance
               type: str
-
     state:
       description:
         - The state the configuration should be left in.

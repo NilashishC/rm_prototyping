@@ -139,7 +139,9 @@ class Ospf(ConfigBase, OspfArgs):
 
     def _compare_process(self, state, want, have):
         process_simples = ['adjacency.exchange_start.threshold',
-                           'auto_cost.reference_bandwidth']
+                           'auto_cost.reference_bandwidth',
+                           'distance.external', 'distance.intra_area',
+                           'distance.inter_area', 'distribute_list']
         process_nos = ['bfd.all_interfaces', 'compatible.rfc1583']
         commands = []
         commands.extend(self._compare_simples(state, process_simples, want,
