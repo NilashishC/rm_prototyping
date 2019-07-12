@@ -138,16 +138,13 @@ class Ospf(ConfigBase, OspfArgs):
         return commands, warnings
 
     def _compare_process(self, state, want, have):
-        process_simples = ['adjacency.exchange_start.threshold',
-                           'auto_cost.reference_bandwidth',
-                           'distance.external', 'distance.intra_area',
-                           'distance.inter_area', 'distribute_list']
-        process_nos = ['bfd.all_interfaces', 'compatible.rfc1583']
+        parsers = ['adjacency.exchange_start.threshold',
+                   'auto_cost.reference_bandwidth', 'bfd.all_interfaces',
+                   'compatible.rfc1583', 'distance.external',
+                   'distance.intra_area', 'distance.inter_area',
+                   'distribute_list', 'dn_bit_ignore']
         commands = []
-        commands.extend(self._compare_simples(state, process_simples, want,
-                                              have))
-        commands.extend(self._compare_nos(state, process_nos, want,
-                                          have))
+        commands.extend(self._compare(state, parsers, want, have))
         commands.extend(self._compare_areas(state, want, have))
         commands.extend(self._compare_default_information(state, want, have))
 
@@ -155,38 +152,6 @@ class Ospf(ConfigBase, OspfArgs):
             commands = self._tmplt.render(want, 'process_id', False) + commands
         elif commands and have:
             commands = self._tmplt.render(have, 'process_id', False) + commands
-        return commands
-
-    def _compare_simples(self, state, simples, want, have):
-        commands = []
-        for simple in simples:
-            inw = self._get_from_dict(want, simple)
-            inh = self._get_from_dict(have, simple)
-            if state == 'merged' and inw is not None and inw != inh:
-                commands.extend(self._tmplt.render(want, simple, False))
-            elif state == 'deleted' and inh is not None:
-                commands.extend(self._tmplt.render(have, simple, True))
-            elif state == 'replaced' and inw is None and inh is not None:
-                commands.extend(self._tmplt.render(have, simple, True))
-            elif state == 'replaced' and inw is not None and inw is not None \
-                    and inw != inh:
-                commands.extend(self._tmplt.render(want, simple, False))
-        return commands
-
-    def _compare_nos(self, state, nos, want, have):
-        commands = []
-        for entry in nos:
-            inw = self._get_from_dict(want, entry)
-            inh = self._get_from_dict(have, entry)
-            if state == 'merged' and inw is not None and inw != inh:
-                commands.extend(self._tmplt.render(want, entry, not inw))
-            elif state == 'deleted' and inh is not None:
-                commands.extend(self._tmplt.render(have, entry, inh))
-            elif state == 'replaced' and inw is None and inh is not None:
-                commands.extend(self._tmplt.render(have, entry, inh))
-            elif state == 'replaced' and inw is not None and inw is not None \
-                    and inw != inh:
-                commands.extend(self._tmplt.render(want, entry, not inw))
         return commands
 
     def _compare_area(self, state, want, have):
@@ -233,30 +198,21 @@ class Ospf(ConfigBase, OspfArgs):
         return commands
 
     def _compare_areas(self, state, want, have):
-        area_simples = ['area.default_cost']
-        area_nos = ['area.no_summary', 'area.nssa_only']
+        parsers = ['area.default_cost', 'area.no_summary', 'area.nssa_only']
 
         commands = []
         for area_id, w_area in want.get('areas', {}).items():
             h_area = have.get('areas', {}).pop(area_id, {})
-            commands.extend(self._compare_nos(state, area_nos,
-                                              {'area': w_area},
-                                              {'area': h_area}))
-            commands.extend(self._compare_simples(state, area_simples,
-                                                  {'area': w_area},
-                                                  {'area': h_area}))
+            commands.extend(self._compare(state, parsers, {'area': w_area},
+                                          {'area': h_area}))
             if state == 'deleted':
                 commands.extend(self._delete_area(h_area))
             elif state in ['merged', 'replaced']:
                 commands.extend(self._compare_area(state, w_area, h_area))
 
         for area_id, h_area in have.get('areas', {}).items():
-            commands.extend(self._compare_nos(state, area_nos,
-                                              {'area': {}},
-                                              {'area': h_area}))
-            commands.extend(self._compare_simples(state, area_simples,
-                                                  {'area': {}},
-                                                  {'area': h_area}))
+            commands.extend(self._compare(state, parsers, {'area': {}},
+                                          {'area': h_area}))
             if state in ['deleted', 'replaced']:
                 commands.extend(self._delete_area(h_area))
         return commands

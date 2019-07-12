@@ -21,7 +21,6 @@
 #   builder template.
 #
 #############################################
-
 """
 The arg spec for the eos_ospf module
 """
@@ -34,58 +33,172 @@ class OspfArgs(object):  # pylint: disable=R0903
     def __init__(self, **kwargs):
         pass
 
-    argument_spec = {'config': {'options': {'processes': {'elements': 'dict',
-                                      'options': {'adjacency': {'options': {'exchange_start': {'options': {'threshold': {'type': 'int'}},
-                                                                                               'type': 'dict'}},
-                                                                'type': 'dict'},
-                                                  'areas': {'elements': 'dict',
-                                                            'options': {'area': {'type': 'str'},
-                                                                        'default_cost': {'type': 'int'},
-                                                                        'default_information': {'options': {'metric': {'type': 'int'},
-                                                                                                            'metric_type': {'choices': [1,
-                                                                                                                                        2],
-                                                                                                                            'type': 'int'},
-                                                                                                            'nssa_only': {'type': 'bool'},
-                                                                                                            'originate': {'type': 'bool'}},
-                                                                                                'type': 'dict'},
-                                                                        'filters': {'elements': 'str',
-                                                                                    'type': 'list'},
-                                                                        'no_summary': {'type': 'bool'},
-                                                                        'nssa_only': {'type': 'bool'},
-                                                                        'ranges': {'elements': 'dict',
-                                                                                   'options': {'cost': {'type': 'int'},
-                                                                                               'not_advertise': {'type': 'bool'},
-                                                                                               'range': {'type': 'str'}},
-                                                                                   'type': 'list'},
-                                                                        'type': {'type': 'str'}},
-                                                            'type': 'list'},
-                                                  'auto_cost': {'options': {'reference_bandwidth': {'type': 'int'}},
-                                                                'type': 'dict'},
-                                                  'bfd': {'options': {'all_interfaces': {'type': 'bool'}},
-                                                          'type': 'dict'},
-                                                  'compatible': {'options': {'rfc1583': {'type': 'bool'}},
-                                                                 'type': 'dict'},
-                                                  'default_information': {'options': {'always': {'type': 'bool'},
-                                                                                      'metric': {'type': 'int'},
-                                                                                      'metric_type': {'choices': [1,
-                                                                                                                  2],
-                                                                                                      'type': 'int'},
-                                                                                      'originate': {'type': 'bool'},
-                                                                                      'route_map': {'type': 'str'}},
-                                                                          'type': 'dict'},
-                                                  'distance': {'options': {'external': {'type': 'int'},
-                                                                           'inter_area': {'type': 'int'},
-                                                                           'intra_area': {'type': 'int'}},
-                                                               'type': 'dict'},
-                                                  'distribute_list': {'options': {'name': {'type': 'str'},
-                                                                                  'type': {'choices': ['prefix-list',
-                                                                                                       'route-map'],
-                                                                                           'type': 'str'}},
-                                                                      'type': 'dict'},
-                                                  'id': {'type': 'int'},
-                                                  'vrf': {'type': 'str'}},
-                                      'type': 'list'}},
-            'type': 'dict'},
- 'state': {'choices': ['merged', 'replaced', 'overridden', 'deleted'],
-           'default': 'merged',
-           'type': 'str'}}  # pylint: disable=C0301
+    argument_spec = {
+        'config': {
+            'options': {
+                'processes': {
+                    'elements': 'dict',
+                    'options': {
+                        'adjacency': {
+                            'options': {
+                                'exchange_start': {
+                                    'options': {
+                                        'threshold': {
+                                            'type': 'int'
+                                        }
+                                    },
+                                    'type': 'dict'
+                                }
+                            },
+                            'type': 'dict'
+                        },
+                        'areas': {
+                            'elements': 'dict',
+                            'options': {
+                                'area': {
+                                    'type': 'str'
+                                },
+                                'default_cost': {
+                                    'type': 'int'
+                                },
+                                'default_information': {
+                                    'options': {
+                                        'metric': {
+                                            'type': 'int'
+                                        },
+                                        'metric_type': {
+                                            'choices': [1, 2],
+                                            'type': 'int'
+                                        },
+                                        'nssa_only': {
+                                            'type': 'bool'
+                                        },
+                                        'originate': {
+                                            'type': 'bool'
+                                        }
+                                    },
+                                    'type': 'dict'
+                                },
+                                'filters': {
+                                    'elements': 'str',
+                                    'type': 'list'
+                                },
+                                'no_summary': {
+                                    'type': 'bool'
+                                },
+                                'nssa_only': {
+                                    'type': 'bool'
+                                },
+                                'ranges': {
+                                    'elements': 'dict',
+                                    'options': {
+                                        'cost': {
+                                            'type': 'int'
+                                        },
+                                        'not_advertise': {
+                                            'type': 'bool'
+                                        },
+                                        'range': {
+                                            'type': 'str'
+                                        }
+                                    },
+                                    'type': 'list'
+                                },
+                                'type': {
+                                    'type': 'str'
+                                }
+                            },
+                            'type': 'list'
+                        },
+                        'auto_cost': {
+                            'options': {
+                                'reference_bandwidth': {
+                                    'type': 'int'
+                                }
+                            },
+                            'type': 'dict'
+                        },
+                        'bfd': {
+                            'options': {
+                                'all_interfaces': {
+                                    'type': 'bool'
+                                }
+                            },
+                            'type': 'dict'
+                        },
+                        'compatible': {
+                            'options': {
+                                'rfc1583': {
+                                    'type': 'bool'
+                                }
+                            },
+                            'type': 'dict'
+                        },
+                        'default_information': {
+                            'options': {
+                                'always': {
+                                    'type': 'bool'
+                                },
+                                'metric': {
+                                    'type': 'int'
+                                },
+                                'metric_type': {
+                                    'choices': [1, 2],
+                                    'type': 'int'
+                                },
+                                'originate': {
+                                    'type': 'bool'
+                                },
+                                'route_map': {
+                                    'type': 'str'
+                                }
+                            },
+                            'type': 'dict'
+                        },
+                        'distance': {
+                            'options': {
+                                'external': {
+                                    'type': 'int'
+                                },
+                                'inter_area': {
+                                    'type': 'int'
+                                },
+                                'intra_area': {
+                                    'type': 'int'
+                                }
+                            },
+                            'type': 'dict'
+                        },
+                        'distribute_list': {
+                            'options': {
+                                'name': {
+                                    'type': 'str'
+                                },
+                                'type': {
+                                    'choices': ['prefix-list', 'route-map'],
+                                    'type': 'str'
+                                }
+                            },
+                            'type': 'dict'
+                        },
+                        'dn_bit_ignore': {
+                            'type': 'bool'
+                        },
+                        'id': {
+                            'type': 'int'
+                        },
+                        'vrf': {
+                            'type': 'str'
+                        }
+                    },
+                    'type': 'list'
+                }
+            },
+            'type': 'dict'
+        },
+        'state': {
+            'choices': ['merged', 'replaced', 'overridden', 'deleted'],
+            'default': 'merged',
+            'type': 'str'
+        }
+    }  # pylint: disable=C0301

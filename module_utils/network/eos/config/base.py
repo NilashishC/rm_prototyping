@@ -56,3 +56,25 @@ class ConfigBase(object):  # pylint: disable=R0903
                     haved[key] = val
 
         return wantd == haved
+
+    def _compare(self, state, parsers, want, have):
+        commands = []
+        for parser in parsers:
+            inw = self._get_from_dict(want, parser)
+            inh = self._get_from_dict(have, parser)
+            if state == 'merged' and inw is not None and inw != inh:
+                commands.extend(self._tmplt.render(want, parser, False))
+            elif state == 'deleted' and inh is not None:
+                commands.extend(self._tmplt.render(have, parser, True))
+            elif state == 'replaced' and inw is None and inh is not None:
+                if isinstance(inh, bool):
+                    commands.extend(self._tmplt.render(have, parser, inh))
+                else:
+                    commands.extend(self._tmplt.render(have, parser, True))
+            elif state == 'replaced' and inw is not None and inw is not None \
+                    and inw != inh:
+                if isinstance(inw, bool):
+                    commands.extend(self._tmplt.render(want, parser, not inw))
+                else:
+                    commands.extend(self._tmplt.render(want, parser, False))
+        return commands

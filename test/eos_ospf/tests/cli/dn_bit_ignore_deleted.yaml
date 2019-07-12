@@ -1,0 +1,28 @@
+- name: Set some values
+  set_fact:
+    proc_1:
+      processes:
+      - dn_bit_ignore: True
+        id: 100
+        vrf: blue
+
+- name: Set the distribute_list
+  eos_ospf:
+    config: "{{ proc_1 }}"
+    state: merged
+
+- name: Reset config
+  eos_ospf:
+    state: deleted
+  register: result
+
+- debug:
+    var: result
+
+- name: Check the distribute_list
+  assert:
+    that: "{{ result['before'] == proc_1 }}"
+
+- name: Check the distribute_list
+  assert:
+    that: "{{ not result['after'] }}"

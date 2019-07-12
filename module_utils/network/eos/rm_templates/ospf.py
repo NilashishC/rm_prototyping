@@ -74,7 +74,8 @@ class OspfTemplate(Templator):
             'getval': re.compile(r'''
                 \s+adjacency\sexchange-start\sthreshold\s
                 (?P<aest>\d+)$''', re.VERBOSE),
-            'setval': 'adjacency exchange-start threshold {adjacency[exchange_start][threshold]}',
+            'setval': ('adjacency exchange-start threshold'
+                       ' {adjacency[exchange_start][threshold]}'),
             'result': {
                 'processes': {
                     '{process_id}_{vrf}': {
@@ -399,7 +400,8 @@ class OspfTemplate(Templator):
                 \s+distribute-list\s
                 (?P<dl_type>\S+)\s
                 (?P<dl_name>\S+)\sin$''', re.VERBOSE),
-            'setval': 'distribute-list {distribute_list[type]} {distribute_list[name]} in',
+            'setval': ('distribute-list {distribute_list[type]}'
+                       ' {distribute_list[name]} in'),
             'result': {
                 'processes': {
                     '{process_id}_{vrf}': {
@@ -407,6 +409,17 @@ class OspfTemplate(Templator):
                             'name': '{dl_name}',
                             'type': '{dl_type}'
                         }
+                    },
+                },
+            },
+        },
+        'dn_bit_ignore': {
+            'getval': re.compile(r'''\s+dn-bit-ignore$''', re.VERBOSE),
+            'setval': 'dn-bit-ignore',
+            'result': {
+                'processes': {
+                    '{process_id}_{vrf}': {
+                        'dn_bit_ignore': True
                     },
                 },
             },

@@ -186,13 +186,15 @@ options:
                 description: Specify the type of distribute list
                 type: str
                 choices: ['prefix-list', 'route-map']
+          dn_bit_ignore:
+            description: Disable dn-bit check for Type-3 LSAs in non-default VRFs
+            type: bool
           id:
             description: The process ID
             type: int
           vrf:
             description: The VPN Routing/Forwarding Instance
             type: str
-
   state:
     description:
       - The state the configuration should be left in.

@@ -42,9 +42,6 @@
     state: deleted
   register: result
 
-- debug:
-    var: result
-
 - name: Check the areas
   assert:
     that: "{{ result['before']['processes'] == processes }}"

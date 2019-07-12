@@ -1,0 +1,42 @@
+- name: Set some values
+  set_fact:
+    proc_1:
+      processes:
+      - dn_bit_ignore: True
+        id: 100
+        vrf: blue
+    proc_2:
+      processes:
+      - dn_bit_ignore: False
+        id: 100
+        vrf: blue
+    desired:
+      processes:
+      - id: 100
+        vrf: blue
+
+- name: Set the dn_bit_ignore
+  eos_ospf:
+    config: "{{ proc_1 }}"
+    state: merged
+
+- name: Set the dn_bit_ignore
+  eos_ospf:
+    config: "{{ proc_2 }}"
+    state: merged
+  register: result
+
+- debug:
+    var: result
+
+- name: Reset config
+  eos_ospf:
+    state: deleted
+
+- name: Check the dn_bit_ignore
+  assert:
+    that: "{{ result['before'] == proc_1 }}"
+
+- name: Check the dn_bit_ignore
+  assert:
+    that: "{{ result['after'] == desired }}"
