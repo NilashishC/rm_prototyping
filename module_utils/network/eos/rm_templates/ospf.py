@@ -1,4 +1,3 @@
-from ansible.module_utils.network.common.templator import Templator
 import re
 
 
@@ -48,7 +47,7 @@ def _tmplt_default_information(proc):
     return command
 
 
-class OspfTemplate(Templator):
+class OspfTemplate(object):
 
     PARSERS = {
         'process_id': {

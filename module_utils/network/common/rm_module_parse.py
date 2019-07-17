@@ -1,14 +1,11 @@
-
 import re
 from copy import deepcopy
-from ansible.module_utils.network.common.utils import dict_merge, dict_diff
+from ansible.module_utils.network.common.utils import dict_merge
 
-class Templator():
-
-    PARSERS = {}
-
-    def __init__(self, lines=None):
+class RmModuleParse(object):
+    def __init__(self, lines, tmplt):
         self._lines = lines
+        self._tmplt = tmplt
 
     @staticmethod
     def to_bool(string):
@@ -71,7 +68,7 @@ class Templator():
         result = {}
         shared = {}
         for line in self._lines:
-            for _pname, parser in self.PARSERS.items():
+            for _pname, parser in self._tmplt.PARSERS.items():
                 cap = re.match(parser['getval'], line)
                 if cap:
                     capdict = cap.groupdict()
@@ -87,33 +84,3 @@ class Templator():
                     res = self._deepformat(deepcopy(parser['result']), vals)
                     result = dict_merge(result, res)
         return result
-
-    def render(self, data, parser_names, negate=False):
-        if not isinstance(parser_names, list):
-            parser_names = [parser_names]
-        commands = []
-        for pname in parser_names:
-            try:
-                if negate:
-                    tmplt = self.PARSERS[pname].get('remval')
-                    if tmplt:
-                        if callable(tmplt):
-                            res = tmplt(data)
-                        else:
-                            res = tmplt.format(**data)
-                    else:
-                        tmplt = self.PARSERS[pname]['setval']
-                        if callable(tmplt):
-                            res = 'no ' + tmplt(data)
-                        else:
-                            res = 'no ' + tmplt.format(**data)
-                else:
-                    tmplt = self.PARSERS[pname]['setval']
-                    if callable(tmplt):
-                        res = tmplt(data)
-                    else:
-                        res = tmplt.format(**data)
-                commands.append(res)
-            except KeyError:
-                pass
-        return commands

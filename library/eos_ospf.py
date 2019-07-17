@@ -245,6 +245,8 @@ commands:
 from ansible.module_utils.basic import AnsibleModule
 from ansible.module_utils.network. \
     eos.config.ospf.ospf import Ospf
+from ansible.module_utils.network.eos.argspec.ospf.ospf import OspfArgs
+
 # pylint: enable=C0413
 
 
@@ -254,7 +256,7 @@ def main():
 
     :returns: the result form module invocation
     """
-    module = AnsibleModule(argument_spec=Ospf.argument_spec,
+    module = AnsibleModule(argument_spec=OspfArgs.argument_spec,
                            supports_check_mode=True)
 
     result = Ospf(module).execute_module()

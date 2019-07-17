@@ -12,52 +12,29 @@ created
 """
 
 
-from ansible.module_utils.network. \
-    eos.argspec.ospf.ospf import OspfArgs
-from ansible.module_utils.network. \
-    eos. \
-    config.base import ConfigBase
-from ansible.module_utils.network. \
-    eos.facts.facts import Facts
+from ansible.module_utils.network.common.cfg.base import ConfigBase
+
 from ansible.module_utils.network. \
     eos.rm_templates.ospf import OspfTemplate
 from ansible.module_utils.network.common.utils import dict_merge
-from copy import deepcopy
+from ansible.module_utils.network. \
+    eos.facts.facts import Facts
+from ansible.module_utils.network.common.rm_module import RmModule
+from ansible.module_utils.network.common.rm_module import cw_mrg
+
 
 import q
 
-class Ospf(ConfigBase, OspfArgs):
+
+class Ospf(ConfigBase):
     """
     The eos_ospf class
     """
-
-    gather_subset = [
-        '!all',
-        '!min',
-    ]
-
-    gather_network_resources = [
-        'ospf',
-    ]
-
-    _have = None
-    _want = None
-    _tmplt = OspfTemplate()
-
-    def get_ospf_facts(self):
-        """ Get the 'facts' (the current configuration)
-
-        :rtype: A dictionary
-        :returns: The current configuration as a dictionary
-        """
-        facts, _warnings = Facts().get_facts(self._module,
-                                             self._connection,
-                                             self.gather_subset,
-                                             self.gather_network_resources)
-        ospf_facts = facts['ansible_network_resources'].get('ospf')
-        if not ospf_facts:
-            return {}
-        return ospf_facts
+    def __init__(self, module):
+        self._resource = 'ospf'
+        self._rmmod = RmModule(empty_fact_val={}, facts_module=Facts(),
+                               module=module, resource='ospf',
+                               tmplt=OspfTemplate())
 
     def execute_module(self):
         """ Execute the module
@@ -65,23 +42,9 @@ class Ospf(ConfigBase, OspfArgs):
         :rtype: A dictionary
         :returns: The result from module execution
         """
-        config = self._module.params['config']
-        self._want = Facts().generate_final_config(config)
-        self._have = self.get_ospf_facts()
-
-        result = {'changed': False}
-        result['before'] = deepcopy(self._have)
-        result['commands'], result['warnings'] = self.gen_config()
-
-        if result['commands']:
-            if not self._module.check_mode:
-                response = self._connection.edit_config(result['commands'])
-                responses = [r for r in response['response'] if r]
-                result['changed'] = True
-                result['warnings'].extend(responses)
-                result['after'] = self.get_ospf_facts()
-
-        return result
+        self.gen_config()
+        self._rmmod.run_commands()
+        return self._rmmod.result
 
     def gen_config(self):
         """ Select the appropriate function based on the state provided
@@ -90,13 +53,12 @@ class Ospf(ConfigBase, OspfArgs):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        state = self._module.params['state']
-        warnings = []
+        state = self._rmmod.state
 
         wantd = {str(entry['id']) + '_' + str(entry.get('vrf')): entry
-                 for entry in self._want.get('processes', [])}
+                 for entry in self._rmmod.want.get('processes', [])}
         haved = {str(entry['id']) + '_' + str(entry.get('vrf')): entry
-                 for entry in self._have.get('processes', [])}
+                 for entry in self._rmmod.have.get('processes', [])}
 
         # turn all lists of dicts into dicts
 
@@ -114,14 +76,14 @@ class Ospf(ConfigBase, OspfArgs):
 
         # for processes common to want/have overridden can be treated
         # like replaced
-        commands = []
         if state == 'overridden':
             eff_state = 'replaced'
         else:
             eff_state = state
         for k, want in wantd.items():
             have = haved.pop(k, {})
-            commands.extend(self._compare_process(eff_state, want, have))
+            res = self._compare_process(eff_state, want, have)
+            self._rmmod.cmd_wrn(res)
 
         # for processes only in have
         # overridded can be treated like deleted
@@ -132,111 +94,119 @@ class Ospf(ConfigBase, OspfArgs):
         # a vrf 'More than 1 OSPF instance is not supported'
         if state in ['overridden', 'deleted']:
             for k, have in haved.items():
-                commands[0:0] = self._tmplt.render(have, 'process_id', True)
-                commands[0:0] = self._compare_process('deleted', {}, have)
-
-        return commands, warnings
+                res = self._rmmod.render(have, 'process_id', True)
+                self._rmmod.cmd_wrn(res, prepend=True)
+                res = self._compare_process('deleted', {}, have)
+                self._rmmod.cmd_wrn(res, prepend=True)
 
     def _compare_process(self, state, want, have):
+        res = {'commands': [], 'warnings': []}
         parsers = ['adjacency.exchange_start.threshold',
                    'auto_cost.reference_bandwidth', 'bfd.all_interfaces',
                    'compatible.rfc1583', 'distance.external',
                    'distance.intra_area', 'distance.inter_area',
                    'distribute_list', 'dn_bit_ignore']
-        commands = []
-        commands.extend(self._compare(state, parsers, want, have))
-        commands.extend(self._compare_areas(state, want, have))
-        commands.extend(self._compare_default_information(state, want, have))
 
-        if commands and want:
-            commands = self._tmplt.render(want, 'process_id', False) + commands
-        elif commands and have:
-            commands = self._tmplt.render(have, 'process_id', False) + commands
-        return commands
+        res = cw_mrg(res, self._rmmod.compare(state, parsers, want, have))
+        res = cw_mrg(res, self._compare_areas(state, want, have))
+        res = cw_mrg(res, self._compare_default_information(state, want, have))
+        if res['commands'] and want:
+            tres = self._rmmod.render(want, 'process_id', False)
+            res['commands'][0:0] = tres['commands']
+            res['warnings'].extend(tres['warnings'])
+        elif res['commands'] and have:
+            tres = self._rmmod.render(have, 'process_id', False)
+            res['commands'][0:0] = tres['commands']
+            res['warnings'].extend(tres['warnings'])
+        return res
 
     def _compare_area(self, state, want, have):
-        commands = []
+        res = {'commands': [], 'warnings': []}
         match_keys = ['type', 'default_information']
-        if not self._compare_subdict(want, have, match_keys):
+        if not self._rmmod.compare_subdict(want, have, match_keys):
             if want.get('default_information', {}).get('originate'):
-                commands.extend(self._tmplt.render(want,
-                                                   'area.default_information',
-                                                   False))
+                res = cw_mrg(res, self._rmmod.render
+                             (want, 'area.default_information', False))
             elif want.get('no_summary') is not True:
-                commands.extend(self._tmplt.render(want, 'area', False))
-
-        commands.extend(self._compare_area_filters(state, want, have))
-        commands.extend(self._compare_area_ranges(state, want, have))
-        return commands
+                res = cw_mrg(res, self._rmmod.render(want, 'area', False))
+        res = cw_mrg(res, self._compare_area_filters(state, want, have))
+        res = cw_mrg(res, self._compare_area_ranges(state, want, have))
+        return res
 
     def _compare_area_filters(self, state, want, have):
-        commands = []
+        res = {'commands': [], 'warnings': []}
         need_filters = [filter for filter in want.get('filters', [])
                         if filter not in have.get('filters', [])]
         remove_filters = [filter for filter in have.get('filters', [])
                           if filter not in want.get('filters', [])]
         for afilter in need_filters:
             data = {'area': want['area'], 'filter': afilter}
-            commands.extend(self._tmplt.render(data, 'area.filter', False))
+            res = cw_mrg(res, self._rmmod.render(data, 'area.filter', False))
         if state == 'replaced':
             for afilter in remove_filters:
                 data = {'area': have['area'], 'filter': afilter}
-                commands.extend(self._tmplt.render(data, 'area.filter', True))
-        return commands
+                res = cw_mrg(res, self._rmmod.render
+                             (data, 'area.filter', True))
+        return res
 
     def _compare_area_ranges(self, state, want, have):
-        commands = []
+        res = {'commands': [], 'warnings': []}
         for rid, wrange in want.get('ranges', {}).items():
             hrange = have.get('ranges', {}).pop(rid, {})
             if wrange != hrange:
                 data = {'area': want['area'], 'range': wrange}
-                commands.extend(self._tmplt.render(data, 'area.range', False))
+                res = cw_mrg(res, self._rmmod.render
+                             (data, 'area.range', False))
         if state == 'replaced':
             for rid, hrange in have.get('ranges', {}).items():
                 data = {'area': have['area'], 'range': hrange}
-                commands.extend(self._tmplt.render(hrange, 'area.range', True))
-        return commands
+                res = cw_mrg(res, self._rmmod.render
+                             (hrange, 'area.range', True))
+        return res
 
     def _compare_areas(self, state, want, have):
+        res = {'commands': [], 'warnings': []}
         parsers = ['area.default_cost', 'area.no_summary', 'area.nssa_only']
-
-        commands = []
         for area_id, w_area in want.get('areas', {}).items():
             h_area = have.get('areas', {}).pop(area_id, {})
-            commands.extend(self._compare(state, parsers, {'area': w_area},
-                                          {'area': h_area}))
+            res = cw_mrg(res, self._rmmod.compare(state, parsers,
+                                                  {'area': w_area},
+                                                  {'area': h_area}))
             if state == 'deleted':
-                commands.extend(self._delete_area(h_area))
+                res = cw_mrg(res, self._delete_area(h_area))
             elif state in ['merged', 'replaced']:
-                commands.extend(self._compare_area(state, w_area, h_area))
+                res = cw_mrg(res, self._compare_area(state, w_area, h_area))
 
         for area_id, h_area in have.get('areas', {}).items():
-            commands.extend(self._compare(state, parsers, {'area': {}},
-                                          {'area': h_area}))
+            res = cw_mrg(res, self._rmmod.compare(state, parsers,
+                                                  {'area': {}},
+                                                  {'area': h_area}))
             if state in ['deleted', 'replaced']:
-                commands.extend(self._delete_area(h_area))
-        return commands
+                res = cw_mrg(res, self._delete_area(h_area))
+        return res
 
     def _compare_default_information(self, _state, want, have):
-        commands = []
-        if self._get_from_dict(want, 'default_information.originate'):
-            wdi = self._get_from_dict(want, 'default_information')
-            hdi = self._get_from_dict(have, 'default_information')
+        res = {'commands': [], 'warnings': []}
+        if self._rmmod.get_from_dict(want, 'default_information.originate'):
+            wdi = self._rmmod.get_from_dict(want, 'default_information')
+            hdi = self._rmmod.get_from_dict(have, 'default_information')
             if wdi != hdi:
-                commands.extend(self._tmplt.render(
-                    want, 'default_information', False))
+                res = cw_mrg(res, self._rmmod.render(want,
+                                                     'default_information',
+                                                     False))
         else:
-            commands.extend(self._tmplt.render(
-                have, 'default_information', True))
-        return commands
+            res = cw_mrg(res, self._rmmod.render(have,
+                                                 'default_information',
+                                                 True))
+        return res
 
     def _delete_area(self, area):
-        commands = []
+        res = {'commands': [], 'warnings': []}
         for ifilter in area.get('filters', []):
             data = {'area': area['area'], 'filter': ifilter}
-            commands.extend(self._tmplt.render(data, 'area.filter', True))
+            res = cw_mrg(res, self._rmmod.render(data, 'area.filter', True))
         for _rid, arange in area.get('ranges', {}).items():
             data = {'area': area['area'], 'range': arange['range']}
-            commands.extend(self._tmplt.render(data, 'area.range', True))
-        commands.extend(self._tmplt.render({'area': area}, 'area', True))
-        return commands
+            res = cw_mrg(res, self._rmmod.render(data, 'area.range', True))
+        res = cw_mrg(res, self._rmmod.render({'area': area}, 'area', True))
+        return res

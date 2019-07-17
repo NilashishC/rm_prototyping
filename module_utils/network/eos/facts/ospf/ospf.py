@@ -9,16 +9,35 @@ It is in this file the configuration is collected from the device
 for a given resource, parsed, and the facts tree is populated
 based on the configuration.
 """
+
+from copy import deepcopy
+
 from ansible.module_utils.network. \
     eos.facts.base import FactsBase
 from ansible.module_utils.network. \
     eos.rm_templates.ospf import OspfTemplate
+from ansible.module_utils.network.common import utils
 from ansible.module_utils.network.common.utils import dict_merge
+from ansible.module_utils.network.common.rm_module_parse import RmModuleParse
+from ansible.module_utils.network.eos.argspec.ospf.ospf import OspfArgs
 
 
 class OspfFacts(FactsBase):
     """ The nxos snmp fact class
     """
+    def __init__(self, module, subspec='config', options='options'):
+        self._module = module
+        self.argument_spec = OspfArgs.argument_spec
+        spec = deepcopy(self.argument_spec)
+        if subspec:
+            if options:
+                facts_argument_spec = spec[subspec][options]
+            else:
+                facts_argument_spec = spec[subspec]
+        else:
+            facts_argument_spec = spec
+
+        self.generated_spec = utils.generate_dict(facts_argument_spec)
 
     def populate_facts(self, module, connection):
         """ Populate the facts for snmp
@@ -30,8 +49,8 @@ class OspfFacts(FactsBase):
         """
 
         data = connection.get('sho run | section ospf')
-        ospf = OspfTemplate(lines=data.splitlines())
-        current = ospf.parse()
+        rmmod = RmModuleParse(lines=data.splitlines(), tmplt=OspfTemplate())
+        current = rmmod.parse()
 
         current = dict_merge(self.generated_spec, current)
         current = self.generate_final_config(current)
