@@ -1,3 +1,6 @@
-# eos_snmp
+# rm_prototypes
 
-This is an experimental, work in progress, ansible resource module using a new parseing engine for eos OSPF.
+This is an experimental, work in progress, ansible resource modules using a new parseing engine.
+
+- eos_ospf
+- nxos_snmp

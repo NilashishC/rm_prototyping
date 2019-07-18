@@ -22,11 +22,11 @@ def _tmplt_area_default_information(area):
 
 
 def _tmplt_area_range(arange):
-    command = "area {area} range {range[range]}".format(**arange)
-    if arange['range'].get('not_advertise') is True:
+    command = "area {area} range {range}".format(**arange)
+    if arange.get('not_advertise') is True:
         command += ' not-advertise'
-    if 'cost' in arange['range']:
-        command += ' cost {range[cost]}'.format(**arange)
+    if 'cost' in arange:
+        command += ' cost {cost}'.format(**arange)
     return command
 
 
@@ -113,7 +113,7 @@ class OspfTemplate(object):
             'getval': re.compile(r'''
                 \s+area\s(?P<area>\S+)\s
                 (?P<area_type>nssa|stub)$''', re.VERBOSE),
-            'setval': 'area {area[area]} {area[type]}',
+            'setval': 'area {area} {type}',
             'result': {
                 'processes': {
                     '{process_id}_{vrf}': {
@@ -131,7 +131,8 @@ class OspfTemplate(object):
             'getval': re.compile(r'''
                 \s+area\s(?P<area>\S+)\s
                 default-cost\s(?P<default_cost>\S+)$''', re.VERBOSE),
-            'setval': 'area {area[area]} default-cost {area[default_cost]}',
+            'setval': 'area {area} default-cost {default_cost}',
+            'compval': 'default_cost',
             'result': {
                 'processes': {
                     '{process_id}_{vrf}': {
@@ -205,7 +206,8 @@ class OspfTemplate(object):
                 \s+area\s(?P<area>\S+)\s
                 (?P<area_type>nssa|stub)\s
                 (?P<no_summary>no-summary)''', re.VERBOSE),
-            'setval': 'area {area[area]} {area[type]} no-summary',
+            'setval': 'area {area} {type} no-summary',
+            'compval': 'no_summary',
             'result': {
                 'processes': {
                     '{process_id}_{vrf}': {
@@ -228,7 +230,8 @@ class OspfTemplate(object):
                 \s+area\s(?P<area>\S+)\s
                 (?P<area_type>nssa|stub)
                 (\s(?P<a_nssa_only>nssa-only))?$''', re.VERBOSE),
-            'setval': 'area {area[area]} {area[type]} nssa-only',
+            'setval': 'area {area} {type} nssa-only',
+            'compval': 'nssa_only',
             'result': {
                 'processes': {
                     '{process_id}_{vrf}': {

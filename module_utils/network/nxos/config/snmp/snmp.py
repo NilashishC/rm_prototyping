@@ -12,16 +12,12 @@ created
 """
 
 
-
-from ansible.module_utils.network. \
-    nxos.rm_templates.snmp import SnmpTemplate
-from ansible.module_utils.network.common.utils import dict_merge
-from ansible.module_utils.network. \
-    nxos.facts.facts import Facts
-from ansible.module_utils.network.common.rm_module import RmModule
 from copy import deepcopy
+from ansible.module_utils.network.nxos.rm_templates.snmp import SnmpTemplate
+from ansible.module_utils.network.common.utils import dict_merge
+from ansible.module_utils.network.nxos.facts.facts import Facts
+from ansible.module_utils.network.common.rm_module import RmModule
 
-import q
 class Snmp(RmModule):
     """
     The nxos_snmp class
@@ -43,6 +39,7 @@ class Snmp(RmModule):
 
     def gen_config(self):
         state = self.state
+
         entries = ['aaa_user.cache_timeout', 'contact', 'enable',
                    'global_enforce_priv', 'location', 'packetsize',
                    'source_interface.informs', 'source_interface.traps']
@@ -60,32 +57,19 @@ class Snmp(RmModule):
             self._state_replaced()
 
     def _state_deleted(self):
-        """ The command generator when state is deleted
-
-        :rtype: A list
-        :returns: the commands necessary to remove the current configuration
-                  of the provided objects
-        """
-
         self._compare_users()
         # remove the engine id last, strange order bug in nxos
         # users become orphaned if engine_id changes
         self.addcmd(self.have, 'engine_id.local', True)
 
     def _state_merged(self):
-        """ The command generator when state is merged
-
-        :rtype: A list
-        :returns: the commands necessary to merge the provided into
-                  the current configuration
-        """
         # odd behaviour in nxos, if the engineId changes, user ACLs need
         # to be removed prior and then all exisiting reapplied
         inw = self.get_from_dict(self.want, 'engine_id.local')
         inh = self.get_from_dict(self.have, 'engine_id.local')
         if self.want.get('engine_id', {}).get('local') and (inw != inh):
             before = len(self.commands)
-            self._compare_users(state='deleted')
+            self._compare_users(state='deleted', want={}, have=self.have)
             if len(self.commands) != before:
                 self.warnings.append('SNMP users removed and reapplied'
                                      ' due to change in engine_id local.')
@@ -95,21 +79,15 @@ class Snmp(RmModule):
         self._compare_users()
 
     def _state_replaced(self):
-        """ The command generator when state is replaced
-
-        :rtype: A list
-        :returns: the commands necessary to migrate the current configuration
-                  to the desired configuration
-        """
         # odd behaviour in nxos, if the engineId changes, user ACLs need
         # to be removed prior and then only the want applied
         inw = self.get_from_dict(self.want, 'engine_id.local')
         inh = self.get_from_dict(self.have, 'engine_id.local')
         if self.want.get('engine_id', {}).get('local') and (inw != inh):
-            self._compare_users(state='deleted')
+            self._compare_users(state='deleted', want={}, have=self.have)
             self.addcmd(self.want, 'engine_id.local')
             before = len(self.commands)
-            self._compare_users(want=self.want, have={})
+            self._compare_users(want=self.have, have={})
             if len(self.commands) != before:
                 self.warnings.append('SNMP users removed and reapplied'
                                      ' due to change in engine_id local.')
@@ -171,9 +149,9 @@ class Snmp(RmModule):
             have = self.have
         if state is None:
             state = self.state
-        wantd = {entry['username'] + '_' + str(entry.get('engine_id')): entry
+        wantd = {(entry['username'], entry.get('engine_id')): entry
                  for entry in want.get('users', [])}
-        haved = {entry['username'] + '_' + str(entry.get('engine_id')): entry
+        haved = {(entry['username'], entry.get('engine_id')): entry
                  for entry in have.get('users', [])}
         if state == 'merged':
             wantd = dict_merge(haved, wantd)
@@ -203,15 +181,17 @@ class Snmp(RmModule):
         parsers = ['host.source_interface', 'host.vrf.use']
         self.compare(parsers=parsers, want=want, have=have)
 
-        wantd = {want['host'] + filter: dict_merge(want, {"filter": filter})
+        wantd = {filter: {"filter": filter}
                  for filter in self.get_from_dict(want, 'vrf.filter') or []}
-        haved = {want['host'] + filter: dict_merge(have, {"filter": filter})
+        haved = {filter: {"filter": filter}
                  for filter in self.get_from_dict(have, 'vrf.filter') or []}
         for name, entry in wantd.items():
-            self.compare(parsers=['host.vrf.filter'], want=entry,
-                         have=haved.pop(name, {}))
+            if entry != haved.pop(name, {}):
+                entry.update(want)
+                self.addcmd(entry, 'host.vrf.filter', False)
         for name, entry in haved.items():
-            self.compare(parsers=['host.vrf.filter'], want={}, have=entry)
+            entry.update(have)
+            self.addcmd(entry, 'host.vrf.filter', True)
 
     def _compare_user(self, want, have):
         match_keys = ['!enforce_priv', '!ipv4acl', '!ipv6acl']
