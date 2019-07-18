@@ -1,0 +1,111 @@
+- name: Set some values
+  set_fact:
+    users:
+    - aes_128: false
+      algorithm: md5
+      groups:
+      - network-operator
+      localized_key: true
+      password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      username: m01
+    - aes_128: false
+      algorithm: md5
+      engine_id: 0:0:0:63:0:1:0:10:20:15:10:3
+      localized_key: true
+      password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      username: m02
+    - aes_128: false
+      algorithm: md5
+      enforce_priv: true
+      groups:
+      - network-operator
+      localized_key: true
+      password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      privacy_password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      username: m03
+    - aes_128: true
+      algorithm: md5
+      groups:
+      - network-operator
+      localized_key: true
+      password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      privacy_password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      username: m04
+    - aes_128: false
+      algorithm: md5
+      engine_id: 0:0:0:63:0:1:0:10:20:15:10:3
+      localized_key: true
+      password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      privacy_password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      username: m05
+    - aes_128: true
+      algorithm: sha
+      engine_id: 0:0:0:63:0:1:0:10:20:15:10:3
+      localized_key: true
+      password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      privacy_password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      username: m06
+    - aes_128: false
+      algorithm: md5
+      groups:
+      - network-operator
+      localized_key: true
+      password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      username: s01
+    - aes_128: false
+      algorithm: md5
+      engine_id: 0:0:0:63:0:1:0:10:20:15:10:3
+      localized_key: true
+      password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      username: s02
+    - aes_128: false
+      algorithm: md5
+      groups:
+      - network-operator
+      localized_key: true
+      password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      privacy_password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      username: s03
+    - aes_128: true
+      algorithm: md5
+      groups:
+      - network-admin
+      - network-operator
+      localized_key: true
+      password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      privacy_password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      username: s04
+    - aes_128: false
+      algorithm: md5
+      engine_id: 0:0:0:63:0:1:0:10:20:15:10:3
+      localized_key: true
+      password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      privacy_password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      username: s05
+    - aes_128: true
+      algorithm: sha
+      engine_id: 0:0:0:63:0:1:0:10:20:15:10:3
+      localized_key: true
+      password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      privacy_password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      username: s06
+
+- name: Set the users
+  nxos_snmp:
+    config:
+      users: "{{ users }}"
+    state: merged
+  register: merged
+
+- name: Delete the users
+  nxos_snmp:
+    state: deleted
+  register: result
+
+- name: Check the users
+  assert:
+    that: "{{ result['before']['users'] | symmetric_difference(users) == merged['before']['users']|default([]) }}"
+
+- name: Check the after
+  assert:
+    that: "{{ result['after']['users']|default([]) == merged['before']['users']|default([]) }}"

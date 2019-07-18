@@ -7,7 +7,6 @@ class RmModuleRender(object):
         if not isinstance(parser_names, list):
             parser_names = [parser_names]
         commands = []
-        warnings = []
         for pname in parser_names:
             try:
                 if negate:
@@ -32,4 +31,4 @@ class RmModuleRender(object):
                 commands.append(res)
             except KeyError:
                 pass
-        return {'commands': commands, 'warnings': warnings}
+        return commands

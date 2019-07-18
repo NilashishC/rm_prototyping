@@ -1,0 +1,89 @@
+- name: Set some values
+  set_fact:
+    users_a:
+    - aes_128: false
+      algorithm: md5
+      groups:
+      - network-admin
+      - network-operator
+      ipv4acl: '10'
+      localized_key: true
+      password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      username: m01
+    - aes_128: false
+      algorithm: sha
+      groups:
+      - network-operator
+      localized_key: true
+      password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      username: m02
+    users_b:
+    - aes_128: true
+      algorithm: sha
+      ipv6acl: '15'
+      username: m01
+      privacy_password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+    - password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e70'
+      username: m02
+    - aes_128: false
+      algorithm: md5
+      groups:
+      - network-operator
+      localized_key: true
+      password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      privacy_password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      username: m03
+    desired:
+    - aes_128: true
+      algorithm: sha
+      groups:
+      - network-admin
+      - network-operator
+      ipv4acl: '10'
+      ipv6acl: '15'
+      localized_key: true
+      password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      privacy_password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      username: m01
+    - aes_128: false
+      algorithm: sha
+      groups:
+      - network-operator
+      localized_key: true
+      password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e70'
+      username: m02
+    - aes_128: false
+      algorithm: md5
+      groups:
+      - network-operator
+      localized_key: true
+      password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      privacy_password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      username: m03
+
+
+- name: Set the users
+  nxos_snmp:
+    config:
+      users: "{{ users_a }}"
+    state: merged
+  register: initial
+
+- name: Set the users
+  nxos_snmp:
+    config:
+      users: "{{ users_b }}"
+    state: merged
+  register: result
+
+- name: Reset the config
+  nxos_snmp:
+    state: deleted
+
+- name: Check the users
+  assert:
+    that: "{{ result['before']['users']|symmetric_difference(users_a) == initial['before']['users'] }}"
+
+- name: Check the users
+  assert:
+    that: "{{ result['after']['users']|symmetric_difference(desired) == initial['before']['users'] }}"

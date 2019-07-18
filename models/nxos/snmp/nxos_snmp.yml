@@ -1,0 +1,234 @@
+---
+GENERATOR_VERSION: '1.0'
+
+ANSIBLE_METADATA: |
+    {
+      'metadata_version': '1.1',
+      'status': ['preview'],
+      'supported_by': 'network'
+    }
+NETWORK_OS: nxos
+RESOURCE: snmp
+COPYRIGHT: Copyright 2019 Red Hat
+
+DOCUMENTATION: |
+  module: nxos_snmp
+  version_added: 2.9
+  short_description: Manage the SNMP configuration on NX-OS
+  description: Manage the SNMP configuration on NX-OS
+  author: Bradley Thornton (cidrblock)
+  notes:
+    - Tested against <network_os> 7.3.(0)D1(1) on VIRL
+  options:
+    config:
+      description: A dictionary of SNMP configuration attributes
+      type: dict
+      suboptions:
+        aaa_user:
+          description: Duration for which aaa-cached snmp user exists
+          type: dict
+          suboptions:
+            cache_timeout:
+              description: Timeout for which aaa-cached user exists(in secs)
+              type: int
+        communities:
+          type: list
+          elements: dict
+          suboptions:
+            community:
+              description:
+                - The SNMP community string
+              type: str
+            acl:
+              description:
+                - The acl applied to the SNMP community string
+              type: str
+            group:
+              description:
+              - Group to which the community belongs
+              type: str
+            ipv4acl:
+              description:
+                - The ipv4acl applied to the SNMP community string
+              type: str
+            ipv6acl:
+              description:
+                - The ipv6acl applied to the SNMP community string
+              type: str
+          mutually_exclusive: [['acl', 'ipv4acl'], ['acl', 'ipv6acl']]
+        contact:
+          description:
+          - The SNMP contact
+          type: str
+        enable:
+          description: Enable snmp protocol operations
+          type: bool
+        engine_id:
+          description: Configure a local SNMPv3 engineID
+          type: dict
+          suboptions:
+            local:
+              description: EngineID of the local agent
+              type: str
+        global_enforce_priv:
+          description:
+          - Globally enforce privacy for all the users
+          type: bool
+        hosts:
+          description:
+          - Specify hosts to receive SNMP notifications
+          type: list
+          elements: dict
+          suboptions:
+            community:
+              description:
+              - SNMP community string or SNMPv3 user name
+              type: str
+            host:
+              description:
+              - IPv4 or IPv6 address or DNS Name of SNMP notification host
+              type: str
+            message_type:
+              description:
+              - The message type to send to this host
+              type: str
+              choices:
+              - informs
+              - traps
+            security_level:
+              description:
+              - The SNMPv3 security Level
+              type: str
+              choices:
+              - auth
+              - priv
+            source_interface:
+              description:
+              - Source interface to be used for sending out SNMP notifications to this host
+              type: str
+            udp_port:
+              description:
+              - The notification host's UDP port number
+              type: int
+            version:
+              description:
+              - SNMP version to use for notification messages (1, 2c or 3)
+              type: str
+            vrf:
+              type: dict
+              suboptions:
+                filter:
+                  description:
+                  - Filters notifications to the notification host receiver based on the configured VRFs
+                  type: list
+                  elements: str
+                use:
+                  description:
+                  - Configures SNMP to use the selected VRF to communicate with the host receiver
+                  type: str
+
+
+
+        location:
+          description:
+          - The SNMP location
+          type: str
+        packetsize:
+          description: Largest SNMP packet size
+          type: int
+        source_interface:
+          description: Source interface to be used for sending out SNMP notifications
+          type: dict
+          suboptions:
+            informs:
+              description: Source interface for SNMP inform notifications
+              type: str
+            traps:
+              description: Source interface for SNMP trap notifications
+              type: str
+        traps:
+          type: list
+          elements: dict
+          suboptions:
+            type:
+              description: The type of traps to enable
+              type: str
+            names:
+              description: The names of the trap subtypes
+              type: list
+              elements: dict
+              suboptions:
+                name:
+                  description: The name of the trap subtype
+                  type: str
+                negate:
+                  description: Prepend the configuration line with 'no'
+                  type: bool
+        users:
+          type: list
+          elements: dict
+          suboptions:
+            username:
+              description:
+              - Name of the user
+              required: true
+              type: str
+            aes_128:
+              description:
+              - Use 128-bit AES algorithm for privacy
+              type: bool
+            algorithm:
+              description:
+              - Use HMAC MD5 or SHA algorithm for authentication
+              type: str
+              choices:
+              - md5
+              - sha
+            enforce_priv:
+              description: Enforce privacy for the user
+              type: bool
+            engine_id:
+              description:
+              - EngineID for configuring notif target user
+              type: str
+            groups:
+              description:
+              - Group names
+              type: list
+              elements: str
+            ipv4acl:
+              description:
+              - IPv4 ACL name to filter snmp requests
+              type: str
+            ipv6acl:
+              description:
+              - IPv6 ACL name to filter snmp requests
+              type: str
+            localized_key:
+              description:
+              - Specifies whether the passwords are in localized key format
+              type: bool
+            password:
+              description:
+              - Authentication password for user
+              type: str
+            privacy_password:
+              description:
+              - Privacy password for user
+              type: str
+    state:
+      description:
+        - The state the configuration should be left in.
+      type: str
+      choices:
+        - merged
+        - replaced
+        - overridden
+        - deleted
+        - template
+      default: merged
+EXAMPLES:
+- merged_example_01.txt
+- replaced_example_01.txt
+- overridden_example_01.txt
+- deleted_example_01.txt

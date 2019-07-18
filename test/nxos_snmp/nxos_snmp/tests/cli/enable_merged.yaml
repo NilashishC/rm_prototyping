@@ -1,0 +1,29 @@
+- name: Set some values
+  set_fact:
+    enablea: False
+    enableb: True
+
+- name: Set the enable
+  nxos_snmp:
+    config:
+      enable: "{{ enablea }}"
+    state: merged
+
+- name: Replace the enable
+  nxos_snmp:
+    config:
+      enable: "{{ enableb }}"
+    state: merged
+  register: result
+
+- name: Check the enable
+  assert:
+    that: "{{ result['before']['enable'] == enablea }}"
+
+- name: Check the enable
+  assert:
+    that: "{{ 'enable' not in result }}"
+
+- name: Reset the config
+  nxos_snmp:
+    state: deleted

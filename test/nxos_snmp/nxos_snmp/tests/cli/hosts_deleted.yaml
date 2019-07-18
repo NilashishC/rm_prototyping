@@ -1,0 +1,65 @@
+- name: Set some values
+  set_fact:
+    hosts:
+    - community: commstring
+      host: 1.1.1.1
+      message_type: traps
+      source_interface: Ethernet1/1
+      udp_port: 23
+      version: 2c
+      vrf:
+        filter:
+        - management1
+        use: management1
+    - community: commstring
+      host: 1.1.1.1
+      message_type: traps
+      source_interface: Ethernet1/2
+      version: 2c
+      vrf:
+        filter:
+        - management2
+        use: management2
+    - community: commstring
+      host: 1.1.1.1
+      message_type: traps
+      source_interface: Ethernet1/3
+      udp_port: 53
+      version: 2c
+      vrf:
+        filter:
+        - management31
+        - management32
+        - management33
+        use: management1
+    - community: commstring
+      host: 1.1.1.2
+      message_type: traps
+      security_level: auth
+      udp_port: 23
+      version: '3'
+    - community: commstring
+      host: 1.1.1.3
+      message_type: traps
+      security_level: priv
+      udp_port: 23
+      version: '3'
+
+- name: Set the hosts
+  nxos_snmp:
+    config:
+      hosts: "{{ hosts }}"
+    state: merged
+
+- name: Delete the hosts
+  nxos_snmp:
+    state: deleted
+  register: result
+
+- name: Check the hosts
+  assert:
+    that: "{{ result['before']['hosts'] == hosts }}"
+
+- name: Check the after
+  assert:
+    that: "{{ 'hosts' not in result }}"

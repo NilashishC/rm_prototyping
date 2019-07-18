@@ -1,0 +1,29 @@
+- name: Set some values
+  set_fact:
+    locationa: xxxxxxxxxxxxxxxxxxxxxx
+    locationb: yyyyyyyyyyyyyyyyyyyyyy
+
+- name: Set the location
+  nxos_snmp:
+    config:
+      location: "{{ locationa }}"
+    state: merged
+
+- name: Replace the location
+  nxos_snmp:
+    config:
+      location: "{{ locationb }}"
+    state: merged
+  register: result
+
+- name: Check the location
+  assert:
+    that: "{{ result['before']['location'] == locationa }}"
+
+- name: Check the location
+  assert:
+    that: "{{ result['after']['location'] == locationb }}"
+
+- name: Reset the config
+  nxos_snmp:
+    state: deleted

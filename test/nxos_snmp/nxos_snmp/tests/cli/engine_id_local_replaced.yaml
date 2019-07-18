@@ -1,0 +1,31 @@
+- name: Set some values
+  set_fact:
+    local_1: 00:00:00:00:01
+    local_2: 00:00:00:00:02
+
+- name: Set the engine_id_local
+  nxos_snmp:
+    config:
+      engine_id:
+        local: "{{ local_1 }}"
+    state: merged
+
+- name: Set the engine_id_local
+  nxos_snmp:
+    config:
+      engine_id:
+        local: "{{ local_2 }}"
+    state: replaced
+  register: result
+
+- name: Reset config
+  nxos_snmp:
+    state: deleted
+
+- name: Check the engine_id_local
+  assert:
+    that: "{{ result['before']['engine_id']['local'] == local_1 }}"
+
+- name: Check the engine_id_local
+  assert:
+    that: "{{ result['after']['engine_id']['local'] == local_2 }}"

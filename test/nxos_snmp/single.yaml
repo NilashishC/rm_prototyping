@@ -1,0 +1,18 @@
+- hosts: all
+  gather_facts: false
+  tasks:
+  - import_role:
+      name: "../../../eos_ospf"
+  - name: Reset the config
+    nxos_snmp:
+      state: deleted
+    register: result
+  - name: Collect cli test cases
+    find:
+      paths: "nxos_snmp/tests/cli"
+      patterns: "{{ test }}.yaml"
+      use_regex: true
+    connection: local
+    register: tests
+  - include: "{{ item['path'] }}"
+    with_items: "{{ tests['files'] }}"

@@ -1,0 +1,45 @@
+- name: Set some values
+  set_fact:
+    users:
+    - aes_128: false
+      algorithm: md5
+      groups:
+      - network-operator
+      ipv4acl: '10'
+      localized_key: true
+      password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      username: m01
+    - aes_128: false
+      algorithm: sha
+      groups:
+      - network-operator
+      localized_key: true
+      password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+      username: m02
+
+- name: Set the users
+  nxos_snmp:
+    config:
+      users: "{{ users }}"
+    state: merged
+  register: initial
+
+- name: Change the engine_id
+  nxos_snmp:
+    config:
+      engine_id:
+        local: 00:00:00:00:01
+    state: merged
+  register: result
+
+- name: Reset the config
+  nxos_snmp:
+    state: deleted
+
+- name: Check the users
+  assert:
+    that: "{{ result['before']['users']|symmetric_difference(users) == initial['before']['users'] }}"
+
+- name: Check the users
+  assert:
+    that: "{{ result['after']['users']|symmetric_difference(users) == initial['before']['users'] }}"

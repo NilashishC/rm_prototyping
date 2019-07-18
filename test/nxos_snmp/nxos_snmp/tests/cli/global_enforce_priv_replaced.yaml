@@ -1,0 +1,29 @@
+- name: Set some values
+  set_fact:
+    global_enforce_priva: True
+    global_enforce_privb: False
+
+- name: Set the global_enforce_priv
+  nxos_snmp:
+    config:
+      global_enforce_priv: "{{ global_enforce_priva }}"
+    state: merged
+
+- name: Replace the global_enforce_priv
+  nxos_snmp:
+    config:
+      global_enforce_priv: "{{ global_enforce_privb }}"
+    state: replaced
+  register: result
+
+- name: Check the global_enforce_priv
+  assert:
+    that: "{{ result['before']['global_enforce_priv'] == global_enforce_priva }}"
+
+- name: Check the global_enforce_priv
+  assert:
+    that: "{{ 'global_enforce_priv' not in result }}"
+
+- name: Reset the config
+  nxos_snmp:
+    state: deleted

@@ -1,0 +1,38 @@
+- name: Set some values
+  set_fact:
+    traps:
+    - names:
+      - name: server-state-change
+        negate: False
+      type: aaa
+    - names:
+      - name: newroot
+        negate: False
+      - name: topologychange
+        negate: False
+      type: bridge
+    - names:
+      - name: entity_mib_change
+        negate: True
+      - name: entity_module_status_change
+        negate: True
+      type: entity
+
+- name: Set the traps
+  nxos_snmp:
+    config:
+      traps: "{{ traps }}"
+    state: merged
+
+- name: Delete the traps
+  nxos_snmp:
+    state: deleted
+  register: result
+
+- name: Check the traps
+  assert:
+    that: "{{ result['before']['traps'] == traps }}"
+
+- name: Check the after
+  assert:
+    that: "{{ 'traps' not in result }}"

@@ -1,0 +1,23 @@
+- name: Set some values
+  set_fact:
+    cache_timeout: 1000
+
+- name: Set the cache_timeout
+  nxos_snmp:
+    config:
+      aaa_user:
+        cache_timeout: "{{ cache_timeout }}"
+    state: merged
+
+- name: Delete the cache_timeout
+  nxos_snmp:
+    state: deleted
+  register: result
+
+- name: Check the cache_timeout
+  assert:
+    that: "{{ result['before']['aaa_user']['cache_timeout'] == cache_timeout }}"
+
+- name: Check the cache_timeout
+  assert:
+    that: "{{ 'aaa_user' not in result['after'] }}"

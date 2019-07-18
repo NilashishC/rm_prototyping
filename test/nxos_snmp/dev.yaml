@@ -1,0 +1,67 @@
+- hosts: all
+  gather_facts: false
+  tasks:
+  - import_role:
+      name: "../../../eos_ospf"
+  - name: Apply some config
+    nxos_config:
+      lines:
+      - snmp-server user s02 network-operator auth md5 0x73fd9a2cc8c53ed3dd4ed8f4ff157e69 localizedkey
+      - snmp-server user s02 network-admin
+      - snmp-server user s02 auth md5 0x73fd9a2cc8c53ed3dd4ed8f4ff157e69 localizedkey engineID 0:0:0:63:0:1:0:10:20:15:10:3
+  - nxos_facts:
+      gather_subset: '!min'
+      gather_network_resources:
+      - snmp
+  - debug:
+      var: ansible_network_resources
+  - name: Reset the config
+    nxos_snmp:
+      state: deleted
+    register: result
+  # - name: pass to rm
+  #   nxos_snmp:
+  #     config:
+  #       communities:
+  #       - community: bleh
+  #         group: network-admin
+  #         ipv4acl: '6'
+  #         ipv6acl: '7'
+  #       hosts:
+  #       - community: commstring
+  #         host: 1.1.1.1
+  #         message_type: traps
+  #         source_interface: Ethernet1/1
+  #         udp_port: 23
+  #         version: 2c
+  #         vrf:
+  #           filter:
+  #           - management1
+  #           use: management1
+  #     state: replaced
+  #   register: result
+  #
+  # - debug:
+  #     var: result
+  # # - name: rm
+  # #   nxos_snmp:
+  # #     config:
+  # #       hosts:
+  # #       - community: commstring
+  # #         host: 1.1.1.1
+  # #         message_type: traps
+  # #         source_interface: Ethernet1/3
+  # #         udp_port: 53
+  # #         version: 2c
+  # #         vrf:
+  # #           filter:
+  # #           - management31
+  # #           - management32
+  # #           use: management1
+  # #     state: replaced
+  # #
+  # #
+  # - name: Reset the config
+  #   nxos_snmp:
+  #     state: deleted
+  #   register: result

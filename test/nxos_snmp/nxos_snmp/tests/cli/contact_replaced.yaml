@@ -1,0 +1,29 @@
+- name: Set some values
+  set_fact:
+    contacta: xxxxxxxxxxxxxxxxxxxxxx
+    contactb: yyyyyyyyyyyyyyyyyyyyyy
+
+- name: Set the contact
+  nxos_snmp:
+    config:
+      contact: "{{ contacta }}"
+    state: merged
+
+- name: Replace the contact
+  nxos_snmp:
+    config:
+      contact: "{{ contactb }}"
+    state: replaced
+  register: result
+
+- name: Check the contact
+  assert:
+    that: "{{ result['before']['contact'] == contacta }}"
+
+- name: Check the contact
+  assert:
+    that: "{{ result['after']['contact'] == contactb }}"
+
+- name: Reset the config
+  nxos_snmp:
+    state: deleted

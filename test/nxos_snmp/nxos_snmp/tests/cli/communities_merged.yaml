@@ -1,0 +1,86 @@
+- name: Set some values
+  set_fact:
+    communities_a:
+    - community: communitya
+      group: network-operator
+    - community: communityb
+      group: network-operator
+    - community: communityc
+      group: network-admin
+    - community: communityd
+      group: network-admin
+    - community: communitye
+      group: network-admin
+      ipv4acl: '6'
+    - community: communityf
+      group: network-admin
+      ipv6acl: '7'
+    communities_b:
+    - acl: '5'
+      community: communitya
+      group: network-admin
+    - community: communityb
+      group: network-admin
+      ipv4acl: '6'
+    - community: communityc
+      group: network-operator
+      ipv6acl: '7'
+    - community: communityd
+      group: network-admin
+      ipv4acl: '6'
+      ipv6acl: '7'
+    - community: communitye
+      group: network-admin
+      ipv6acl: '7'
+    - community: communityf
+      group: network-admin
+      ipv4acl: '6'
+    desired:
+    - acl: '5'
+      community: communitya
+      group: network-admin
+    - community: communityb
+      group: network-admin
+      ipv4acl: '6'
+    - community: communityc
+      group: network-operator
+      ipv6acl: '7'
+    - community: communityd
+      group: network-admin
+      ipv4acl: '6'
+      ipv6acl: '7'
+    - community: communitye
+      group: network-admin
+      ipv4acl: '6'
+      ipv6acl: '7'
+    - community: communityf
+      group: network-admin
+      ipv4acl: '6'
+      ipv6acl: '7'
+
+
+- name: Set the communities
+  nxos_snmp:
+    config:
+      communities: "{{ communities_a }}"
+    state: merged
+
+- name: Set the communities
+  nxos_snmp:
+    config:
+      communities: "{{ communities_b }}"
+    state: merged
+  register: result
+
+- name: Check the communities
+  assert:
+    that: "{{ result['before']['communities'] == communities_a }}"
+
+- name: Check the communities
+  assert:
+    that: "{{ result['after']['communities'] == desired }}"
+
+- name: Resest the config
+  nxos_snmp:
+    state: deleted
+  register: result

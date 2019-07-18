@@ -1,0 +1,101 @@
+- name: Set some values
+  set_fact:
+    hosts_a:
+    - community: commstring
+      host: 1.1.1.1
+      message_type: traps
+      source_interface: Ethernet1/1
+      udp_port: 23
+      version: 2c
+      vrf:
+        filter:
+        - management1
+        use: management1
+    - community: commstring
+      host: 1.1.1.1
+      message_type: informs
+      source_interface: Ethernet1/2
+      version: 2c
+      vrf:
+        filter:
+        - management2
+        use: management2
+    hosts_b:
+    - community: commstring
+      host: 1.1.1.1
+      udp_port: 23
+      version: '1'
+    - community: commstring
+      host: 1.1.1.1
+      vrf:
+        filter:
+        - management3
+        use: management3
+    - community: commstring
+      host: 1.1.1.3
+      message_type: traps
+      security_level: priv
+      udp_port: 23
+      version: '1'
+    - community: commstring
+      host: 1.1.1.3
+      message_type: traps
+      security_level: priv
+      udp_port: 23
+      version: '3'
+    desired:
+    - community: commstring
+      host: 1.1.1.1
+      message_type: traps
+      source_interface: Ethernet1/1
+      udp_port: 23
+      version: '1'
+      vrf:
+        filter:
+        - management1
+        use: management1
+    - community: commstring
+      host: 1.1.1.1
+      message_type: informs
+      source_interface: Ethernet1/2
+      version: 2c
+      vrf:
+        filter:
+        - management2
+        - management3
+        use: management3
+    - community: commstring
+      host: 1.1.1.3
+      message_type: traps
+      security_level: priv
+      udp_port: 23
+      version: '3'
+
+- name: Set the hosts
+  nxos_snmp:
+    config:
+      hosts: "{{ hosts_a }}"
+    state: merged
+
+- name: Set the hosts
+  nxos_snmp:
+    config:
+      hosts: "{{ hosts_b }}"
+    state: merged
+  register: result
+
+- debug:
+    var: result
+
+- name: Check the hosts
+  assert:
+    that: "{{ result['before']['hosts'] == hosts_a }}"
+
+- name: Check the hosts
+  assert:
+    that: "{{ result['after']['hosts'] == desired }}"
+
+- name: Resest the config
+  nxos_snmp:
+    state: deleted
+  register: result

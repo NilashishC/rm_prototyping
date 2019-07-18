@@ -31,7 +31,6 @@ class Ospf(ConfigBase):
     The eos_ospf class
     """
     def __init__(self, module):
-        self._resource = 'ospf'
         self._rmmod = RmModule(empty_fact_val={}, facts_module=Facts(),
                                module=module, resource='ospf',
                                tmplt=OspfTemplate())

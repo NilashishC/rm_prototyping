@@ -1,0 +1,5 @@
+- hosts: all
+  gather_facts: False
+  roles:
+  - "../../../eos_ospf"
+  - nxos_snmp

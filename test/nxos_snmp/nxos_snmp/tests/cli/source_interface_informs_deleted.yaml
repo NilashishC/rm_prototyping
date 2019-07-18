@@ -1,0 +1,23 @@
+- name: Set some values
+  set_fact:
+    informs: Ethernet1/1
+
+- name: Set the source_interface_informs
+  nxos_snmp:
+    config:
+      source_interface:
+        informs: "{{ informs }}"
+    state: merged
+
+- name: Delete the source_interface_informs
+  nxos_snmp:
+    state: deleted
+  register: result
+
+- name: Check the source_interface_informs
+  assert:
+    that: "{{ result['before']['source_interface']['informs'] == informs }}"
+
+- name: Check the source_interface_informs
+  assert:
+    that: "{{ 'source_interface' not in result['after'] }}"

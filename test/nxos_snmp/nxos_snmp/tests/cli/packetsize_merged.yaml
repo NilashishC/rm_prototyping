@@ -1,0 +1,29 @@
+- name: Set some values
+  set_fact:
+    packetsizea: 1000
+    packetsizeb: 2000
+
+- name: Set the packetsize
+  nxos_snmp:
+    config:
+      packetsize: "{{ packetsizea }}"
+    state: merged
+
+- name: Replace the packetsize
+  nxos_snmp:
+    config:
+      packetsize: "{{ packetsizeb }}"
+    state: merged
+  register: result
+
+- name: Check the packetsize
+  assert:
+    that: "{{ result['before']['packetsize'] == packetsizea }}"
+
+- name: Check the packetsize
+  assert:
+    that: "{{ result['after']['packetsize'] == packetsizeb }}"
+
+- name: Reset the config
+  nxos_snmp:
+    state: deleted

@@ -1,0 +1,35 @@
+- name: Set some values
+  set_fact:
+    communities:
+    - acl: '5'
+      community: communitya
+      group: network-operator
+    - community: communityb
+      group: network-admin
+      ipv4acl: '6'
+    - community: communityc
+      group: network-admin
+      ipv6acl: '7'
+    - community: communityd
+      group: network-admin
+      ipv4acl: '6'
+      ipv6acl: '7'
+
+- name: Set the communities
+  nxos_snmp:
+    config:
+      communities: "{{ communities }}"
+    state: merged
+
+- name: Delete the communities
+  nxos_snmp:
+    state: deleted
+  register: result
+
+- name: Check the communities
+  assert:
+    that: "{{ result['before']['communities'] == communities }}"
+
+- name: Check the after
+  assert:
+    that: "{{ 'communities' not in result }}"

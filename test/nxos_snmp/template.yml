@@ -1,0 +1,182 @@
+- hosts: all
+  gather_facts: False
+  vars:
+    config:
+        aaa_user:
+          cache_timeout: 7200
+        communities:
+        - acl: '5'
+          community: communitya
+          group: network-operator
+        - community: communityb
+          group: network-admin
+          ipv4acl: '6'
+        - community: communityc
+          group: network-admin
+          ipv6acl: '7'
+        - community: communityd
+          group: network-admin
+          ipv4acl: '6'
+          ipv6acl: '7'
+        contact: brad
+        enable: false
+        engine_id:
+          local: 00:00:00:00:01
+        global_enforce_priv: True
+        hosts:
+        - community: commstring
+          host: 1.1.1.1
+          message_type: traps
+          source_interface: Ethernet1/1
+          udp_port: 23
+          version: 2c
+          vrf:
+            filter:
+            - management1
+            use: management1
+        - community: commstring
+          host: 1.1.1.1
+          message_type: traps
+          source_interface: Ethernet1/2
+          version: 2c
+          vrf:
+            filter:
+            - management2
+            use: management2
+        - community: commstring
+          host: 1.1.1.1
+          message_type: traps
+          source_interface: Ethernet1/3
+          udp_port: 53
+          version: 2c
+          vrf:
+            filter:
+            - management31
+            - management32
+            - management33
+            use: management1
+        - community: commstring
+          host: 1.1.1.2
+          message_type: traps
+          security_level: auth
+          udp_port: 23
+          version: '3'
+        - community: commstring
+          host: 1.1.1.3
+          message_type: traps
+          security_level: priv
+          udp_port: 23
+          version: '3'
+        location: some string with a space
+        packetsize: 1376
+        source_interface:
+          traps: Ethernet1/1
+          informs: Ethernet1/1
+        traps:
+        - names:
+          - name: server-state-change
+            negate: False
+          type: aaa
+        - names:
+          - name: newroot
+            negate: False
+          - name: topologychange
+            negate: False
+          type: bridge
+        - names:
+          - name: entity_mib_change
+            negate: true
+          - name: entity_module_status_change
+            negate: true
+          type: entity
+        users:
+        - aes_128: false
+          algorithm: md5
+          group: network-operator
+          localized_key: true
+          password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+          username: m01
+        - aes_128: false
+          algorithm: md5
+          engine_id: 0:0:0:63:0:1:0:10:20:15:10:3
+          localized_key: true
+          password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+          username: m02
+        - aes_128: false
+          algorithm: md5
+          group: network-operator
+          localized_key: true
+          password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+          privacy_password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+          username: m03
+        - aes_128: true
+          algorithm: md5
+          group: network-operator
+          localized_key: true
+          password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+          privacy_password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+          username: m04
+        - aes_128: false
+          algorithm: md5
+          engine_id: 0:0:0:63:0:1:0:10:20:15:10:3
+          localized_key: true
+          password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+          privacy_password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+          username: m05
+        - aes_128: true
+          algorithm: sha
+          engine_id: 0:0:0:63:0:1:0:10:20:15:10:3
+          localized_key: true
+          password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+          privacy_password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+          username: m06
+        - aes_128: false
+          algorithm: md5
+          group: network-operator
+          localized_key: true
+          password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+          username: s01
+        - aes_128: false
+          algorithm: md5
+          engine_id: 0:0:0:63:0:1:0:10:20:15:10:3
+          localized_key: true
+          password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+          username: s02
+        - aes_128: false
+          algorithm: md5
+          group: network-operator
+          localized_key: true
+          password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+          privacy_password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+          username: s03
+        - aes_128: true
+          algorithm: md5
+          group: network-operator
+          localized_key: true
+          password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+          privacy_password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+          username: s04
+        - aes_128: false
+          algorithm: md5
+          engine_id: 0:0:0:63:0:1:0:10:20:15:10:3
+          localized_key: true
+          password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+          privacy_password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+          username: s05
+        - aes_128: true
+          algorithm: sha
+          engine_id: 0:0:0:63:0:1:0:10:20:15:10:3
+          localized_key: true
+          password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+          privacy_password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
+          username: s06
+  tasks:
+  - import_role:
+      name: "../../nxos_snmp"
+  - name: Set the config
+    nxos_snmp:
+      config: "{{ config }}"
+      state: template
+    register: desired
+  - debug:
+      var: desired

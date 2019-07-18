@@ -1,0 +1,31 @@
+- name: Set some values
+  set_fact:
+    traps_1: Ethernet1/1
+    traps_2: Ethernet1/2
+
+- name: Set the source_interface_traps
+  nxos_snmp:
+    config:
+      source_interface:
+        traps: "{{ traps_1 }}"
+    state: merged
+
+- name: Set the source_interface_traps
+  nxos_snmp:
+    config:
+      source_interface:
+        traps: "{{ traps_2 }}"
+    state: merged
+  register: result
+
+- name: Reset config
+  nxos_snmp:
+    state: deleted
+
+- name: Check the source_interface_traps
+  assert:
+    that: "{{ result['before']['source_interface']['traps'] == traps_1 }}"
+
+- name: Check the source_interface_traps
+  assert:
+    that: "{{ result['after']['source_interface']['traps'] == traps_2 }}"

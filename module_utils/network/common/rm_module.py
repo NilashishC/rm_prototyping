@@ -6,15 +6,9 @@ from copy import deepcopy
 
 from ansible.module_utils.connection import Connection
 from ansible.module_utils.network.common.utils import remove_empties
-from ansible.module_utils.network.common.utils import dict_merge as dmrg
 from ansible.module_utils.network.common.rm_module_render import RmModuleRender
 
-
-def cw_mrg(left, right):
-    left['commands'].extend(right['commands'])
-    left['warnings'].extend(right['warnings'])
-    return left
-
+import q
 
 class RmModule(RmModuleRender):
     def __init__(self, *args, **kwargs):
@@ -37,7 +31,6 @@ class RmModule(RmModuleRender):
         self.state = self._module.params['state']
         self.have = deepcopy(self.before)
         self.want = remove_empties(self._module.params['config'])
-
         super(RmModule, self).__init__(tmplt=self._tmplt)
 
     @property
@@ -49,13 +42,9 @@ class RmModule(RmModuleRender):
                   'warnings': self.warnings}
         return result
 
-    def cmd_wrn(self, cmd_wrn, prepend=False):
-        if prepend:
-            self.commands[0:0] = cmd_wrn['commands']
-            self.warnings[0:0] = cmd_wrn['warnings']
-        else:
-            self.commands.extend(cmd_wrn['commands'])
-            self.warnings.extend(cmd_wrn['warnings'])
+    def addcmd(self, data, tmplts, negate=False):
+        self.commands.extend(self.render(data, tmplts, negate))
+
 
     def get_facts(self, empty_val=None):
         """ Get the 'facts' (the current configuration)
@@ -107,40 +96,42 @@ class RmModule(RmModuleRender):
             if key not in rmkeys:
                 if key in kkeys or kkeys == 'all':
                     haved[key] = val
-
         return wantd == haved
 
-    def compare(self, state, parsers, want=None, have=None):
+    def compare(self, parsers, state=None, want=None, have=None):
         if want is None:
             want = self.want
         if have is None:
             have = self.have
-        res = {'commands': [], 'warnings': []}
+        if state is None:
+            state = self.state
         for parser in parsers:
-            inw = self.get_from_dict(want, parser)
-            inh = self.get_from_dict(have, parser)
+            compval = self._tmplt.PARSERS[parser].get('compval')
+            if not compval:
+                compval = parser
+            inw = self.get_from_dict(want, compval)
+            inh = self.get_from_dict(have, compval)
             if state == 'merged' and inw is not None and inw != inh:
                 if isinstance(inw, bool):
-                    res = dmrg(res, self.render(want, parser, not inw))
+                    self.addcmd(want, parser, not inw)
                 else:
-                    res = dmrg(res, self.render(want, parser, False))
+                    self.addcmd(want, parser, False)
             elif state == 'deleted' and inh is not None:
-                if isinstance(inw, bool):
-                    res = dmrg(res, self.render(have, parser, inh))
+                if isinstance(inh, bool):
+                    self.addcmd(have, parser, inh)
                 else:
-                    res = dmrg(res, self.render(have, parser, True))
+                    self.addcmd(have, parser, True)
             elif state == 'replaced' and inw is None and inh is not None:
                 if isinstance(inh, bool):
-                    res = dmrg(res, self.render(have, parser, inh))
+                    self.addcmd(have, parser, inh)
                 else:
-                    res = dmrg(res, self.render(have, parser, True))
+                    self.addcmd(have, parser, True)
             elif state == 'replaced' and inw is not None and inw is not None \
                     and inw != inh:
                 if isinstance(inw, bool):
-                    res = dmrg(res, self.render(want, parser, not inw))
+                    self.addcmd(want, parser, not inw)
                 else:
-                    res = dmrg(res, self.render(want, parser, False))
-        return res
+                    self.addcmd(want, parser, False)
 
     def run_commands(self):
         if self.commands:
