@@ -15,6 +15,8 @@ from ansible.module_utils.network.eos.rm_templates.ospf import OspfTemplate
 from ansible.module_utils.network.common.utils import dict_merge
 from ansible.module_utils.network.eos.facts.facts import Facts
 from ansible.module_utils.network.common.rm_module import RmModule
+from ansible.module_utils.network.common.rm_utils \
+  import get_from_dict, compare_subdict
 
 import q
 
@@ -92,9 +94,6 @@ class Ospf(RmModule):
         self.compare(parsers=parsers, want=want, have=have)
         self._compare_areas(want=want, have=have)
         self._compare_default_information(want, have)
-        # if len(self.commands) != begin:
-        #     self.commands.insert(begin, self.render(want or have,
-        #                                             'process_id', False)[0])
 
     def _compare_areas(self, want, have):
         wareas = want.get('areas', {})
@@ -109,7 +108,7 @@ class Ospf(RmModule):
         self.compare(parsers=parsers, want=want, have=have)
 
         match_keys = ['type', 'default_information']
-        if not self.compare_subdict(want, have, match_keys):
+        if not compare_subdict(want, have, match_keys):
             if want.get('default_information', {}).get('originate'):
                 self.addcmd(want, 'area.default_information', False)
             elif want.get('no_summary') is not True:
@@ -144,9 +143,9 @@ class Ospf(RmModule):
             self.addcmd(entry, 'area.range', True)
 
     def _compare_default_information(self, want, have):
-        if self.get_from_dict(want, 'default_information.originate'):
-            wdi = self.get_from_dict(want, 'default_information')
-            hdi = self.get_from_dict(have, 'default_information')
+        if get_from_dict(want, 'default_information.originate'):
+            wdi = get_from_dict(want, 'default_information')
+            hdi = get_from_dict(have, 'default_information')
             if wdi != hdi:
                 self.addcmd(want, 'default_information', False)
         else:

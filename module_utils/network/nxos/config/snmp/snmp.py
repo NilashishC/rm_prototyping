@@ -17,6 +17,8 @@ from ansible.module_utils.network.nxos.rm_templates.snmp import SnmpTemplate
 from ansible.module_utils.network.common.utils import dict_merge
 from ansible.module_utils.network.nxos.facts.facts import Facts
 from ansible.module_utils.network.common.rm_module import RmModule
+from ansible.module_utils.network.common.rm_utils \
+    import get_from_dict, compare_subdict
 
 class Snmp(RmModule):
     """
@@ -65,8 +67,8 @@ class Snmp(RmModule):
     def _state_merged(self):
         # odd behaviour in nxos, if the engineId changes, user ACLs need
         # to be removed prior and then all exisiting reapplied
-        inw = self.get_from_dict(self.want, 'engine_id.local')
-        inh = self.get_from_dict(self.have, 'engine_id.local')
+        inw = get_from_dict(self.want, 'engine_id.local')
+        inh = get_from_dict(self.have, 'engine_id.local')
         if self.want.get('engine_id', {}).get('local') and (inw != inh):
             before = len(self.commands)
             self._compare_users(state='deleted', want={}, have=self.have)
@@ -81,8 +83,8 @@ class Snmp(RmModule):
     def _state_replaced(self):
         # odd behaviour in nxos, if the engineId changes, user ACLs need
         # to be removed prior and then only the want applied
-        inw = self.get_from_dict(self.want, 'engine_id.local')
-        inh = self.get_from_dict(self.have, 'engine_id.local')
+        inw = get_from_dict(self.want, 'engine_id.local')
+        inh = get_from_dict(self.have, 'engine_id.local')
         if self.want.get('engine_id', {}).get('local') and (inw != inh):
             self._compare_users(state='deleted', want={}, have=self.have)
             self.addcmd(self.want, 'engine_id.local')
@@ -108,9 +110,9 @@ class Snmp(RmModule):
             self._delete_community(entry)
 
     def _compare_hosts(self):
-        wantd = {entry['host'] + '_' + str(entry.get('udp_port')): entry
+        wantd = {(entry['host'], entry.get('udp_port')): entry
                  for entry in self.want.get('hosts', [])}
-        haved = {entry['host'] + '_' + str(entry.get('udp_port')): entry
+        haved = {(entry['host'], entry.get('udp_port')): entry
                  for entry in self.have.get('hosts', [])}
         if self.state == 'merged':
             wantd = dict_merge(haved, wantd)
@@ -120,14 +122,14 @@ class Snmp(RmModule):
             self._delete_host(entry)
 
     def _compare_traps(self):
-        wantd = {trap['type'] + '_' + name['name']:
+        wantd = {(trap['type'], name['name']):
                  {'name': name['name'],
                   'negate': not name['negate'],
                   'type': trap['type']}
                  for trap in self.want.get('traps', [])
                  for name in trap['names']}
 
-        haved = {trap['type'] + '_' + name['name']:
+        haved = {(trap['type'], name['name']):
                  {'name': name['name'],
                   'negate': not name['negate'],
                   'type': trap['type']}
@@ -165,7 +167,7 @@ class Snmp(RmModule):
         self.compare(parsers=parsers, want=want, have=have)
 
         match_keys = ['ipv4acl', 'ipv6acl']
-        if not self.compare_subdict(want, have, match_keys):
+        if not compare_subdict(want, have, match_keys):
             if any([want.get(match_key) is not None
                     for match_key in match_keys]):
                 self._tmplt_community_acls(want, False)
@@ -175,16 +177,16 @@ class Snmp(RmModule):
 
     def _compare_host(self, want, have):
         match_keys = ['!source_interface', '!vrf']
-        if not self.compare_subdict(want, have, match_keys):
+        if not compare_subdict(want, have, match_keys):
             self.addcmd(want, 'host', False)
 
         parsers = ['host.source_interface', 'host.vrf.use']
         self.compare(parsers=parsers, want=want, have=have)
 
         wantd = {filter: {"filter": filter}
-                 for filter in self.get_from_dict(want, 'vrf.filter') or []}
+                 for filter in get_from_dict(want, 'vrf.filter') or []}
         haved = {filter: {"filter": filter}
-                 for filter in self.get_from_dict(have, 'vrf.filter') or []}
+                 for filter in get_from_dict(have, 'vrf.filter') or []}
         for name, entry in wantd.items():
             if entry != haved.pop(name, {}):
                 entry.update(want)
@@ -195,7 +197,7 @@ class Snmp(RmModule):
 
     def _compare_user(self, want, have):
         match_keys = ['!enforce_priv', '!ipv4acl', '!ipv6acl']
-        if not self.compare_subdict(want, have, match_keys):
+        if not compare_subdict(want, have, match_keys):
             if 'groups' in want:
                 for group in want['groups']:
                     if group in have.get('groups', []):
@@ -214,11 +216,11 @@ class Snmp(RmModule):
                     have['group'] = group
                     self.addcmd(have, 'users.group', True)
 
-        parsers = ['user.enforce_priv']
+        parsers = ['users.enforce_priv']
         self.compare(parsers=parsers, want=want, have=have)
 
         match_keys = ['ipv4acl', 'ipv6acl']
-        if not self.compare_subdict(want, have, match_keys):
+        if not compare_subdict(want, have, match_keys):
             if any([want.get(match_key) is not None
                     for match_key in match_keys]):
                 self._tmplt_user_acls(want, False)

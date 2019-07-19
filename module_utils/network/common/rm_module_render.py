@@ -3,32 +3,28 @@ class RmModuleRender(object):
     def __init__(self, tmplt):
         self._tmplt = tmplt
 
-    def render(self, data, parser_names, negate=False):
-        if not isinstance(parser_names, list):
-            parser_names = [parser_names]
-        commands = []
-        for pname in parser_names:
-            try:
-                if negate:
-                    tmplt = self._tmplt.PARSERS[pname].get('remval')
-                    if tmplt:
-                        if callable(tmplt):
-                            res = tmplt(data)
-                        else:
-                            res = tmplt.format(**data)
-                    else:
-                        tmplt = self._tmplt.PARSERS[pname]['setval']
-                        if callable(tmplt):
-                            res = 'no ' + tmplt(data)
-                        else:
-                            res = 'no ' + tmplt.format(**data)
-                else:
-                    tmplt = self._tmplt.PARSERS[pname]['setval']
-                    if callable(tmplt):
-                        res = tmplt(data)
-                    else:
-                        res = tmplt.format(**data)
-                commands.append(res)
-            except KeyError:
-                pass
-        return commands
+    def get_parser(self, name):
+        res = [p for p in self._tmplt.PARSERS if p['name'] == name]
+        return res[0]
+
+    @staticmethod
+    def _render(tmplt, data, negate):
+        if callable(tmplt):
+            res = tmplt(data)
+        else:
+            res = tmplt.format(**data)
+        if negate:
+            return 'no ' + res
+        return res
+
+    def render(self, data, parser_name, negate=False):
+        try:
+            if negate:
+                tmplt = self.get_parser(parser_name).get('remval') or \
+                        self.get_parser(parser_name)['setval']
+            else:
+                tmplt = self.get_parser(parser_name)['setval']
+            command = self._render(tmplt, data, negate)
+        except KeyError:
+            command = None
+        return command

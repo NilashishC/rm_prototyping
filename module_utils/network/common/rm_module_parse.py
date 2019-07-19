@@ -63,28 +63,19 @@ class RmModuleParse(object):
                     if wtmplt[ftkey] == 'None' or wtmplt[ftkey] is None:
                         wtmplt.pop(ftkey)
         return wtmplt
-    #
-    # @staticmethod
-    # def to_str(value):
-    #     if value is not None:
-    #         return str(value)
-    #     return value
 
     def parse(self):
         result = {}
         shared = {}
         for line in self._lines:
-            for _pname, parser in self._tmplt.PARSERS.items():
+            for parser in self._tmplt.PARSERS:
                 cap = re.match(parser['getval'], line)
                 if cap:
                     capdict = cap.groupdict()
-                    # capdict = {k: self.to_str(v) for k, v in capdict.items()}
-                    # cast all the values
                     for key, val in capdict.items():
                         if key in parser.get('cast', {}):
                             capdict[key] = getattr(self,
                                                    parser['cast'][key])(val)
-
                     if parser.get('shared'):
                         shared = capdict
                     vals = dict_merge(capdict, shared)

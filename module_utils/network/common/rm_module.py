@@ -1,12 +1,9 @@
 
-
-from functools import reduce  # forward compatibility for Python 3
-import operator
 from copy import deepcopy
-
 from ansible.module_utils.connection import Connection
 from ansible.module_utils.network.common.utils import remove_empties
 from ansible.module_utils.network.common.rm_module_render import RmModuleRender
+from ansible.module_utils.network.common.rm_utils import get_from_dict
 
 
 class RmModule(RmModuleRender):  # pylint: disable=R0902
@@ -23,7 +20,6 @@ class RmModule(RmModuleRender):  # pylint: disable=R0902
         self._connection = None
         self._get_connection()
 
-        self.after = None
         self.before = deepcopy(self.get_facts(self._empty_fact_val))
         self.changed = False
         self.commands = []
@@ -45,10 +41,12 @@ class RmModule(RmModuleRender):  # pylint: disable=R0902
                   'warnings': self.warnings}
         return result
 
-    def addcmd(self, data, tmplts, negate=False):
+    def addcmd(self, data, tmplt, negate=False):
         """ addcmd
         """
-        self.commands.extend(self.render(data, tmplts, negate))
+        command = self.render(data, tmplt, negate)
+        if command:
+            self.commands.append(command)
 
     def get_facts(self, empty_val=None):
         """ Get the 'facts' (the current configuration)
@@ -75,37 +73,6 @@ class RmModule(RmModuleRender):  # pylint: disable=R0902
         # pylint: enable=W0212
         return self._connection
 
-    @staticmethod
-    def get_from_dict(data_dict, keypath):
-        """ get from dictionary
-        """
-        map_list = keypath.split('.')
-        try:
-            return reduce(operator.getitem, map_list, data_dict)
-        except KeyError:
-            return None
-
-    @staticmethod
-    def compare_subdict(want, have, compare_keys):
-        """ compare
-        """
-        rmkeys = [ckey[1:] for ckey in compare_keys if ckey.startswith('!')]
-        kkeys = [ckey for ckey in compare_keys if not ckey.startswith('!')]
-        kkeys = kkeys or 'all'
-
-        wantd = {}
-        for key, val in want.items():
-            if key not in rmkeys:
-                if key in kkeys or kkeys == 'all':
-                    wantd[key] = val
-
-        haved = {}
-        for key, val in have.items():
-            if key not in rmkeys:
-                if key in kkeys or kkeys == 'all':
-                    haved[key] = val
-        return wantd == haved
-
     def compare(self, parsers, want=None, have=None):
         """ compare
         """
@@ -114,11 +81,11 @@ class RmModule(RmModuleRender):  # pylint: disable=R0902
         if have is None:
             have = self.have
         for parser in parsers:
-            compval = self._tmplt.PARSERS[parser].get('compval')
+            compval = self.get_parser(parser).get('compval')
             if not compval:
                 compval = parser
-            inw = self.get_from_dict(want, compval)
-            inh = self.get_from_dict(have, compval)
+            inw = get_from_dict(want, compval)
+            inh = get_from_dict(have, compval)
             if inw is not None and inw != inh:
                 if isinstance(inw, bool):
                     self.addcmd(want, parser, not inw)

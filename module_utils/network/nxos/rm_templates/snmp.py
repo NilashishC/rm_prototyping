@@ -57,10 +57,12 @@ def _tmplt_user(user):
         command.append(user['engine_id'])
     return " ".join(command)
 
+
 class SnmpTemplate(object):
 
-    PARSERS = {
-        'aaa_user.cache_timeout': {
+    PARSERS = [
+        {
+            'name': 'aaa_user.cache_timeout',
             'getval': re.compile(r'''
                 ^snmp-server\saaa-user\s
                 cache-timeout\s(?P<cache_val>\S+)$''', re.VERBOSE),
@@ -75,7 +77,8 @@ class SnmpTemplate(object):
                 'cache_val': 'to_int'
             }
         },
-        'communities': {
+        {
+            'name': 'communities',
             'getval': re.compile(r'''
                 ^snmp-server\s
                 community\s(?P<c_community>\S+)\s
@@ -91,7 +94,8 @@ class SnmpTemplate(object):
                 }
             }
         },
-        'communities.acl': {
+        {
+            'name': 'communities.acl',
             'getval': re.compile(r'''
                 ^snmp-server\s
                 community\s(?P<c_community>\S+)\s
@@ -107,7 +111,8 @@ class SnmpTemplate(object):
                 }
             }
         },
-        'communities.ipv4acl': {
+        {
+            'name': 'communities.ipv4acl',
             'getval': re.compile(r'''
                 ^snmp-server\s
                 community\s(?P<c_community>\S+)\s
@@ -123,7 +128,8 @@ class SnmpTemplate(object):
                 }
             }
         },
-        'communities.ipv6acl': {
+        {
+            'name': 'communities.ipv6acl',
             'getval': re.compile(r'''
                 ^snmp-server\s
                 community\s(?P<c_community>\S+)\s
@@ -139,7 +145,8 @@ class SnmpTemplate(object):
                 }
             }
         },
-        'communities.ipv4acl_ipv6acl': {
+        {
+            'name': 'communities.ipv4acl_ipv6acl',
             'getval': re.compile(r'''
               ^snmp-server\scommunity
               \s(?P<c_community>\S+)
@@ -159,15 +166,17 @@ class SnmpTemplate(object):
                 }
             }
         },
-        'contact': {
+        {
+            'name': 'contact',
             'getval': r'^snmp-server contact (?P<contact>.*)$',
             'setval': 'snmp-server contact {contact}',
-            'remval': 'no snmp-server contact',
+            'remval': 'snmp-server contact',
             'result': {
                 'contact': '{contact}'
             }
         },
-        'engine_id.local': {
+        {
+            'name': 'engine_id.local',
             'getval': r'^snmp-server engineID local (?P<engine_id>\S+)$',
             'setval': 'snmp-server engineID local {engine_id[local]}',
             'result': {
@@ -176,7 +185,8 @@ class SnmpTemplate(object):
                 }
             }
         },
-        'enable': {
+        {
+            'name': 'enable',
             'getval': r'^((?P<no>no)\s)?snmp-server protocol enable\s+$',
             'setval': 'snmp-server protocol enable',
             'result': {
@@ -186,7 +196,8 @@ class SnmpTemplate(object):
                 'no': 'no_means_false'
             }
         },
-        'global_enforce_priv': {
+        {
+            'name': 'global_enforce_priv',
             'getval': r'^((?P<no>no)\s)?snmp-server globalEnforcePriv$',
             'setval': 'snmp-server globalEnforcePriv',
             'result': {
@@ -196,7 +207,8 @@ class SnmpTemplate(object):
                 'no': 'no_means_false'
             }
         },
-        'host': {
+        {
+            'name': 'host',
             'getval': re.compile(r'''
                 ^snmp-server\shost\s
                 (?P<host>\S+)
@@ -225,7 +237,8 @@ class SnmpTemplate(object):
                 'udp_port': 'to_int'
             }
         },
-        'host.vrf.filter': {
+        {
+            'name': 'host.vrf.filter',
             'getval': re.compile(r'''
                ^snmp-server\shost\s
                (?P<host>\S+)\s
@@ -245,7 +258,8 @@ class SnmpTemplate(object):
                 }
             }
         },
-        'host.vrf.use': {
+        {
+            'name': 'host.vrf.use',
             'getval': re.compile(r'''
                ^snmp-server\shost\s
                (?P<host>\S+)\s
@@ -265,7 +279,8 @@ class SnmpTemplate(object):
                 }
             }
         },
-        'host.source_interface': {
+        {
+            'name': 'host.source_interface',
             'getval': re.compile(r'''
                 ^snmp-server\shost\s
                 (?P<host>\S+)\s
@@ -281,15 +296,17 @@ class SnmpTemplate(object):
                 }
             }
         },
-        'location': {
+        {
+            'name': 'location',
             'getval': r'^snmp-server location (?P<location>.*)$',
             'setval': 'snmp-server location {location}',
-            'remval': 'no snmp-server location',
+            'remval': 'snmp-server location',
             'result': {
                 'location': '{location}'
             }
         },
-        'packetsize': {
+        {
+            'name': 'packetsize',
             'getval': r'^snmp-server packetsize (?P<packetsize>.*)$',
             'setval': 'snmp-server packetsize {packetsize}',
             'result': {
@@ -299,7 +316,8 @@ class SnmpTemplate(object):
                 'packetsize': 'to_int'
             }
         },
-        'source_interface.informs': {
+        {
+            'name': 'source_interface.informs',
             'getval': r'^snmp-server source-interface informs (?P<int>\S+)$',
             'setval':
             'snmp-server source-interface informs {source_interface[informs]}',
@@ -309,7 +327,8 @@ class SnmpTemplate(object):
                 }
             }
         },
-        'source_interface.traps': {
+        {
+            'name': 'source_interface.traps',
             'getval': r'^snmp-server source-interface traps (?P<int>\S+)$',
             'setval':
             'snmp-server source-interface traps {source_interface[traps]}',
@@ -319,7 +338,8 @@ class SnmpTemplate(object):
                 }
             },
         },
-        'traps': {
+        {
+            'name': 'traps',
             'getval': re.compile(r'''
                   ^((?P<no>no)\s)?
                   snmp-server\senable\straps\s
@@ -342,7 +362,8 @@ class SnmpTemplate(object):
                 'no': 'no_means_true'
             }
         },
-        'users': {
+        {
+            'name': 'users',
             'getval': re.compile(r'''
               ^snmp-server\suser\s
               (?P<username>\S+)
@@ -373,7 +394,8 @@ class SnmpTemplate(object):
                 'localized_key': 'to_bool'
             },
         },
-        'user.enforce_priv': {
+        {
+            'name': 'users.enforce_priv',
             'getval': re.compile(r'''
               ^snmp-server\suser\s
               (?P<username>\S+)
@@ -392,7 +414,8 @@ class SnmpTemplate(object):
                 'enforce_priv': 'to_bool'
             }
         },
-        'users.group': {
+        {
+            'name': 'users.group',
             'getval': re.compile(r'''
               ^snmp-server\suser\s
               (?P<username>\S+)
@@ -407,7 +430,8 @@ class SnmpTemplate(object):
                 }
             },
         },
-        'users.ipv4acl': {
+        {
+            'name': 'users.ipv4acl',
             'getval': re.compile(r'''
               ^snmp-server\suser\s
               (?P<username>\S+)
@@ -423,7 +447,8 @@ class SnmpTemplate(object):
                 }
             }
         },
-        'users.ipv6acl': {
+        {
+            'name': 'users.ipv6acl',
             'getval': re.compile(r'''
                   ^snmp-server\suser\s
                   (?P<username>\S+)
@@ -440,7 +465,8 @@ class SnmpTemplate(object):
                 }
             }
         },
-        'users.ipv4acl_ipv6acl': {
+        {
+            'name': 'users.ipv4acl_ipv6acl',
             'getval': re.compile(r'''
               ^snmp-server\suser\s
               (?P<username>\S+)
@@ -459,5 +485,5 @@ class SnmpTemplate(object):
                     }
                 }
             }
-        },
-    }
+        }
+    ]

@@ -49,8 +49,9 @@ def _tmplt_default_information(proc):
 
 class OspfTemplate(object):
 
-    PARSERS = {
-        'process_id': {
+    PARSERS = [
+        {
+            'name': 'process_id',
             'getval': re.compile(r'''
                 ^router\sospf\s
                 (?P<process_id>\S+)
@@ -69,7 +70,8 @@ class OspfTemplate(object):
             },
             'shared': True
         },
-        'adjacency.exchange_start.threshold': {
+        {
+            'name': 'adjacency.exchange_start.threshold',
             'getval': re.compile(r'''
                 \s+adjacency\sexchange-start\sthreshold\s
                 (?P<aest>\d+)$''', re.VERBOSE),
@@ -90,7 +92,8 @@ class OspfTemplate(object):
                 'aest': 'to_int',
             },
         },
-        'auto_cost.reference_bandwidth': {
+        {
+            'name': 'auto_cost.reference_bandwidth',
             'getval': re.compile(r'''
                 \s+auto-cost\sreference-bandwidth\s
                 (?P<acrb>\d+)$''', re.VERBOSE),
@@ -109,7 +112,8 @@ class OspfTemplate(object):
                 'acrb': 'to_int',
             },
         },
-        'area': {
+        {
+            'name': 'area',
             'getval': re.compile(r'''
                 \s+area\s(?P<area>\S+)\s
                 (?P<area_type>nssa|stub)$''', re.VERBOSE),
@@ -127,7 +131,8 @@ class OspfTemplate(object):
                 },
             },
         },
-        'area.default_cost': {
+        {
+            'name': 'area.default_cost',
             'getval': re.compile(r'''
                 \s+area\s(?P<area>\S+)\s
                 default-cost\s(?P<default_cost>\S+)$''', re.VERBOSE),
@@ -149,7 +154,8 @@ class OspfTemplate(object):
                 'default_cost': 'to_int',
             },
         },
-        'area.filter': {
+        {
+            'name': 'area.filter',
             'getval': re.compile(r'''
                 \s+area\s(?P<area>\S+)\s
                 filter\s(?P<filter>\S+)$''', re.VERBOSE),
@@ -167,7 +173,8 @@ class OspfTemplate(object):
                 },
             },
         },
-        'area.default_information': {
+        {
+            'name': 'area.default_information',
             'getval': re.compile(r'''
                 \s+area\s(?P<area>\S+)\s
                 (?P<area_type>nssa|stub)\s
@@ -201,7 +208,8 @@ class OspfTemplate(object):
                 'd_nssa_only': 'true_or_none'
             }
         },
-        'area.no_summary': {
+        {
+            'name': 'area.no_summary',
             'getval': re.compile(r'''
                 \s+area\s(?P<area>\S+)\s
                 (?P<area_type>nssa|stub)\s
@@ -225,7 +233,8 @@ class OspfTemplate(object):
                 'no_summary': 'to_bool'
             }
         },
-        'area.nssa_only': {
+        {
+            'name': 'area.nssa_only',
             'getval': re.compile(r'''
                 \s+area\s(?P<area>\S+)\s
                 (?P<area_type>nssa|stub)
@@ -249,14 +258,15 @@ class OspfTemplate(object):
                 'a_nssa_only': 'true_or_none',
             },
         },
-        'area.range': {
+        {
+            'name': 'area.range',
             'getval': re.compile(r'''
                 \s+area\s(?P<area>\S+)\s
                 range\s(?P<range>\S+)
                 (\s(?P<not_advertise>not-advertise))?
                 (\scost\s(?P<cost>\d+))?$''', re.VERBOSE),
             'setval': _tmplt_area_range,
-            'remval': 'no area {area} range {range}',
+            'remval': 'area {area} range {range}',
             'result': {
                 'processes': {
                     '{process_id}_{vrf}': {
@@ -278,7 +288,8 @@ class OspfTemplate(object):
                 'not_advertise': 'true_or_none'
             }
         },
-        'bfd.all_interfaces': {
+        {
+            'name': 'bfd.all_interfaces',
             'getval': re.compile(r'''
                 \s+bfd\s
                 (?P<all_interfaces>all-interfaces)$''', re.VERBOSE),
@@ -296,7 +307,8 @@ class OspfTemplate(object):
                 'all_interfaces': 'true_or_none',
             },
         },
-        'compatible.rfc1583': {
+        {
+            'name': 'compatible.rfc1583',
             'getval': re.compile(r'''
                 \s+compatible\s
                 (?P<rfc1583>rfc1583)$''', re.VERBOSE),
@@ -314,7 +326,8 @@ class OspfTemplate(object):
                 'rfc1583': 'true_or_none',
             },
         },
-        'default_information': {
+        {
+            'name': 'default_information',
             'getval': re.compile(r'''
                 (\s+(?P<no_dio>no))?
                 \s+default-information\soriginate
@@ -343,7 +356,8 @@ class OspfTemplate(object):
                 'no_dio': 'no_means_false',
             },
         },
-        'distance.external': {
+        {
+            'name': 'distance.external',
             'getval': re.compile(r'''
                 \s+distance\sospf\sexternal\s
                 (?P<distance_external>\d+)$''', re.VERBOSE),
@@ -361,7 +375,8 @@ class OspfTemplate(object):
                 'distance_external': 'to_int',
             },
         },
-        'distance.intra_area': {
+        {
+            'name': 'distance.intra_area',
             'getval': re.compile(r'''
                 \s+distance\sospf\sintra-area\s
                 (?P<distance_intra_area>\d+)$''', re.VERBOSE),
@@ -379,7 +394,8 @@ class OspfTemplate(object):
                 'distance_intra_area': 'to_int',
             },
         },
-        'distance.inter_area': {
+        {
+            'name': 'distance.inter_area',
             'getval': re.compile(r'''
                 \s+distance\sospf\sinter-area\s
                 (?P<distance_inter_area>\d+)$''', re.VERBOSE),
@@ -397,7 +413,8 @@ class OspfTemplate(object):
                 'distance_inter_area': 'to_int',
             },
         },
-        'distribute_list': {
+        {
+            'name': 'distribute_list',
             'getval': re.compile(r'''
                 \s+distribute-list\s
                 (?P<dl_type>\S+)\s
@@ -415,7 +432,8 @@ class OspfTemplate(object):
                 },
             },
         },
-        'dn_bit_ignore': {
+        {
+            'name': 'dn_bit_ignore',
             'getval': re.compile(r'''\s+dn-bit-ignore$''', re.VERBOSE),
             'setval': 'dn-bit-ignore',
             'result': {
@@ -426,4 +444,4 @@ class OspfTemplate(object):
                 },
             },
         },
-    }
+    ]
