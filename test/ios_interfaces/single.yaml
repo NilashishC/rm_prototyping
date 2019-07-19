@@ -4,12 +4,12 @@
   - import_role:
       name: "../../../eos_ospf"
   - name: Reset the config
-    eos_ospf:
+    ios_interfaces:
       state: deleted
     register: result
   - name: Collect cli test cases
     find:
-      paths: "eos_ospf/tests/cli"
+      paths: "ios_interfaces/tests/cli"
       patterns: "{{ test }}.yaml"
       use_regex: true
     connection: local

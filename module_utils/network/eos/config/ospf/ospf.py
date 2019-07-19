@@ -18,14 +18,14 @@ from ansible.module_utils.network.common.rm_module import RmModule
 from ansible.module_utils.network.common.rm_utils \
   import get_from_dict, compare_subdict
 
-import q
 
 class Ospf(RmModule):
     """
     The eos_ospf class
     """
     def __init__(self, module):
-        super(Ospf, self).__init__(empty_fact_val={}, facts_module=Facts(),
+        super(Ospf, self).__init__(empty_fact_val={},
+                                   facts_module=Facts(module),
                                    module=module, resource='ospf',
                                    tmplt=OspfTemplate())
 

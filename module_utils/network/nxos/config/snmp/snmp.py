@@ -25,7 +25,8 @@ class Snmp(RmModule):
     The nxos_snmp class
     """
     def __init__(self, module):
-        super(Snmp, self).__init__(empty_fact_val={}, facts_module=Facts(),
+        super(Snmp, self).__init__(empty_fact_val={},
+                                   facts_module=Facts(module),
                                    module=module, resource='snmp',
                                    tmplt=SnmpTemplate())
         self.want = self.want

@@ -27,7 +27,7 @@ The module file for nxos_snmp
 """
 
 from __future__ import absolute_import, division, print_function
-__metaclass__ = type  # pylint: disable=C0103
+__metaclass__ = type
 
 ANSIBLE_METADATA = {
   'metadata_version': '1.1',
@@ -287,13 +287,9 @@ commands:
 """
 
 
-# pylint: disable=C0413
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.network. \
-    nxos.config.snmp.snmp import Snmp
 from ansible.module_utils.network.nxos.argspec.snmp.snmp import SnmpArgs
-
-# pylint: enable=C0413
+from ansible.module_utils.network.nxos.config.snmp.snmp import Snmp
 
 
 def main():

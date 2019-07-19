@@ -13,17 +13,17 @@ based on the configuration.
 from copy import deepcopy
 
 from ansible.module_utils.network. \
-    nxos.facts.base import FactsBase
-from ansible.module_utils.network. \
     nxos.rm_templates.snmp import SnmpTemplate
 from ansible.module_utils.network.common import utils
 from ansible.module_utils.network.common.utils import dict_merge
 from ansible.module_utils.network.common.rm_module_parse import RmModuleParse
 from ansible.module_utils.network.nxos.argspec.snmp.snmp import SnmpArgs
 
-class SnmpFacts(FactsBase):
+
+class SnmpFacts(object):
     """ The nxos snmp fact class
     """
+
     def __init__(self, module, subspec='config', options='options'):
         self._module = module
         self.argument_spec = SnmpArgs.argument_spec
@@ -38,11 +38,10 @@ class SnmpFacts(FactsBase):
 
         self.generated_spec = utils.generate_dict(facts_argument_spec)
 
-
-    def populate_facts(self, module, connection):
-        """ Populate the facts for snmp
-        :param module: the module instance
+    def populate_facts(self, connection, ansible_facts, data=None):
+        """ Populate the facts for interfaces
         :param connection: the device connection
+        :param ansible_facts: Facts dictionary
         :param data: previously collected conf
         :rtype: dictionary
         :returns: facts
@@ -52,14 +51,9 @@ class SnmpFacts(FactsBase):
         rmmod = RmModuleParse(lines=data.splitlines(), tmplt=SnmpTemplate())
         current = rmmod.parse()
 
-        current = dict_merge(self.generated_spec, current)
-        current = self.generate_final_config(current)
-
         # convert some of the dicts to lists
-        for key, sortv in [('communities', 'community'),
-                           ('hosts', 'host'),
-                           ('users', 'username'),
-                           ('traps', 'type')]:
+        for key, sortv in [('communities', 'community'), ('hosts', 'host'),
+                           ('users', 'username'), ('traps', 'type')]:
             if key in current and current[key]:
                 current[key] = current[key].values()
                 current[key] = sorted(current[key],
@@ -73,9 +67,14 @@ class SnmpFacts(FactsBase):
                 else:
                     user['groups'].sort()
 
-
+        ansible_facts['ansible_network_resources'].pop('snmp', None)
         facts = {}
         if current:
-            facts['snmp'] = dict(sorted(current.items()))
-        self.ansible_facts['ansible_network_resources'].update(facts)
-        return self.ansible_facts
+            params = utils.validate_config(self.argument_spec,
+                                           {'config': current})
+            params = utils.remove_empties(params)
+
+            facts['snmp'] = params['config']
+
+        ansible_facts['ansible_network_resources'].update(facts)
+        return ansible_facts

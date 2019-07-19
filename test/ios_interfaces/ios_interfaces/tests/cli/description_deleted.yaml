@@ -1,0 +1,27 @@
+- name: Set some values
+  set_fact:
+    config:
+    - description: my_desc
+      enable: true
+      name: GigabitEthernet1
+    desired:
+    - enable: true
+      name: GigabitEthernet1
+
+- name: Set the description
+  ios_interfaces:
+    config: "{{ config }}"
+    state: merged
+
+- name: Delete the description
+  ios_interfaces:
+    state: deleted
+  register: result
+
+- name: Check the description
+  assert:
+    that: "{{ result['before']|selectattr('name', 'equalto', 'GigabitEthernet1')|list == config }}"
+
+- name: Check the description
+  assert:
+    that: "{{ result['after']|selectattr('name', 'equalto', 'GigabitEthernet1')|list == desired }}"

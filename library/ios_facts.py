@@ -4,7 +4,7 @@
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
-The module file for eos_facts
+The module file for ios_facts
 """
 
 from __future__ import absolute_import, division, print_function
@@ -18,16 +18,16 @@ ANSIBLE_METADATA = {'metadata_version': '1.1',
 
 DOCUMENTATION = """
 ---
-module: eos_facts
+module: ios_facts
 version_added: 2.9
-short_description: Get facts about eos devices.
+short_description: Get facts about ios devices.
 description:
-  - Collects facts from network devices running the eos operating
+  - Collects facts from network devices running the ios operating
     system. This module places the facts gathered in the fact tree keyed by the
     respective resource name.  The facts module will always collect a
     base set of facts from the device and can enable or disable
     collection of additional facts.
-author: Bradley Thornton (cidrblock)
+author: Sumit Jaiswal (@justjais)
 options:
   gather_subset:
     description:
@@ -54,27 +54,27 @@ options:
 
 EXAMPLES = """
 # Gather all facts
-- eos_facts:
+- ios_facts:
     gather_subset: all
     gather_network_resources: all
 
-# Collect only the ospf facts
-- eos_facts:
+# Collect only the interfaces facts
+- ios_facts:
     gather_subset:
       - !all
       - !min
     gather_network_resources:
-      - ospf
+      - interfaces
 
-# Do not collect ospf facts
-- eos_facts:
+# Do not collect interfaces facts
+- ios_facts:
     gather_network_resources:
-      - "!ospf"
+      - "!interfaces"
 
-# Collect ospf and minimal default facts
-- eos_facts:
+# Collect interfaces and minimal default facts
+- ios_facts:
     gather_subset: min
-    gather_network_resources: ospf
+    gather_network_resources: interfaces
 """
 
 RETURN = """
@@ -82,8 +82,8 @@ See the respective resource module parameters for the tree.
 """
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.network.eos.argspec.facts.facts import FactsArgs
-from ansible.module_utils.network.eos.facts.facts import Facts
+from ansible.module_utils.network.ios.argspec.facts.facts import FactsArgs
+from ansible.module_utils.network.ios.facts.facts import Facts
 
 
 def main():

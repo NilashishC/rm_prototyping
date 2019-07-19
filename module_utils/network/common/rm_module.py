@@ -5,6 +5,7 @@ from ansible.module_utils.network.common.utils import remove_empties, to_list
 from ansible.module_utils.network.common.rm_module_render import RmModuleRender
 from ansible.module_utils.network.common.rm_utils import get_from_dict
 
+import q
 
 class RmModule(RmModuleRender):  # pylint: disable=R0902
     """ rm
@@ -27,7 +28,8 @@ class RmModule(RmModuleRender):  # pylint: disable=R0902
 
         self.state = self._module.params['state']
         self.have = deepcopy(self.before)
-        self.want = remove_empties(self._module.params['config'])
+        self.want = remove_empties(
+            self._module.params).get('config', self._empty_fact_val)
         super(RmModule, self).__init__(tmplt=self._tmplt)
 
     @property
@@ -65,10 +67,9 @@ class RmModule(RmModuleRender):  # pylint: disable=R0902
         """
         if empty_val is None:
             empty_val = []
-        facts, _warnings = self._facts_module.get_facts(self._module,
-                                                        self._connection,
-                                                        self._gather_subset,
-                                                        [self._resource])
+        facts, _warnings = self._facts_module.get_facts(
+            resource_facts_type=[self._resource])
+
         facts = facts['ansible_network_resources'].get(self._resource)
         if not facts:
             return empty_val

@@ -1,31 +1,33 @@
-#!/usr/bin/python
+#
 # -*- coding: utf-8 -*-
 # Copyright 2019 Red Hat
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
-The nxos snmp fact class
+The ios interfaces fact class
 It is in this file the configuration is collected from the device
 for a given resource, parsed, and the facts tree is populated
 based on the configuration.
 """
-
+import re
 from copy import deepcopy
 
-from ansible.module_utils.network. \
-    eos.rm_templates.ospf import OspfTemplate
 from ansible.module_utils.network.common import utils
+from ansible.module_utils.network.ios.argspec.interfaces.interfaces \
+    import InterfacesArgs
+
+from ansible.module_utils.network. \
+    ios.rm_templates.interfaces import InterfacesTemplate
 from ansible.module_utils.network.common.rm_module_parse import RmModuleParse
-from ansible.module_utils.network.eos.argspec.ospf.ospf import OspfArgs
 
 
-class OspfFacts(object):
-    """ The nxos snmp fact class
+class InterfacesFacts(object):
+    """ The ios interfaces fact class
     """
 
     def __init__(self, module, subspec='config', options='options'):
         self._module = module
-        self.argument_spec = OspfArgs.argument_spec
+        self.argument_spec = InterfacesArgs.argument_spec
         spec = deepcopy(self.argument_spec)
         if subspec:
             if options:
@@ -45,37 +47,19 @@ class OspfFacts(object):
         :rtype: dictionary
         :returns: facts
         """
-        data = connection.get('sho run | section ospf')
-        rmmod = RmModuleParse(lines=data.splitlines(), tmplt=OspfTemplate())
-        current = rmmod.parse()
+        data = connection.get('sho run | section interface')
+        rmmod = RmModuleParse(lines=data.splitlines(),
+                              tmplt=InterfacesTemplate())
+        current = rmmod.parse().values()
 
-        # convert some of the dicts to lists
-        for key, sortv in [('processes', 'id')]:
-            if key in current and current[key]:
-                current[key] = current[key].values()
-                current[key] = sorted(current[key],
-                                      key=lambda k, sk=sortv: k[sk])
-
-        for process in current.get('processes', []):
-            if 'areas' in process:
-                process['areas'] = process['areas'].values()
-                process['areas'] = sorted(process['areas'],
-                                          key=lambda k, sk='area': k[sk])
-                for area in process['areas']:
-                    if 'ranges' in area:
-                        area['ranges'] = sorted(area['ranges'],
-                                                key=lambda k, s='range': k[s])
-                    if 'filters' in area:
-                        area['filters'].sort()
-
-        ansible_facts['ansible_network_resources'].pop('ospf', None)
+        ansible_facts['ansible_network_resources'].pop('interfaces', None)
         facts = {}
         if current:
             params = utils.validate_config(self.argument_spec,
                                            {'config': current})
             params = utils.remove_empties(params)
 
-            facts['ospf'] = params['config']
+            facts['interfaces'] = params['config']
 
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts

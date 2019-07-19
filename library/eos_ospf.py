@@ -27,7 +27,7 @@ The module file for eos_ospf
 """
 
 from __future__ import absolute_import, division, print_function
-__metaclass__ = type  # pylint: disable=C0103
+__metaclass__ = type
 
 ANSIBLE_METADATA = {
   'metadata_version': '1.1',
@@ -241,13 +241,9 @@ commands:
 """
 
 
-# pylint: disable=C0413
 from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.network. \
-    eos.config.ospf.ospf import Ospf
 from ansible.module_utils.network.eos.argspec.ospf.ospf import OspfArgs
-
-# pylint: enable=C0413
+from ansible.module_utils.network.eos.config.ospf.ospf import Ospf
 
 
 def main():

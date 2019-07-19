@@ -37,6 +37,12 @@ class RmModuleParse(object):
             return True
         return None
 
+    @staticmethod
+    def false_or_none(string):
+        if string:
+            return False
+        return None
+
     def _deepformat(self, tmplt, data):
         wtmplt = deepcopy(tmplt)
 

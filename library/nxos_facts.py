@@ -8,10 +8,8 @@ The module file for nxos_facts
 """
 
 from __future__ import absolute_import, division, print_function
-from ansible.module_utils.basic import AnsibleModule
-from ansible.module_utils.connection import Connection
-from ansible.module_utils.network. \
-    nxos.facts.facts import Facts
+__metaclass__ = type
+
 
 ANSIBLE_METADATA = {'metadata_version': '1.1',
                     'status': ['preview'],
@@ -29,7 +27,7 @@ description:
     respective resource name.  The facts module will always collect a
     base set of facts from the device and can enable or disable
     collection of additional facts.
-author: Trishna Guha (@trishnaguha)
+author: Bradley Thornton (cidrblock)
 options:
   gather_subset:
     description:
@@ -83,6 +81,10 @@ RETURN = """
 See the respective resource module parameters for the tree.
 """
 
+from ansible.module_utils.basic import AnsibleModule
+from ansible.module_utils.network.nxos.argspec.facts.facts import FactsArgs
+from ansible.module_utils.network.nxos.facts.facts import Facts
+
 
 def main():
     """
@@ -90,17 +92,12 @@ def main():
 
     :returns: ansible_facts
     """
-    module = AnsibleModule(argument_spec=Facts.argument_spec,
+    module = AnsibleModule(argument_spec=FactsArgs.argument_spec,
                            supports_check_mode=True)
+    warnings = ['default value for `gather_subset` '
+                'will be changed to `min` from `!config` v2.11 onwards']
 
-    warnings = [('default value for `gather_subset`'
-                 ' will be changed to `min` from `!config` v2.11 onwards')]
-
-    connection = Connection(module._socket_path)  # pylint: disable=W0212
-    gather_subset = module.params['gather_subset']
-    gather_network_resources = module.params['gather_network_resources']
-    result = Facts().get_facts(module, connection, gather_subset,
-                               gather_network_resources)
+    result = Facts(module).get_facts()
 
     ansible_facts, additional_warnings = result
     warnings.extend(additional_warnings)
