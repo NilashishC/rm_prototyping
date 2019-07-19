@@ -1,0 +1,47 @@
+- name: Set some values
+  set_fact:
+    processes_a:
+    - id: 100
+      areas:
+      - area: 0.0.0.5
+        default_cost: 100
+        no_summary: true
+        type: stub
+    - id: 200
+      vrf: blue
+    processes_b:
+    - id: 200
+      vrf: blue
+    desired:
+    - id: 100
+      areas:
+      - area: 0.0.0.5
+        default_cost: 100
+        no_summary: true
+        type: stub
+        
+- name: Set the processes
+  eos_ospf:
+    config:
+      processes: "{{ processes_a }}"
+    state: merged
+  register: merged
+
+- name: Delete the processes
+  eos_ospf:
+    config:
+      processes: "{{ processes_b }}"
+    state: deleted
+  register: result
+
+- name: Reset the config
+  eos_ospf:
+    state: deleted
+
+- name: Check the processes
+  assert:
+    that: "{{ result['before']['processes'] == processes_a }}"
+
+- name: Check the processes
+  assert:
+    that: "{{ result['after']['processes'] == desired }}"

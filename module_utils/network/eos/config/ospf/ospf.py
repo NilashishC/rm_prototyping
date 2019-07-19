@@ -16,6 +16,8 @@ from ansible.module_utils.network.common.utils import dict_merge
 from ansible.module_utils.network.eos.facts.facts import Facts
 from ansible.module_utils.network.common.rm_module import RmModule
 
+import q
+
 class Ospf(RmModule):
     """
     The eos_ospf class
@@ -61,6 +63,13 @@ class Ospf(RmModule):
         if self.state == 'merged':
             wantd = dict_merge(haved, wantd)
 
+        # if state is deleted, limit the have to anything in want
+        # set want to nothing
+        if self.state == 'deleted':
+            haved = {k: v for k, v in haved.items()
+                     if k in wantd or not wantd}
+            wantd = {}
+
         # delete processes first so we do run into "more than one" errs
         if self.state in ['overridden', 'deleted']:
             for k, have in haved.items():
@@ -72,19 +81,20 @@ class Ospf(RmModule):
             self._compare_process(want=want, have=haved.pop(k, {}))
 
     def _compare_process(self, want, have):
-        begin = len(self.commands)
+        # begin = len(self.commands)
         parsers = ['adjacency.exchange_start.threshold',
                    'auto_cost.reference_bandwidth', 'bfd.all_interfaces',
                    'compatible.rfc1583', 'distance.external',
                    'distance.intra_area', 'distance.inter_area',
                    'distribute_list', 'dn_bit_ignore']
 
+        self.addcmd(want or have, 'process_id', False)
         self.compare(parsers=parsers, want=want, have=have)
         self._compare_areas(want=want, have=have)
         self._compare_default_information(want, have)
-        if len(self.commands) != begin:
-            self.commands.insert(begin, self.render(want or have,
-                                                    'process_id', False)[0])
+        # if len(self.commands) != begin:
+        #     self.commands.insert(begin, self.render(want or have,
+        #                                             'process_id', False)[0])
 
     def _compare_areas(self, want, have):
         wareas = want.get('areas', {})
