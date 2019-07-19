@@ -28,6 +28,7 @@ class Snmp(RmModule):
         super(Snmp, self).__init__(empty_fact_val={}, facts_module=Facts(),
                                    module=module, resource='snmp',
                                    tmplt=SnmpTemplate())
+        self.want = self.want
 
     def execute_module(self):
         """ Execute the module
@@ -35,153 +36,108 @@ class Snmp(RmModule):
         :rtype: A dictionary
         :returns: The result from module execution
         """
+        self.xform()
         self.gen_config()
         self.run_commands()
         return self.result
 
-    def gen_config(self):
-        state = self.state
+    def xform(self):
+        """ xform
+        """
+        # convert lists of dicts into dicts, keyed on the uid of the obj
+        for thing in self.want, self.have:
+            thing['communities'] = {entry['community']: entry
+                                    for entry in thing.get('communities', [])}
+            thing['hosts'] = {(entry['host'], entry.get('udp_port')): entry
+                              for entry in thing.get('hosts', [])}
+            thing['traps'] = {(trap['type'], name['name']):
+                              {'name': name['name'],
+                               'negate': not name['negate'],
+                               'type': trap['type']}
+                              for trap in thing.get('traps', [])
+                              for name in trap['names']}
+            thing['users'] = {(entry['username'], entry.get('engine_id')):
+                              entry for entry in thing.get('users', [])}
 
+        # if state is merged, merge want onto have
+        if self.state == 'merged':
+            self.want = dict_merge(self.have, self.want)
+
+    def gen_config(self):
+        """ gen config
+        """
         entries = ['aaa_user.cache_timeout', 'contact', 'enable',
                    'global_enforce_priv', 'location', 'packetsize',
                    'source_interface.informs', 'source_interface.traps']
-
         self.compare(entries)
-        self._compare_communities()
-        self._compare_hosts()
-        self._compare_traps()
-
-        if state == 'deleted':
-            self._state_deleted()
-        elif state in ['merged', 'template']:
-            self._state_merged()
-        elif state == 'replaced':
-            self._state_replaced()
-
-    def _state_deleted(self):
-        self._compare_users()
-        # remove the engine id last, strange order bug in nxos
-        # users become orphaned if engine_id changes
-        self.addcmd(self.have, 'engine_id.local', True)
-
-    def _state_merged(self):
-        # odd behaviour in nxos, if the engineId changes, user ACLs need
-        # to be removed prior and then all exisiting reapplied
-        inw = get_from_dict(self.want, 'engine_id.local')
-        inh = get_from_dict(self.have, 'engine_id.local')
-        if self.want.get('engine_id', {}).get('local') and (inw != inh):
-            before = len(self.commands)
-            self._compare_users(state='deleted', want={}, have=self.have)
-            if len(self.commands) != before:
-                self.warnings.append('SNMP users removed and reapplied'
-                                     ' due to change in engine_id local.')
-            self.addcmd(self.want, 'engine_id.local')
-            self._compare_users(want=self.have, have={})
-
-        self._compare_users()
-
-    def _state_replaced(self):
-        # odd behaviour in nxos, if the engineId changes, user ACLs need
-        # to be removed prior and then only the want applied
-        inw = get_from_dict(self.want, 'engine_id.local')
-        inh = get_from_dict(self.have, 'engine_id.local')
-        if self.want.get('engine_id', {}).get('local') and (inw != inh):
-            self._compare_users(state='deleted', want={}, have=self.have)
-            self.addcmd(self.want, 'engine_id.local')
-            before = len(self.commands)
-            self._compare_users(want=self.have, have={})
-            if len(self.commands) != before:
-                self.warnings.append('SNMP users removed and reapplied'
-                                     ' due to change in engine_id local.')
-
+        self._communities_compare()
+        self._hosts_compare()
+        self._traps_compare()
+        if self.state == 'deleted':
+            self._users_compare()
+            self.compare(['engine_id.local'])
         else:
-            self._compare_users()
+            self._engine_id_users()
+            self.compare(['engine_id.local'])
+            self._users_compare()
 
-    def _compare_communities(self):
-        wantd = {entry['community']: entry
-                 for entry in self.want.get('communities', [])}
-        haved = {entry['community']: entry
-                 for entry in self.have.get('communities', [])}
-        if self.state == 'merged':
-            wantd = dict_merge(haved, wantd)
-        for community, entry in wantd.items():
-            self._compare_community(entry, haved.pop(community, {}))
-        for community, entry in haved.items():
-            self._delete_community(entry)
+    def _engine_id_users(self):
+        inw = get_from_dict(self.want, 'engine_id.local')
+        inh = get_from_dict(self.have, 'engine_id.local')
+        if inw and (inw != inh):
+            actual_wanted_users = self.want['users']
+            self.want['users'] = {}
+            self._users_compare()
+            self.warnings.append('Existing SNMP users removed and readded'
+                                 ' as needed due to change in'
+                                 ' engine_id local.')
+            self.want['users'] = actual_wanted_users
+            self.have['users'] = {}
 
-    def _compare_hosts(self):
-        wantd = {(entry['host'], entry.get('udp_port')): entry
-                 for entry in self.want.get('hosts', [])}
-        haved = {(entry['host'], entry.get('udp_port')): entry
-                 for entry in self.have.get('hosts', [])}
-        if self.state == 'merged':
-            wantd = dict_merge(haved, wantd)
-        for host, entry in wantd.items():
-            self._compare_host(entry, haved.pop(host, {}))
-        for host, entry in haved.items():
-            self._delete_host(entry)
+    def _communities_compare(self):
+        want = self.want['communities']
+        have = self.have['communities']
+        for name, entry in want.items():
+            self._community_compare(entry, have.pop(name, {}))
+        for name, entry in have.items():
+            self._community_delete(entry)
 
-    def _compare_traps(self):
-        wantd = {(trap['type'], name['name']):
-                 {'name': name['name'],
-                  'negate': not name['negate'],
-                  'type': trap['type']}
-                 for trap in self.want.get('traps', [])
-                 for name in trap['names']}
-
-        haved = {(trap['type'], name['name']):
-                 {'name': name['name'],
-                  'negate': not name['negate'],
-                  'type': trap['type']}
-                 for trap in self.have.get('traps', [])
-                 for name in trap['names']}
-
-        if self.state == 'merged':
-            wantd = dict_merge(haved, wantd)
-        for name, entry in wantd.items():
-            self.compare(parsers=['traps'], want=entry,
-                         have=haved.pop(name, {}))
-        for name, entry in haved.items():
-            self.compare(parsers=['traps'], want={}, have=entry)
-
-    def _compare_users(self, state=None, want=None, have=None):
-        if want is None:
-            want = self.want
-        if have is None:
-            have = self.have
-        if state is None:
-            state = self.state
-        wantd = {(entry['username'], entry.get('engine_id')): entry
-                 for entry in want.get('users', [])}
-        haved = {(entry['username'], entry.get('engine_id')): entry
-                 for entry in have.get('users', [])}
-        if state == 'merged':
-            wantd = dict_merge(haved, wantd)
-        for name, entry in wantd.items():
-            self._compare_user(entry, haved.pop(name, {}))
-        for name, entry in haved.items():
-            self._delete_user(entry)
-
-    def _compare_community(self, want, have):
+    def _community_compare(self, want, have):
         parsers = ['communities', 'communities.acl']
-        self.compare(parsers=parsers, want=want, have=have)
-
+        self.compare(parsers, want, have)
         match_keys = ['ipv4acl', 'ipv6acl']
         if not compare_subdict(want, have, match_keys):
             if any([want.get(match_key) is not None
                     for match_key in match_keys]):
-                self._tmplt_community_acls(want, False)
+                self._community_acls(want, False)
             else:
-                if self.state == 'replaced':
-                    self._tmplt_community_acls(have, True)
+                self._community_acls(have, True)
 
-    def _compare_host(self, want, have):
+    def _community_delete(self, community):
+        self._community_acls(community, True)
+        self.addcmd(community, 'communities.acl', True)
+        self.addcmd(community, 'communities', True)
+
+    def _community_acls(self, community, negate):
+        parsers = ['communities.ipv4acl_ipv6acl', 'communities.ipv4acl',
+                   'communities.ipv6acl']
+        self.addcmd_first_found(community, parsers, negate)
+
+    def _hosts_compare(self):
+        want = self.want['hosts']
+        have = self.have['hosts']
+        for name, entry in want.items():
+            self._host_compare(entry, have.pop(name, {}))
+        for name, entry in have.items():
+            self._host_delete(entry)
+
+    def _host_compare(self, want, have):
         match_keys = ['!source_interface', '!vrf']
         if not compare_subdict(want, have, match_keys):
             self.addcmd(want, 'host', False)
 
         parsers = ['host.source_interface', 'host.vrf.use']
-        self.compare(parsers=parsers, want=want, have=have)
+        self.compare(parsers, want, have)
 
         wantd = {filter: {"filter": filter}
                  for filter in get_from_dict(want, 'vrf.filter') or []}
@@ -195,7 +151,31 @@ class Snmp(RmModule):
             entry.update(have)
             self.addcmd(entry, 'host.vrf.filter', True)
 
-    def _compare_user(self, want, have):
+    def _host_delete(self, host):
+        self.addcmd(host, 'host.source_interface', True)
+        for vrf in get_from_dict(host, 'vrf.filter') or []:
+            host['vrf']['filter'] = vrf
+            self.addcmd(host, 'host.vrf.filter', True)
+        self.addcmd(host, 'host.vrf.use', True)
+        self.addcmd(host, 'host', True)
+
+    def _traps_compare(self):
+        want = self.want['traps']
+        have = self.have['traps']
+        for name, entry in want.items():
+            self.compare('traps', want=entry, have=have.pop(name, {}))
+        for name, entry in have.items():
+            self.compare('traps', want={}, have=entry)
+
+    def _users_compare(self):
+        want = self.want['users']
+        have = self.have['users']
+        for name, entry in want.items():
+            self._user_compare(entry, have.pop(name, {}))
+        for name, entry in have.items():
+            self._user_delete(entry)
+
+    def _user_compare(self, want, have):
         match_keys = ['!enforce_priv', '!ipv4acl', '!ipv6acl']
         if not compare_subdict(want, have, match_keys):
             if 'groups' in want:
@@ -211,59 +191,29 @@ class Snmp(RmModule):
             else:
                 self.addcmd(want, 'users', False)
 
-            if self.state == "replaced":
-                for group in have.get('groups', []):
-                    have['group'] = group
-                    self.addcmd(have, 'users.group', True)
+            for group in have.get('groups', []):
+                have['group'] = group
+                self.addcmd(have, 'users.group', True)
 
-        parsers = ['users.enforce_priv']
-        self.compare(parsers=parsers, want=want, have=have)
+        self.compare('users.enforce_priv', want, have)
 
         match_keys = ['ipv4acl', 'ipv6acl']
         if not compare_subdict(want, have, match_keys):
             if any([want.get(match_key) is not None
                     for match_key in match_keys]):
-                self._tmplt_user_acls(want, False)
+                self._user_acls(want, False)
             else:
-                if self.state == 'replaced':
-                    self._tmplt_user_acls(have, True)
+                self._user_acls(have, True)
 
-    def _delete_community(self, community):
-        self._tmplt_community_acls(community, True)
-        self.addcmd(community, 'communities.acl', True)
-        self.addcmd(community, 'communities', True)
-
-    def _delete_host(self, host):
-        self.addcmd(host, 'host.source_interface', True)
-        for vrf in host.get('vrf', {}).get('filter', []):
-            thost = deepcopy(host)
-            thost['vrf']['filter'] = vrf
-            self.addcmd(thost, 'host.vrf.filter', True)
-        self.addcmd(host, 'host.vrf.use', True)
-        self.addcmd(host, 'host', True)
-
-    def _delete_user(self, user):
-        if 'enforce_priv' in user:
-            self.addcmd(user, 'users.enforce_priv', user.get('enforce_priv'))
-        self._tmplt_user_acls(user, True)
+    def _user_delete(self, user):
+        self.compare('users.enforce_priv', want={}, have=user)
+        self._user_acls(user, True)
         for group in user.get('groups', [])[:-1]:
             user['group'] = group
             self.addcmd(user, 'users.group', True)
         user['group'] = None
         self.addcmd(user, 'users', True)
 
-    def _tmplt_community_acls(self, community, negate):
-        for pname in ['communities.ipv4acl_ipv6acl', 'communities.ipv4acl',
-                      'communities.ipv6acl']:
-            before = len(self.commands)
-            self.addcmd(community, pname, negate)
-            if len(self.commands) != before:
-                break
-
-    def _tmplt_user_acls(self, user, negate):
-        for pname in ['users.ipv4acl_ipv6acl', 'users.ipv4acl',
-                      'users.ipv6acl']:
-            before = len(self.commands)
-            self.addcmd(user, pname, negate)
-            if len(self.commands) != before:
-                break
+    def _user_acls(self, user, negate):
+        parsers = ['users.ipv4acl_ipv6acl', 'users.ipv4acl', 'users.ipv6acl']
+        self.addcmd_first_found(user, parsers, negate)

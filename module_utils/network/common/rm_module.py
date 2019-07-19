@@ -1,7 +1,7 @@
 
 from copy import deepcopy
 from ansible.module_utils.connection import Connection
-from ansible.module_utils.network.common.utils import remove_empties
+from ansible.module_utils.network.common.utils import remove_empties, to_list
 from ansible.module_utils.network.common.rm_module_render import RmModuleRender
 from ansible.module_utils.network.common.rm_utils import get_from_dict
 
@@ -48,6 +48,15 @@ class RmModule(RmModuleRender):  # pylint: disable=R0902
         if command:
             self.commands.append(command)
 
+    def addcmd_first_found(self, data, tmplts, negate=False):
+        """ addcmd first found
+        """
+        for pname in tmplts:
+            before = len(self.commands)
+            self.addcmd(data, pname, negate)
+            if len(self.commands) != before:
+                break
+
     def get_facts(self, empty_val=None):
         """ Get the 'facts' (the current configuration)
 
@@ -80,7 +89,7 @@ class RmModule(RmModuleRender):  # pylint: disable=R0902
             want = self.want
         if have is None:
             have = self.have
-        for parser in parsers:
+        for parser in to_list(parsers):
             compval = self.get_parser(parser).get('compval')
             if not compval:
                 compval = parser
