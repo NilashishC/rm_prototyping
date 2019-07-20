@@ -72,8 +72,7 @@ class Interfaces(RmModule):
         # anything left should be deleted if deleted or overridden
         if self.state in ['deleted', 'overridden']:
             for k, have in haved.items():
-                if k not in wantd:
-                    self._compare_interface(want={}, have=have)
+                self._compare_interface(want={}, have=have)
 
     def _compare_interface(self, want, have):
         parsers = ['description', 'duplex', 'mtu', 'shutdown', 'speed']
