@@ -65,14 +65,14 @@ class Interfaces(RmModule):
                      if k in wantd or not wantd}
             wantd = {}
 
-        # delete processes first so we do run into "more than one" errs
-        if self.state in ['overridden', 'deleted']:
-            for k, have in haved.items():
-                if k not in wantd:
-                    self._compare_interface(want={}, have=have)
-
+        # handle everything common to want and have
         for k, want in wantd.items():
             self._compare_interface(want=want, have=haved.pop(k, {}))
+
+        # anything left in have can be deleted
+        for k, have in haved.items():
+            if k not in wantd:
+                self._compare_interface(want={}, have=have)
 
     def _compare_interface(self, want, have):
         parsers = ['description', 'duplex', 'mtu', 'shutdown', 'speed']
