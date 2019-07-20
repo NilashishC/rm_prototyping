@@ -1,13 +1,20 @@
 - name: Set some values
   set_fact:
-    config:
-    - name: GigabitEthernet1
+    config_1:
+    - name: GigabitEthernet0/2
       description: my_desc
-      enable: true
+    config_2:
+    - name: GigabitEthernet0/2
+      description: is_changed
 
 - name: Set the description
   ios_interfaces:
-    config: "{{ config }}"
+    config: "{{ config_1 }}"
+    state: merged
+
+- name: Set the description
+  ios_interfaces:
+    config: "{{ config_2 }}"
     state: merged
   register: result
 
@@ -15,6 +22,22 @@
   ios_interfaces:
     state: deleted
 
+- name: Set the compare value
+  set_fact:
+    compval: description
+
 - name: Check the description
   assert:
-    that: "{{ result['after']|selectattr('name', 'equalto', 'GigabitEthernet1')|list == config }}"
+    that: "{{ (result['before']|selectattr('name', 'equalto', int['name'])|list)[0][compval] == int[compval] }}"
+  loop: "{{ config_1 }}"
+  loop_control:
+    loop_var: int
+    label: "{{ int['name'] }}-{{ compval }}"
+
+- name: Check the description
+  assert:
+    that: "{{ (result['after']|selectattr('name', 'equalto', int['name'])|list)[0][compval] == int[compval] }}"
+  loop: "{{ config_2 }}"
+  loop_control:
+    loop_var: int
+    label: "{{ int['name'] }}-{{ compval }}"

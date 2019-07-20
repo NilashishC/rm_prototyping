@@ -1,15 +1,15 @@
 - name: Set some values
   set_fact:
     config_1:
-    - description: my_desc
+    - mtu: 1000
       name: GigabitEthernet0/1
 
-- name: Set the description
+- name: Set the mtu
   ios_interfaces:
     config: "{{ config_1 }}"
     state: merged
 
-- name: Delete the description
+- name: Delete the mtu
   ios_interfaces:
     state: deleted
   register: result
@@ -20,9 +20,9 @@
 
 - name: Set the compare value
   set_fact:
-    compval: description
+    compval: mtu
 
-- name: Check the description
+- name: Check the mtu
   assert:
     that: "{{ (result['before']|selectattr('name', 'equalto', int['name'])|list)[0][compval] == int[compval] }}"
   loop: "{{ config_1 }}"
@@ -30,7 +30,7 @@
     loop_var: int
     label: "{{ int['name'] }}-{{ compval }}"
 
-- name: Check the description
+- name: Check the mtu
   assert:
     that: "{{ compval not in (result['after']|selectattr('name', 'equalto', int['name'])|list)[0] }}"
   loop: "{{ config_1 }}"

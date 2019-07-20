@@ -1,24 +1,27 @@
 - name: Set some values
   set_fact:
     config_1:
-    - description: desc1
-      name: GigabitEthernet0/1
-    - description: desc2
+    - speed: '100'
       name: GigabitEthernet0/2
+    - speed: '100'
+      name: GigabitEthernet0/3
     config_2:
-    - name: GigabitEthernet0/2
-      description: is_changed
+    - name: GigabitEthernet0/3
+      speed: '1000'
 
-- name: Set the description
+- name: Set the speed
   ios_interfaces:
     config: "{{ config_1 }}"
     state: merged
 
-- name: Set the description
+- name: Set the speed
   ios_interfaces:
     config: "{{ config_2 }}"
-    state: replaced
+    state: overridden
   register: result
+
+- debug:
+    var: result
 
 - name: Reset config
   ios_interfaces:
@@ -26,9 +29,10 @@
 
 - name: Set the compare value
   set_fact:
-    compval: description
+    compval: speed
+    default_val: auto
 
-- name: Check the description initial
+- name: Check the speed initial
   assert:
     that: "{{ (result['before']|selectattr('name', 'equalto', int['name'])|list)[0][compval] == int[compval] }}"
   loop: "{{ config_1 }}"
@@ -36,19 +40,19 @@
     loop_var: int
     label: "{{ int['name'] }}-{{ compval }}"
 
-- name: Check the description unchanged
-  assert:
-    that: "{{ (result['after']|selectattr('name', 'equalto', int['name'])|list)[0][compval] == int[compval] }}"
-  loop: "{{ config_1 }}"
-  loop_control:
-    loop_var: int
-    label: "{{ int['name'] }}-{{ compval }}"
-  when: not config_2|selectattr('name', 'equalto', int['name'])|list
-
-- name: Check the description changed
+- name: Check the speed changed
   assert:
     that: "{{ (result['after']|selectattr('name', 'equalto', int['name'])|list)[0][compval] == int[compval] }}"
   loop: "{{ config_2 }}"
   loop_control:
     loop_var: int
     label: "{{ int['name'] }}-{{ compval }}"
+
+- name: Check the speed removed
+  assert:
+    that: "{{ (result['after']|selectattr('name', 'equalto', int['name'])|list)[0][compval] == default_val }}"
+  loop: "{{ config_1 }}"
+  loop_control:
+    loop_var: int
+    label: "{{ int['name'] }}-{{ compval }}"
+  when: not config_2|selectattr('name', 'equalto', int['name'])|list

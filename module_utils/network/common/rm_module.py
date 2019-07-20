@@ -5,8 +5,6 @@ from ansible.module_utils.network.common.utils import remove_empties, to_list
 from ansible.module_utils.network.common.rm_module_render import RmModuleRender
 from ansible.module_utils.network.common.rm_utils import get_from_dict
 
-import q
-
 class RmModule(RmModuleRender):  # pylint: disable=R0902
     """ rm
     """

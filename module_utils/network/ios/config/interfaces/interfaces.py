@@ -45,17 +45,19 @@ class Interfaces(RmModule):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        q(self.want)
-        q(self.have)
         wantd = {entry['name']: entry for entry in self.want}
         haved = {entry['name']: entry for entry in self.have}
 
-        q(wantd, haved)
+        # add a shutdown key for easier processing
+        for thing in wantd, haved:
+            for _name, entry in thing.items():
+                if entry.get('enable', None) is False:
+                    entry['shutdown'] = True
+
         # if state is merged, merge want onto have
         if self.state == 'merged':
             wantd = dict_merge(haved, wantd)
 
-        q(wantd)
         # if state is deleted, limit the have to anything in want
         # set want to nothing
         if self.state == 'deleted':
@@ -73,7 +75,7 @@ class Interfaces(RmModule):
             self._compare_interface(want=want, have=haved.pop(k, {}))
 
     def _compare_interface(self, want, have):
-        parsers = ['description']
+        parsers = ['description', 'duplex', 'mtu', 'shutdown', 'speed']
         begin = len(self.commands)
         self.compare(parsers=parsers, want=want, have=have)
         if len(self.commands) != begin:

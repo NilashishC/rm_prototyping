@@ -17,7 +17,7 @@
 - name: Set the description
   ios_interfaces:
     config: "{{ config_2 }}"
-    state: replaced
+    state: overridden
   register: result
 
 - name: Reset config
@@ -36,15 +36,6 @@
     loop_var: int
     label: "{{ int['name'] }}-{{ compval }}"
 
-- name: Check the description unchanged
-  assert:
-    that: "{{ (result['after']|selectattr('name', 'equalto', int['name'])|list)[0][compval] == int[compval] }}"
-  loop: "{{ config_1 }}"
-  loop_control:
-    loop_var: int
-    label: "{{ int['name'] }}-{{ compval }}"
-  when: not config_2|selectattr('name', 'equalto', int['name'])|list
-
 - name: Check the description changed
   assert:
     that: "{{ (result['after']|selectattr('name', 'equalto', int['name'])|list)[0][compval] == int[compval] }}"
@@ -52,3 +43,12 @@
   loop_control:
     loop_var: int
     label: "{{ int['name'] }}-{{ compval }}"
+
+- name: Check the description removed
+  assert:
+    that: "{{ compval not in (result['after']|selectattr('name', 'equalto', int['name'])|list)[0] }}"
+  loop: "{{ config_1 }}"
+  loop_control:
+    loop_var: int
+    label: "{{ int['name'] }}-{{ compval }}"
+  when: not config_2|selectattr('name', 'equalto', int['name'])|list

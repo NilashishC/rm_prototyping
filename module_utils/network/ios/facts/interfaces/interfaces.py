@@ -52,6 +52,10 @@ class InterfacesFacts(object):
                               tmplt=InterfacesTemplate())
         current = rmmod.parse().values()
 
+        for interface in current:
+            if 'enable' not in interface:
+                interface['enable'] = True
+
         ansible_facts['ansible_network_resources'].pop('interfaces', None)
         facts = {}
         if current:

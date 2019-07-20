@@ -1,6 +1,6 @@
 all:
   hosts:
-    ios101:
+    an-ios-01.ansible.eng.rdu2.redhat.com:
       ansible_network_os: ios
       ansible_user: "{{ lookup('env', 'ansible_ssh_user') }}"
       ansible_password: "{{ lookup('env', 'ansible_ssh_pass') }}"

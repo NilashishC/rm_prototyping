@@ -1,0 +1,84 @@
+- name: Set some values
+  set_fact:
+    config:
+    - name: GigabitEthernet0/2
+      description: desc_01
+      duplex: full
+      enable: false
+      mtu: 1000
+      speed: '100'
+    - name: GigabitEthernet0/3
+      description: desc_02
+      duplex: half
+      enable: true
+      mtu: 600
+      speed: '100'
+
+- name: Set the config
+  ios_interfaces:
+    config: "{{ config }}"
+    state: merged
+  register: result
+
+- name: Check the interfaces
+  assert:
+    that: "{{ (result['after']|selectattr('name', 'equalto', int['name'])|list)[0] == int }}"
+  loop: "{{ config }}"
+  loop_control:
+    loop_var: int
+    label: "{{ int['name'] }}"
+
+- name: Get the facts
+  ios_facts:
+    gather_network_resources:
+    - interfaces
+
+- name: Compare
+  assert:
+    that: "{{ result['after'] == ansible_network_resources['interfaces'] }}"
+
+- name: Send to module
+  ios_interfaces:
+    config: "{{ ansible_network_resources['interfaces'] }}"
+    state: merged
+  register: result
+
+- name: Confirm idempotency
+  assert:
+    that: "{{ not result['changed'] }}"
+
+- name: Send to module
+  ios_interfaces:
+    config: "{{ ansible_network_resources['interfaces'] }}"
+    state: replaced
+  register: result
+
+- name: Confirm idempotency
+  assert:
+    that: "{{ not result['changed'] }}"
+
+- name: Delete the interface config
+  ios_interfaces:
+    state: deleted
+
+- name: Apply the interface config
+  ios_interfaces:
+    config: "{{ ansible_network_resources['interfaces'] }}"
+    state: merged
+  register: result
+
+- name: Compare
+  assert:
+    that: "{{ result['after'] == ansible_network_resources['interfaces'] }}"
+
+- name: Check the interfaces
+  assert:
+    that: "{{ (result['after']|selectattr('name', 'equalto', int['name'])|list)[0] == int }}"
+  loop: "{{ config }}"
+  loop_control:
+    loop_var: int
+    label: "{{ int['name'] }}"
+
+- name: Reset the config
+  ios_interfaces:
+    state: deleted

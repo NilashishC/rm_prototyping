@@ -45,11 +45,10 @@ class InterfacesArgs(object):  # pylint: disable=R0903
                     'type': 'str'
                 },
                 'enable': {
-                    'default': True,
                     'type': 'bool'
                 },
                 'mtu': {
-                    'type': 'str'
+                    'type': 'int'
                 },
                 'name': {
                     'required': True,
