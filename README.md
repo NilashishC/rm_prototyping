@@ -4,3 +4,4 @@ This is an experimental, work in progress, ansible resource modules using a new 
 
 - eos_ospf
 - nxos_snmp
+- ios_interfaces
