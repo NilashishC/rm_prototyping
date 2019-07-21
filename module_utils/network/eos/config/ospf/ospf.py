@@ -167,8 +167,7 @@ class Ospf(RmModule):
         inh = have.get('graceful_restart', {})
         match_keys = ['enable', 'grace_period']
         if not compare_partial_dict(inw, inh, match_keys):
-            if any([inw.get(match_key) is not None
-                    for match_key in match_keys]):
+            if any([inw.get(mk) is not None for mk in match_keys]):
                 self.addcmd(want, 'graceful_restart', not inw.get('enable'))
             else:
                 self.addcmd(have, 'graceful_restart', inh.get('enable'))
