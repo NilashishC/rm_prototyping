@@ -4,6 +4,8 @@
       processes:
       - graceful_restart:
           enable: True
+          grace_period: 10
+          helper: False
         id: 100
         vrf: blue
 

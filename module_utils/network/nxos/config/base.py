@@ -38,7 +38,7 @@ class ConfigBase(object):  # pylint: disable=R0903
             return None
 
     @staticmethod
-    def _compare_subdict(want, have, compare_keys):
+    def _compare_partial_dict(want, have, compare_keys):
         rmkeys = [ckey[1:] for ckey in compare_keys if ckey.startswith('!')]
         kkeys = [ckey for ckey in compare_keys if not ckey.startswith('!')]
         kkeys = kkeys or 'all'

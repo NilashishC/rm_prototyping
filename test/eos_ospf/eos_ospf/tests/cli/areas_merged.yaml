@@ -89,9 +89,6 @@
     state: merged
   register: result
 
-- debug:
-    var: result
-    
 - name: Reset config
   eos_ospf:
     state: deleted

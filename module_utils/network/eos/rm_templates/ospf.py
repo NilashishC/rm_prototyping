@@ -47,6 +47,13 @@ def _tmplt_default_information(proc):
     return command
 
 
+def _tmplt_graceful_restart(proc):
+    command = "graceful-restart"
+    if 'grace_period' in proc['graceful_restart']:
+        command += ' grace-period'
+        command += ' {graceful_restart[grace_period]}'.format(**proc)
+    return command
+
 class OspfTemplate(object):
 
     PARSERS = [
@@ -446,14 +453,38 @@ class OspfTemplate(object):
         },
         {
             'name': 'graceful_restart',
-            'getval': re.compile(r'''\s+graceful-restart$''', re.VERBOSE),
-            'setval': 'graceful-restart',
-            'compval': 'graceful_restart.enable',
+            'getval': re.compile(r'''
+                \s+graceful-restart
+                (\sgrace-period\s(?P<grace_period>\d+))?
+                $''', re.VERBOSE),
+            'setval': _tmplt_graceful_restart,
+            'remval': 'graceful-restart',
             'result': {
                 'processes': {
                     '{process_id}_{vrf}': {
                         'graceful_restart': {
-                            'enable': True
+                            'enable': True,
+                            'grace_period': '{grace_period}'
+                        }
+                    },
+                },
+            },
+            'cast': {
+                'grace_period': 'to_int'
+            }
+        },
+        {
+            'name': 'graceful_restart.helper',
+            'getval': re.compile(r'''
+                \s+(?P<graceful_restart_helper>no\sgraceful-restart-helper)
+                $''', re.VERBOSE),
+            'setval': 'graceful-restart-helper',
+            'compval': 'graceful_restart.helper',
+            'result': {
+                'processes': {
+                    '{process_id}_{vrf}': {
+                        'graceful_restart': {
+                            'helper': False,
                         }
                     },
                 },

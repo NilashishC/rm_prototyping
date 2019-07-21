@@ -18,7 +18,7 @@ from ansible.module_utils.network.common.utils import dict_merge
 from ansible.module_utils.network.nxos.facts.facts import Facts
 from ansible.module_utils.network.common.rm_module import RmModule
 from ansible.module_utils.network.common.rm_utils \
-    import get_from_dict, compare_subdict
+    import get_from_dict, compare_partial_dict
 
 class Snmp(RmModule):
     """
@@ -107,7 +107,7 @@ class Snmp(RmModule):
         parsers = ['communities', 'communities.acl']
         self.compare(parsers, want, have)
         match_keys = ['ipv4acl', 'ipv6acl']
-        if not compare_subdict(want, have, match_keys):
+        if not compare_partial_dict(want, have, match_keys):
             if any([want.get(match_key) is not None
                     for match_key in match_keys]):
                 self._community_acls(want, False)
@@ -134,7 +134,7 @@ class Snmp(RmModule):
 
     def _host_compare(self, want, have):
         match_keys = ['!source_interface', '!vrf']
-        if not compare_subdict(want, have, match_keys):
+        if not compare_partial_dict(want, have, match_keys):
             self.addcmd(want, 'host', False)
 
         parsers = ['host.source_interface', 'host.vrf.use']
@@ -178,7 +178,7 @@ class Snmp(RmModule):
 
     def _user_compare(self, want, have):
         match_keys = ['!enforce_priv', '!ipv4acl', '!ipv6acl']
-        if not compare_subdict(want, have, match_keys):
+        if not compare_partial_dict(want, have, match_keys):
             if 'groups' in want:
                 for group in want['groups']:
                     if group in have.get('groups', []):
@@ -199,7 +199,7 @@ class Snmp(RmModule):
         self.compare('users.enforce_priv', want, have)
 
         match_keys = ['ipv4acl', 'ipv6acl']
-        if not compare_subdict(want, have, match_keys):
+        if not compare_partial_dict(want, have, match_keys):
             if any([want.get(match_key) is not None
                     for match_key in match_keys]):
                 self._user_acls(want, False)

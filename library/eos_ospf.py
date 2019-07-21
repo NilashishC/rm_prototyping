@@ -196,6 +196,12 @@ options:
               enable:
                 description: Enable graceful restart mode
                 type: bool
+              grace_period:
+                description: Maximum time to wait for graceful-restart to complete
+                type: int
+              helper:
+                description: Enable graceful restart helper
+                type: bool
           id:
             description: The process ID
             type: int

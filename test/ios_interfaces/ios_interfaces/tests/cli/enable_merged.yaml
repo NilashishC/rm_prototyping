@@ -18,9 +18,6 @@
     state: merged
   register: result
 
-- debug:
-    var: result
-
 - name: Reset config
   ios_interfaces:
     state: deleted

@@ -188,6 +188,12 @@ class OspfArgs(object):  # pylint: disable=R0903
                             'options': {
                                 'enable': {
                                     'type': 'bool'
+                                },
+                                'grace_period': {
+                                    'type': 'int'
+                                },
+                                'helper': {
+                                    'type': 'bool'
                                 }
                             },
                             'type': 'dict'

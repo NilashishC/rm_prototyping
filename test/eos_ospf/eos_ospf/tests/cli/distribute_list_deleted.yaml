@@ -18,9 +18,6 @@
     state: deleted
   register: result
 
-- debug:
-    var: result
-
 - name: Check the distribute_list
   assert:
     that: "{{ result['before'] == proc_1 }}"

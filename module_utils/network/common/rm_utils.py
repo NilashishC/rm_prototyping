@@ -12,7 +12,7 @@ def get_from_dict(data_dict, keypath):
         return None
 
 
-def compare_subdict(want, have, compare_keys):
+def compare_partial_dict(want, have, compare_keys):
     """ compare
     """
     rmkeys = [ckey[1:] for ckey in compare_keys if ckey.startswith('!')]

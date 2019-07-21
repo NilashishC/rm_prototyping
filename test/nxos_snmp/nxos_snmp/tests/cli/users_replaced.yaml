@@ -65,10 +65,6 @@
   assert:
     that: "{{ result['before']['users']|symmetric_difference(users_a) == initial['before']['users'] }}"
 
-
-- debug:
-    msg: "{{ result['after']['users'] }}"
-
 - name: Check the users
   assert:
     that: "{{ result['after']['users']|symmetric_difference(users_b) == initial['before']['users'] }}"

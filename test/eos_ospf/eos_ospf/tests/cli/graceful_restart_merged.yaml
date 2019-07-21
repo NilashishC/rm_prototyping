@@ -9,13 +9,26 @@
     proc_2:
       processes:
       - graceful_restart:
-          enable: False
+          enable: True
+          grace_period: 10
+          helper: False
+        id: 100
+        vrf: blue
+    proc_3:
+      processes:
+      - graceful_restart:
+          grace_period: 20
+          helper: True
         id: 100
         vrf: blue
     desired:
       processes:
-      - id: 100
+      - graceful_restart:
+          enable: True
+          grace_period: 20
+        id: 100
         vrf: blue
+
 
 - name: Set the graceful_restart
   eos_ospf:
@@ -26,7 +39,13 @@
   eos_ospf:
     config: "{{ proc_2 }}"
     state: merged
-  register: result
+  register: result_1
+
+- name: Set the graceful_restart
+  eos_ospf:
+    config: "{{ proc_3 }}"
+    state: merged
+  register: result_2
 
 - name: Reset config
   eos_ospf:
@@ -34,8 +53,12 @@
 
 - name: Check the graceful_restart
   assert:
-    that: "{{ result['before'] == proc_1 }}"
+    that: "{{ result_1['before'] == proc_1 }}"
 
 - name: Check the graceful_restart
   assert:
-    that: "{{ result['after'] == desired }}"
+    that: "{{ result_1['after'] == proc_2 }}"
+
+- name: Check the graceful_restart
+  assert:
+    that: "{{ result_2['after'] == desired }}"

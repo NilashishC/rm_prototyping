@@ -18,9 +18,6 @@
   eos_ospf:
     state: deleted
   register: result
-
-- debug:
-    var: result
     
 - name: Check the distance
   assert:

@@ -9,17 +9,11 @@
     state: merged
   register: merged
 
-- debug:
-    var: merged
-
 - name: Delete the enable
   nxos_snmp:
     state: deleted
   register: result
 
-- debug:
-    var: result
-    
 - name: Check the enable
   assert:
     that: "{{ result['before']['enable'] == enable }}"
