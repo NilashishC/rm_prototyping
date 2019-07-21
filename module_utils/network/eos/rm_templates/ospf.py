@@ -444,4 +444,19 @@ class OspfTemplate(object):
                 },
             },
         },
+        {
+            'name': 'graceful_restart',
+            'getval': re.compile(r'''\s+graceful-restart$''', re.VERBOSE),
+            'setval': 'graceful-restart',
+            'compval': 'graceful_restart.enable',
+            'result': {
+                'processes': {
+                    '{process_id}_{vrf}': {
+                        'graceful_restart': {
+                            'enable': True
+                        }
+                    },
+                },
+            },
+        },
     ]

@@ -1,0 +1,51 @@
+- name: Set some values
+  set_fact:
+    proc_1:
+      processes:
+      - graceful_restart:
+          enable: True
+        id: 100
+        vrf: blue
+    proc_2:
+      processes:
+      - id: 100
+        vrf: blue
+    proc_3:
+      processes:
+      - graceful_restart:
+          enable: False
+        id: 100
+        vrf: blue
+
+- name: Set the graceful_restart
+  eos_ospf:
+    config: "{{ proc_1 }}"
+    state: merged
+
+- name: Set the graceful_restart
+  eos_ospf:
+    config: "{{ proc_2 }}"
+    state: replaced
+  register: result_1
+
+- name: Set the graceful_restart
+  eos_ospf:
+    config: "{{ proc_3 }}"
+    state: replaced
+  register: result_2
+
+- name: Reset config
+  eos_ospf:
+    state: deleted
+
+- name: Check the graceful_restart
+  assert:
+    that: "{{ result_1['before'] == proc_1 }}"
+
+- name: Check the graceful_restart
+  assert:
+    that: "{{ result_1['after'] == proc_2 }}"
+
+- name: Check the graceful_restart
+  assert:
+    that: "{{ result_2['after'] == proc_2 }}"

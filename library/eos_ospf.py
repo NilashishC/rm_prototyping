@@ -189,6 +189,13 @@ options:
           dn_bit_ignore:
             description: Disable dn-bit check for Type-3 LSAs in non-default VRFs
             type: bool
+          graceful_restart:
+            description: Graceful restart mode
+            type: dict
+            suboptions:
+              enable:
+                description: Enable graceful restart mode
+                type: bool
           id:
             description: The process ID
             type: int

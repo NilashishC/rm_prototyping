@@ -2,11 +2,12 @@
   set_fact:
     proc_1:
       processes:
-      - dn_bit_ignore: True
+      - graceful_restart:
+          enable: True
         id: 100
         vrf: blue
 
-- name: Set the dn_bit_ignore
+- name: Set the graceful_restart
   eos_ospf:
     config: "{{ proc_1 }}"
     state: merged
@@ -16,10 +17,10 @@
     state: deleted
   register: result
 
-- name: Check the dn_bit_ignore
+- name: Check the graceful_restart
   assert:
     that: "{{ result['before'] == proc_1 }}"
 
-- name: Check the dn_bit_ignore
+- name: Check the graceful_restart
   assert:
     that: "{{ not result['after'] }}"

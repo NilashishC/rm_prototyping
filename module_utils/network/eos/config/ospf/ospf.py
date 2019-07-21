@@ -88,7 +88,7 @@ class Ospf(RmModule):
                    'auto_cost.reference_bandwidth', 'bfd.all_interfaces',
                    'compatible.rfc1583', 'distance.external',
                    'distance.intra_area', 'distance.inter_area',
-                   'distribute_list', 'dn_bit_ignore']
+                   'distribute_list', 'dn_bit_ignore', 'graceful_restart']
 
         self.addcmd(want or have, 'process_id', False)
         self.compare(parsers=parsers, want=want, have=have)
