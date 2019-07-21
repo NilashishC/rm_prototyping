@@ -92,8 +92,8 @@ class Ospf(RmModule):
                    'graceful_restart.helper']
 
         self.addcmd(want or have, 'process_id', False)
-        self.compare(parsers=parsers, want=want, have=have)
-        self._areas_compare(want=want, have=have)
+        self.compare(parsers, want, have)
+        self._areas_compare(want, have)
         self._default_information_compare(want, have)
         self._graceful_restart_compare(want, have)
 
@@ -103,19 +103,20 @@ class Ospf(RmModule):
         for name, entry in wareas.items():
             self._area_compare(want=entry, have=hareas.pop(name, {}))
         for name, entry in hareas.items():
-            self._area_delete(entry)
+            self._area_compare(want={}, have=entry)
 
     def _area_compare(self, want, have):
         parsers = ['area.default_cost', 'area.no_summary', 'area.nssa_only']
         self.compare(parsers=parsers, want=want, have=have)
-
         match_keys = ['type', 'default_information']
         if not compare_partial_dict(want, have, match_keys):
-            if want.get('default_information', {}).get('originate'):
-                self.addcmd(want, 'area.default_information', False)
-            elif want.get('no_summary') is not True:
-                self.addcmd(want, 'area', False)
-
+            if want:
+                if get_from_dict(want, 'default_information.originate'):
+                    self.addcmd(want, 'area.default_information', False)
+                elif want.get('no_summary') is not True:
+                    self.addcmd(want, 'area', False)
+            else:
+                self.addcmd(have, 'area', True)
         self._area_compare_filters(want, have)
         self._area_compare_ranges(want, have)
 
@@ -124,11 +125,9 @@ class Ospf(RmModule):
                  for filter in want.get('filters', [])}
         haved = {filter: {"area": have['area'], "filter": filter}
                  for filter in have.get('filters', [])}
-
         for name, entry in wantd.items():
             if entry != haved.pop(name, {}):
                 self.addcmd(entry, 'area.filter', False)
-
         for name, entry in haved.items():
             self.addcmd(entry, 'area.filter', True)
 
@@ -139,20 +138,9 @@ class Ospf(RmModule):
             if entry != hranges.pop(name, {}):
                 entry['area'] = want['area']
                 self.addcmd(entry, 'area.range', False)
-
         for name, entry in hranges.items():
             entry['area'] = have['area']
             self.addcmd(entry, 'area.range', True)
-
-    def _area_delete(self, area):
-        for ifilter in area.get('filters', []):
-            area['filter'] = ifilter
-            self.addcmd(area, 'area.filter', True)
-        for _rid, arange in area.get('ranges', {}).items():
-            area['range'] = arange['range']
-            self.addcmd(area, 'area.range', True)
-        self.addcmd(area, 'area.default_cost', True)
-        self.addcmd(area, 'area', True)
 
     def _default_information_compare(self, want, have):
         inw = want.get('default_information', {})
