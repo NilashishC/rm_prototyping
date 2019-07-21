@@ -14,7 +14,6 @@
       processes:
       - default_information:
           metric: 6
-          originate: true
           route_map: rmap2
         id: 100
         vrf: blue
@@ -43,6 +42,18 @@
           route_map: rmap2
         id: 100
         vrf: blue
+    proc_4:
+      processes:
+      - default_information:
+          originate: false
+        id: 100
+        vrf: blue
+    desired_4:
+      processes:
+      - default_information:
+          originate: false
+        id: 100
+        vrf: blue
 
 - name: Set the default_information_originate proc_1
   eos_ospf:
@@ -61,6 +72,12 @@
     state: merged
   register: result_p3
 
+- name: Set the default_information_originate proc_4
+  eos_ospf:
+    config: "{{ proc_4 }}"
+    state: merged
+  register: result_p4
+
 - name: Reset config
   eos_ospf:
     state: deleted
@@ -76,3 +93,7 @@
 - name: Check the default_information_originate proc_3
   assert:
     that: "{{ result_p3['after'] == desired_3 }}"
+
+- name: Check the default_information_originate proc_4
+  assert:
+    that: "{{ result_p4['after'] == desired_4 }}"

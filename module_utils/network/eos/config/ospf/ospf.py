@@ -18,7 +18,6 @@ from ansible.module_utils.network.common.rm_module import RmModule
 from ansible.module_utils.network.common.rm_utils \
   import get_from_dict, compare_partial_dict
 
-import q
 
 class Ospf(RmModule):
     """
@@ -156,13 +155,12 @@ class Ospf(RmModule):
         self.addcmd(area, 'area', True)
 
     def _default_information_compare(self, want, have):
-        if get_from_dict(want, 'default_information.originate'):
-            wdi = get_from_dict(want, 'default_information')
-            hdi = get_from_dict(have, 'default_information')
-            if wdi != hdi:
-                self.addcmd(want, 'default_information', False)
+        inw = want.get('default_information', {})
+        inh = have.get('default_information', {})
+        if inw not in (inh, {}):
+            self.addcmd(want, 'default_information', not inw.get('originate'))
         else:
-            self.addcmd(have, 'default_information', True)
+            self.addcmd(have, 'default_information', inh.get('originate'))
 
     def _graceful_restart_compare(self, want, have):
         inw = want.get('graceful_restart', {})

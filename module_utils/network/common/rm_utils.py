@@ -17,17 +17,15 @@ def compare_partial_dict(want, have, compare_keys):
     """
     rmkeys = [ckey[1:] for ckey in compare_keys if ckey.startswith('!')]
     kkeys = [ckey for ckey in compare_keys if not ckey.startswith('!')]
-    kkeys = kkeys or 'all'
 
     wantd = {}
     for key, val in want.items():
-        if key not in rmkeys:
-            if key in kkeys or kkeys == 'all':
-                wantd[key] = val
+        if key not in rmkeys and key in kkeys:
+            wantd[key] = val
 
     haved = {}
     for key, val in have.items():
-        if key not in rmkeys:
-            if key in kkeys or kkeys == 'all':
-                haved[key] = val
+        if key not in rmkeys and key in kkeys:
+            haved[key] = val
+
     return wantd == haved

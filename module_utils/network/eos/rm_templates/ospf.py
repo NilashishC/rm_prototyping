@@ -343,6 +343,7 @@ class OspfTemplate(object):
                 (\smetric-type\s(?P<di_metric_type>\d))?
                 (\sroute-map\s(?P<route_map>\S+))?$''', re.VERBOSE),
             'setval': _tmplt_default_information,
+            'remval': 'default-information originate',
             'result': {
                 'processes': {
                     '{process_id}_{vrf}': {
