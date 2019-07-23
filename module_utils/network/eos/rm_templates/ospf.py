@@ -189,14 +189,9 @@ class OspfTemplate(object):
                                 'area': '{{ area }}',
                                 'type': '{{ area_type }}',
                                 'default_information': {
-                                    'metric': ('{{ adi_metric|int'
-                                               ' if adi_metric != None'
-                                               ' else None }}'),
-                                    'metric_type': ('{{ adi_metric_type|int'
-                                                    ' if adi_metric_type'
-                                                    ' != None else None }}'),
-                                    'nssa_only': ('{{ True if d_nssa_only'
-                                                  ' else None }}'),
+                                    'metric': '{{ adi_metric|int }}',
+                                    'metric_type': '{{ adi_metric_type|int }}',
+                                    'nssa_only': '{{ not not d_nssa_only }}',
                                     'originate': True
                                 }
                             }
@@ -241,8 +236,7 @@ class OspfTemplate(object):
                         'areas': {
                             '{{ area }}': {
                                 'area': '{{ area }}',
-                                'nssa_only': ('{{ True if a_nssa_only'
-                                              ' else None }}'),
+                                'nssa_only': '{{ not not a_nssa_only }}',
                                 'type': '{{ area_type }}'
                             }
                         }
@@ -266,13 +260,11 @@ class OspfTemplate(object):
                             '{{ area }}': {
                                 'area': '{{ area }}',
                                 'ranges': [{
-                                    'cost': ('{{ cost|int if cost != None'
-                                             ' else None }}'),
-                                    'not_advertise': ('{{ True'
-                                                      ' if not_advertise'
-                                                      ' else None }}'),
+                                    'cost': '{{ cost|int }}',
+                                    'not_advertise': ('{{ not '
+                                                      'not not_advertise}}'),
                                     'range': '{{ range }}'
-                                    }]
+                                }]
                             }
                         }
                     }
@@ -326,13 +318,10 @@ class OspfTemplate(object):
                 'processes': {
                     '{{ process_id }}_{{ vrf }}': {
                         'default_information': {
-                            'always': '{{ True if always else None }}',
-                            'metric': ('{{di_metric|int '
-                                       'if di_metric != None else None }}'),
-                            'metric_type': ('{{ di_metric_type|int'
-                                            ' if di_metric_type != None'
-                                            ' else None }}'),
-                            'originate': '{{ False if no_dio else True }}',
+                            'always': '{{ not not always }}',
+                            'metric': '{{ di_metric|int }}',
+                            'metric_type': '{{ di_metric_type|int }}',
+                            'originate': '{{ not no_dio is defined }}',
                             'route_map': '{{ route_map }}'
                         }
                     }
@@ -431,9 +420,7 @@ class OspfTemplate(object):
                     '{{ process_id }}_{{ vrf }}': {
                         'graceful_restart': {
                             'enable': True,
-                            'grace_period': ('{{ grace_period|int'
-                                             ' if grace_period != None'
-                                             ' else None }}')
+                            'grace_period': '{{ grace_period|int }}'
                         }
                     }
                 }

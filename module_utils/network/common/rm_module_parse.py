@@ -1,6 +1,8 @@
 import re
 from copy import deepcopy
 from ansible.module_utils.network.common.utils import dict_merge
+from ansible.errors import AnsibleUndefinedVariable
+
 from ansible import constants as C
 import ansible.template
 import q
@@ -16,12 +18,11 @@ class RmModuleParse(object):
         wtmplt = deepcopy(tmplt)
         self._templar._available_variables = data  # pylint: disable=W0212
         if isinstance(tmplt, str):
-            tval = self._templar.do_template(tmplt)
-            if tval == "True":
-                tval = True
-            elif tval == "False":
-                tval = False
-            return tval
+            try:
+                return self._templar.do_template(tmplt)
+            except AnsibleUndefinedVariable:
+                return None
+
         if isinstance(tmplt, dict):
             for tkey, tval in tmplt.items():
                 ftkey = self._templar.do_template(tkey)
@@ -33,7 +34,7 @@ class RmModuleParse(object):
                     wtmplt[ftkey] = [self._deepformat(x, data) for x in tval]
                 elif isinstance(tval, str):
                     wtmplt[ftkey] = self._deepformat(tval, data)
-                    if wtmplt[ftkey] == '' or wtmplt[ftkey] is None:
+                    if wtmplt[ftkey] is None:
                         wtmplt.pop(ftkey)
         return wtmplt
 
@@ -47,6 +48,8 @@ class RmModuleParse(object):
                 cap = re.match(parser['getval'], line)
                 if cap:
                     capdict = cap.groupdict()
+                    capdict = {k: v for k, v in capdict.items()
+                               if v is not None}
                     if parser.get('shared'):
                         shared = capdict
                     vals = dict_merge(capdict, shared)
