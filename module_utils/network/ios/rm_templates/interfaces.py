@@ -11,10 +11,10 @@ class InterfacesTemplate(object):
             re.compile(r'''
               ^interface\s(?P<name>\S+)$''', re.VERBOSE),
             'setval':
-            'interface {name}',
+            'interface {{ name }}',
             'result': {
-                '{name}': {
-                    'name': '{name}'
+                '{{ name }}': {
+                    'name': '{{ name }}'
                 },
             },
             'shared':
@@ -24,10 +24,10 @@ class InterfacesTemplate(object):
             'name': 'description',
             'getval': re.compile(r'''
               \s+description\s(?P<description>\S+)$''', re.VERBOSE),
-            'setval': 'description {description}',
+            'setval': 'description {{ description }}',
             'result': {
-                '{name}': {
-                    'description': '{description}'
+                '{{ name }}': {
+                    'description': '{{ description }}'
                 },
             },
         },
@@ -35,10 +35,10 @@ class InterfacesTemplate(object):
             'name': 'duplex',
             'getval': re.compile(r'''
               \s+duplex\s(?P<duplex>\S+)$''', re.VERBOSE),
-            'setval': 'duplex {duplex}',
+            'setval': 'duplex {{ duplex }}',
             'result': {
-                '{name}': {
-                    'duplex': '{duplex}'
+                '{{ name }}': {
+                    'duplex': '{{ duplex }}'
                 },
             },
         },
@@ -46,24 +46,21 @@ class InterfacesTemplate(object):
             'name': 'mtu',
             'getval': re.compile(r'''
               \s+mtu\s(?P<mtu>\d+)$''', re.VERBOSE),
-            'setval': 'mtu {mtu}',
+            'setval': 'mtu {{ mtu }}',
             'result': {
-                '{name}': {
-                    'mtu': '{mtu}'
+                '{{ name }}': {
+                    'mtu': '{{ mtu|int }}'
                 },
             },
-            'cast': {
-                'mtu': 'to_int'
-            }
         },
         {
             'name': 'speed',
             'getval': re.compile(r'''
               \s+speed\s(?P<speed>\S+)$''', re.VERBOSE),
-            'setval': 'speed {speed}',
+            'setval': 'speed {{ speed }}',
             'result': {
-                '{name}': {
-                    'speed': '{speed}'
+                '{{ name }}': {
+                    'speed': '{{ speed }}'
                 },
             },
         },
@@ -73,12 +70,9 @@ class InterfacesTemplate(object):
                                  re.VERBOSE),
             'setval': 'shutdown',
             'result': {
-                '{name}': {
-                    'enable': '{shutdown}'
+                '{{ name }}': {
+                    'enable': False
                 },
             },
-            'cast': {
-                'shutdown': 'false_or_none'
-            }
         },
     ]

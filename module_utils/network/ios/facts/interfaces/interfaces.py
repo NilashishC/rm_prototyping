@@ -50,7 +50,7 @@ class InterfacesFacts(object):
         data = connection.get('sho run | section interface')
         rmmod = RmModuleParse(lines=data.splitlines(),
                               tmplt=InterfacesTemplate())
-        current = rmmod.parse().values()
+        current = list(rmmod.parse().values())
 
         for interface in current:
             if 'enable' not in interface:
