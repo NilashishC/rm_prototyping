@@ -1,21 +1,18 @@
 - name: Set some values
   set_fact:
     users:
-    - aes_128: false
-      algorithm: md5
+    - algorithm: md5
       groups:
       - network-operator
       localized_key: true
       password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
       username: m01
-    - aes_128: false
-      algorithm: md5
+    - algorithm: md5
       engine_id: 0:0:0:63:0:1:0:10:20:15:10:3
       localized_key: true
       password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
       username: m02
-    - aes_128: false
-      algorithm: md5
+    - algorithm: md5
       enforce_priv: true
       groups:
       - network-operator
@@ -31,8 +28,7 @@
       password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
       privacy_password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
       username: m04
-    - aes_128: false
-      algorithm: md5
+    - algorithm: md5
       engine_id: 0:0:0:63:0:1:0:10:20:15:10:3
       localized_key: true
       password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
@@ -45,21 +41,18 @@
       password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
       privacy_password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
       username: m06
-    - aes_128: false
-      algorithm: md5
+    - algorithm: md5
       groups:
       - network-operator
       localized_key: true
       password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
       username: s01
-    - aes_128: false
-      algorithm: md5
+    - algorithm: md5
       engine_id: 0:0:0:63:0:1:0:10:20:15:10:3
       localized_key: true
       password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
       username: s02
-    - aes_128: false
-      algorithm: md5
+    - algorithm: md5
       groups:
       - network-operator
       localized_key: true
@@ -75,8 +68,7 @@
       password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
       privacy_password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
       username: s04
-    - aes_128: false
-      algorithm: md5
+    - algorithm: md5
       engine_id: 0:0:0:63:0:1:0:10:20:15:10:3
       localized_key: true
       password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'

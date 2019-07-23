@@ -67,6 +67,16 @@ class SnmpFacts(object):
                 else:
                     user['groups'].sort()
 
+        # sort the hosts and filters
+        if 'hosts' in current:
+            current['hosts'] = sorted(current['hosts'],
+                                      key=lambda k: (k['host'],
+                                                     k.get('udp_port', "")))
+
+        for host in current.get('hosts', []):
+            if 'filter' in host.get('vrf', {}):
+                host['vrf']['filter'].sort()
+
         ansible_facts['ansible_network_resources'].pop('snmp', None)
         facts = {}
         if current:

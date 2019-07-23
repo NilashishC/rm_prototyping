@@ -67,14 +67,11 @@ class SnmpTemplate(object):
                 ^snmp-server\saaa-user\s
                 cache-timeout\s(?P<cache_val>\S+)$''', re.VERBOSE),
             'setval':
-            'snmp-server aaa-user cache-timeout {aaa_user[cache_timeout]}',
+            'snmp-server aaa-user cache-timeout {{ aaa_user.cache_timeout }}',
             'result': {
                 'aaa_user': {
-                    'cache_timeout': '{cache_val}'
+                    'cache_timeout': '{{ cache_val|int }}'
                 }
-            },
-            'cast': {
-                'cache_val': 'to_int'
             }
         },
         {
@@ -83,13 +80,13 @@ class SnmpTemplate(object):
                 ^snmp-server\s
                 community\s(?P<c_community>\S+)\s
                 group\s(?P<group>\S+)$''', re.VERBOSE),
-            'setval': 'snmp-server community {community} group {group}',
+            'setval': 'snmp-server community {{ community }} group {{ group}}',
             'compval': 'group',
             'result': {
                 'communities': {
-                    '{c_community}': {
-                        'community': '{c_community}',
-                        'group': '{group}'
+                    '{{ c_community }}': {
+                        'community': '{{ c_community }}',
+                        'group': '{{ group }}'
                     }
                 }
             }
@@ -100,13 +97,13 @@ class SnmpTemplate(object):
                 ^snmp-server\s
                 community\s(?P<c_community>\S+)\s
                 use-acl\s(?P<acl>\S+)$''', re.VERBOSE),
-            'setval': 'snmp-server community {community} use-acl {acl}',
+            'setval': 'snmp-server community {{ community }} use-acl {{ acl}}',
             'compval': 'acl',
             'result': {
                 'communities': {
-                    '{c_community}': {
-                        'community': '{c_community}',
-                        'acl': '{acl}'
+                    '{{ c_community }}': {
+                        'community': '{{ c_community }}',
+                        'acl': '{{ acl }}'
                     }
                 }
             }
@@ -117,13 +114,13 @@ class SnmpTemplate(object):
                 ^snmp-server\s
                 community\s(?P<c_community>\S+)\s
                 use-ipv4acl\s(?P<ipv4acl>\S+)$''', re.VERBOSE),
-            'setval': ('snmp-server community {community} '
-                       'use-ipv4acl {ipv4acl}'),
+            'setval': ('snmp-server community {{ community}}'
+                       ' use-ipv4acl {{ ipv4acl }}'),
             'result': {
                 'communities': {
-                    '{c_community}': {
-                        'community': '{c_community}',
-                        'ipv4acl': '{ipv4acl}'
+                    '{{ c_community }}': {
+                        'community': '{{ c_community }}',
+                        'ipv4acl': '{{ ipv4acl }}'
                     }
                 }
             }
@@ -134,13 +131,13 @@ class SnmpTemplate(object):
                 ^snmp-server\s
                 community\s(?P<c_community>\S+)\s
                 use-ipv6acl\s(?P<ipv6acl>\S+)$''', re.VERBOSE),
-            'setval': ('snmp-server community {community}'
-                       ' use-ipv6acl {ipv6acl}'),
+            'setval': ('snmp-server community {{ community }}'
+                       ' use-ipv6acl {{ ipv6acl }}'),
             'result': {
                 'communities': {
-                    '{c_community}': {
-                        'community': '{c_community}',
-                        'ipv6acl': '{ipv6acl}'
+                    '{{ c_community }}': {
+                        'community': '{{ c_community }}',
+                        'ipv6acl': '{{ ipv6acl }}'
                     }
                 }
             }
@@ -154,14 +151,14 @@ class SnmpTemplate(object):
               \s(?P<ipv4acl>\S+)
               \suse-ipv6acl
               \s(?P<ipv6acl>\S+)$''', re.VERBOSE),
-            'setval': ('snmp-server community {community}'
-                       ' use-ipv4acl {ipv4acl} use-ipv6acl {ipv6acl}'),
+            'setval': ('snmp-server community {{ community }}'
+                       ' use-ipv4acl {{ ipv4acl }} use-ipv6acl {{ ipv6acl }}'),
             'result': {
                 'communities': {
-                    '{c_community}': {
-                        'community': '{c_community}',
-                        'ipv4acl': '{ipv4acl}',
-                        'ipv6acl': '{ipv6acl}'
+                    '{{ c_community }}': {
+                        'community': '{{ c_community }}',
+                        'ipv4acl': '{{ ipv4acl }}',
+                        'ipv6acl': '{{ ipv6acl }}'
                     }
                 }
             }
@@ -169,43 +166,36 @@ class SnmpTemplate(object):
         {
             'name': 'contact',
             'getval': r'^snmp-server contact (?P<contact>.*)$',
-            'setval': 'snmp-server contact {contact}',
-            'remval': 'snmp-server contact',
+            'setval': 'snmp-server contact {{ contact }}',
             'result': {
-                'contact': '{contact}'
+                'contact': '{{ contact }}'
             }
         },
         {
             'name': 'engine_id.local',
             'getval': r'^snmp-server engineID local (?P<engine_id>\S+)$',
-            'setval': 'snmp-server engineID local {engine_id[local]}',
+            'setval': 'snmp-server engineID local {{ engine_id.local }}',
             'result': {
                 'engine_id': {
-                    'local': '{engine_id}'
+                    'local': '{{ engine_id }}'
                 }
             }
         },
         {
             'name': 'enable',
-            'getval': r'^((?P<no>no)\s)?snmp-server protocol enable\s+$',
+            'getval': r'^((?P<no_enable>no)\s)?snmp-server protocol enable\s+$',
             'setval': 'snmp-server protocol enable',
             'result': {
-                'enable': '{no}'
+                'enable': '{{ not no_enable is defined }}'
             },
-            'cast': {
-                'no': 'no_means_false'
-            }
         },
         {
             'name': 'global_enforce_priv',
-            'getval': r'^((?P<no>no)\s)?snmp-server globalEnforcePriv$',
+            'getval': r'^((?P<no_gep>no)\s)?snmp-server globalEnforcePriv$',
             'setval': 'snmp-server globalEnforcePriv',
             'result': {
-                'global_enforce_priv': '{no}'
+                'global_enforce_priv': '{{ not not_gep is defined }}'
             },
-            'cast': {
-                'no': 'no_means_false'
-            }
         },
         {
             'name': 'host',
@@ -222,20 +212,17 @@ class SnmpTemplate(object):
             'setval': _tmplt_host,
             'result': {
                 'hosts': {
-                    '{host}_{udp_port}': {
-                        'host': '{host}',
-                        'message_type': '{message_type}',
-                        'version': '{version}',
-                        'community': '{h_community}',
-                        'security_level': '{security_level}',
-                        'udp_port': '{udp_port}'
+                    '{{ host }}_{{ udp_port|d() }}': {
+                        'host': '{{ host }}',
+                        'message_type': '{{ message_type }}',
+                        'version': '{{ version }}',
+                        'community': '{{ h_community }}',
+                        'security_level': '{{ security_level }}',
+                        'udp_port': '{{ udp_port|int }}'
                     }
                 }
             },
             'shared': True,
-            'cast': {
-                'udp_port': 'to_int'
-            }
         },
         {
             'name': 'host.vrf.filter',
@@ -250,9 +237,9 @@ class SnmpTemplate(object):
             'compval': 'filter',
             'result': {
                 'hosts': {
-                    '{host}_{udp_port}': {
+                    '{{ host }}_{{ udp_port|d() }}': {
                         'vrf': {
-                            'filter': ['{filter_vrf}']
+                            'filter': ['{{ filter_vrf }}']
                         }
                     }
                 }
@@ -271,9 +258,9 @@ class SnmpTemplate(object):
             'compval': 'vrf.use',
             'result': {
                 'hosts': {
-                    '{host}_{udp_port}': {
+                    '{{ host }}_{{ udp_port|d() }}': {
                         'vrf': {
-                            'use': '{use_vrf}'
+                            'use': '{{ use_vrf }}'
                         }
                     }
                 }
@@ -290,8 +277,8 @@ class SnmpTemplate(object):
             'compval': 'source_interface',
             'result': {
                 'hosts': {
-                    '{host}_{udp_port}': {
-                        'source_interface': '{source_interface}'
+                    '{{ host }}_{{ udp_port|d() }}': {
+                        'source_interface': '{{ source_interface }}'
                     }
                 }
             }
@@ -299,31 +286,28 @@ class SnmpTemplate(object):
         {
             'name': 'location',
             'getval': r'^snmp-server location (?P<location>.*)$',
-            'setval': 'snmp-server location {location}',
+            'setval': 'snmp-server location {{ location }}',
             'remval': 'snmp-server location',
             'result': {
-                'location': '{location}'
+                'location': '{{ location }}'
             }
         },
         {
             'name': 'packetsize',
             'getval': r'^snmp-server packetsize (?P<packetsize>.*)$',
-            'setval': 'snmp-server packetsize {packetsize}',
+            'setval': 'snmp-server packetsize {{ packetsize }}',
             'result': {
-                'packetsize': '{packetsize}'
+                'packetsize': '{{ packetsize|int }}'
             },
-            'cast': {
-                'packetsize': 'to_int'
-            }
         },
         {
             'name': 'source_interface.informs',
             'getval': r'^snmp-server source-interface informs (?P<int>\S+)$',
-            'setval':
-            'snmp-server source-interface informs {source_interface[informs]}',
+            'setval': ('snmp-server source-interface informs'
+                       ' {{ source_interface.informs }}'),
             'result': {
                 'source_interface': {
-                    'informs': '{int}'
+                    'informs': '{{ int }}'
                 }
             }
         },
@@ -331,35 +315,32 @@ class SnmpTemplate(object):
             'name': 'source_interface.traps',
             'getval': r'^snmp-server source-interface traps (?P<int>\S+)$',
             'setval':
-            'snmp-server source-interface traps {source_interface[traps]}',
+            'snmp-server source-interface traps {{ source_interface.traps }}',
             'result': {
                 'source_interface': {
-                    'traps': '{int}'
+                    'traps': '{{ int }}'
                 }
             },
         },
         {
             'name': 'traps',
             'getval': re.compile(r'''
-                  ^((?P<no>no)\s)?
+                  ^((?P<no_trap>no)\s)?
                   snmp-server\senable\straps\s
                   (?P<type>\S+)\s
                   (?P<name>\S+)$''', re.VERBOSE),
-            'setval': 'snmp-server enable traps {type} {name}',
+            'setval': 'snmp-server enable traps {{ type }} {{ name}}',
             'compval': 'negate',
             'result': {
                 'traps': {
-                    '{type}': {
-                        'type': '{type}',
+                    '{{ type }}': {
+                        'type': '{{ type }}',
                         'names': [{
-                            'name': '{name}',
-                            'negate': '{no}'
+                            'name': '{{ name }}',
+                            'negate': '{{ no_trap is defined }}'
                         }]
                     }
                 }
-            },
-            'cast': {
-                'no': 'no_means_true'
             }
         },
         {
@@ -377,21 +358,17 @@ class SnmpTemplate(object):
             'setval': _tmplt_user,
             'result': {
                 'users': {
-                    '{username}_{engine_id}': {
-                        'aes_128': '{aes_128}',
-                        'algorithm': '{algorithm}',
-                        'engine_id': '{engine_id}',
-                        'groups': ['{group}'],
-                        'localized_key': '{localized_key}',
-                        'password': '{password}',
-                        'privacy_password': '{privacy_password}',
-                        'username': '{username}'
+                    '{{ username }}{{ engine_id|d() }}': {
+                        'aes_128': '{{ not not aes_128 }}',
+                        'algorithm': '{{ algorithm }}',
+                        'engine_id': '{{ engine_id }}',
+                        'groups': ['{{ group }}'],
+                        'localized_key': '{{ not not localized_key }}',
+                        'password': '{{ password }}',
+                        'privacy_password': '{{ privacy_password }}',
+                        'username': '{{ username }}'
                     }
                 }
-            },
-            'cast': {
-                'aes_128': 'to_bool',
-                'localized_key': 'to_bool'
             },
         },
         {
@@ -400,19 +377,16 @@ class SnmpTemplate(object):
               ^snmp-server\suser\s
               (?P<username>\S+)
               \s(?P<enforce_priv>enforcePriv)$''', re.VERBOSE),
-            'setval': 'snmp-server user {username} enforcePriv',
+            'setval': 'snmp-server user {{ username }} enforcePriv',
             'compval': 'enforce_priv',
             'result': {
                 'users': {
-                    '{username}_None': {
-                        'username': '{username}',
-                        'enforce_priv': '{enforce_priv}'
+                    '{{ username }}': {
+                        'username': '{{ username }}',
+                        'enforce_priv': True
                     }
                 }
             },
-            'cast': {
-                'enforce_priv': 'to_bool'
-            }
         },
         {
             'name': 'users.group',
@@ -420,12 +394,12 @@ class SnmpTemplate(object):
               ^snmp-server\suser\s
               (?P<username>\S+)
               \s(?!enforcePriv)(?P<group>\S+)$''', re.VERBOSE),
-            'setval': 'snmp-server user {username} {group}',
+            'setval': 'snmp-server user {{ username }} {{ group }}',
             'result': {
                 'users': {
-                    '{username}_None': {
-                        'groups': ['{group}'],
-                        'username': '{username}'
+                    '{{ username }}': {
+                        'groups': ['{{ group }}'],
+                        'username': '{{ username }}'
                     }
                 }
             },
@@ -437,12 +411,13 @@ class SnmpTemplate(object):
               (?P<username>\S+)
               \suse-ipv4acl
               \s(?P<ipv4acl>\S+)$''', re.VERBOSE),
-            'setval': 'snmp-server user {username} use-ipv4acl {ipv4acl}',
+            'setval': ('snmp-server user {{ username }}'
+                       ' use-ipv4acl {{ ipv4acl }}'),
             'result': {
                 'users': {
-                    '{username}_None': {
-                        'username': '{username}',
-                        'ipv4acl': '{ipv4acl}'
+                    '{{ username }}': {
+                        'username': '{{ username }}',
+                        'ipv4acl': '{{ ipv4acl }}'
                     }
                 }
             }
@@ -454,13 +429,13 @@ class SnmpTemplate(object):
                   (?P<username>\S+)
                   \suse-ipv6acl
                   \s(?P<ipv6acl>\S+)$''', re.VERBOSE),
-            'setval':
-            'snmp-server user {username} use-ipv6acl {ipv6acl}',
+            'setval': ('snmp-server user {{ username }}'
+                       ' use-ipv6acl {{ ipv6acl }}'),
             'result': {
                 'users': {
-                    '{username}_None': {
-                        'username': '{username}',
-                        'ipv6acl': '{ipv6acl}'
+                    '{{ username }}': {
+                        'username': '{{ username }}',
+                        'ipv6acl': '{{ ipv6acl }}'
                     }
                 }
             }
@@ -474,14 +449,14 @@ class SnmpTemplate(object):
               \s(?P<ipv4acl>\S+)
               \suse-ipv6acl
               \s(?P<ipv6acl>\S+)$''', re.VERBOSE),
-            'setval': ('snmp-server user {username}'
-                       ' use-ipv4acl {ipv4acl} use-ipv6acl {ipv6acl}'),
+            'setval': ('snmp-server user {{ username }}'
+                       ' use-ipv4acl {{ ipv4acl }} use-ipv6acl {{ ipv6acl }}'),
             'result': {
                 'users': {
-                    '{username}_None': {
-                        'username': '{username}',
-                        'ipv4acl': '{ipv4acl}',
-                        'ipv6acl': '{ipv6acl}'
+                    '{{ username }}': {
+                        'username': '{{ username }}',
+                        'ipv4acl': '{{ ipv4acl }}',
+                        'ipv6acl': '{{ ipv6acl }}'
                     }
                 }
             }

@@ -4,6 +4,15 @@
     - community: commstring
       host: 1.1.1.1
       message_type: traps
+      source_interface: Ethernet1/2
+      version: '1'
+      vrf:
+        filter:
+        - management2
+        use: management2
+    - community: commstring
+      host: 1.1.1.1
+      message_type: traps
       source_interface: Ethernet1/1
       udp_port: 23
       version: 2c
@@ -11,15 +20,6 @@
         filter:
         - management1
         use: management1
-    - community: commstring
-      host: 1.1.1.1
-      message_type: traps
-      source_interface: Ethernet1/2
-      version: '1'
-      vrf:
-        filter:
-        - management2
-        use: management2
     hosts_b:
     - community: commstring
       host: 1.1.1.2
@@ -47,6 +47,10 @@
     state: replaced
   register: result
 
+- name: Resest the config
+  nxos_snmp:
+    state: deleted
+
 - name: Check the hosts
   assert:
     that: "{{ result['before']['hosts'] == hosts_a }}"
@@ -54,8 +58,3 @@
 - name: Check the hosts
   assert:
     that: "{{ result['after']['hosts'] == hosts_b }}"
-
-- name: Resest the config
-  nxos_snmp:
-    state: deleted
-  register: result

@@ -9,3 +9,4 @@ all:
       ansible_become_method: enable
       ansible_facts_modules: nxos_facts
       ansible_connection: network_cli
+      ansible_python_interpreter: python

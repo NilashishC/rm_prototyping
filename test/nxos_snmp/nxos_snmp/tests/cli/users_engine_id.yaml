@@ -1,16 +1,14 @@
 - name: Set some values
   set_fact:
     users:
-    - aes_128: false
-      algorithm: md5
+    - algorithm: md5
       groups:
       - network-operator
       ipv4acl: '10'
       localized_key: true
       password: '0x73fd9a2cc8c53ed3dd4ed8f4ff157e69'
       username: m01
-    - aes_128: false
-      algorithm: sha
+    - algorithm: sha
       groups:
       - network-operator
       localized_key: true

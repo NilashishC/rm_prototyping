@@ -1,6 +1,7 @@
 from ansible.errors import AnsibleUndefinedVariable
 import ansible.template
 
+
 class RmModuleRender(object):
     def __init__(self, tmplt):
         self._tmplt = tmplt

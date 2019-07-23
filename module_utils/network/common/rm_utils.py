@@ -20,12 +20,12 @@ def compare_partial_dict(want, have, compare_keys):
 
     wantd = {}
     for key, val in want.items():
-        if key not in rmkeys and key in kkeys:
+        if key not in rmkeys or key in kkeys:
             wantd[key] = val
 
     haved = {}
     for key, val in have.items():
-        if key not in rmkeys and key in kkeys:
+        if key not in rmkeys or key in kkeys:
             haved[key] = val
 
     return wantd == haved
