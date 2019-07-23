@@ -289,8 +289,7 @@ class OspfTemplate(object):
                 'processes': {
                     '{{ process_id }}_{{ vrf }}': {
                         'bfd': {
-                            'all_interfaces': ('{{ True if all_interfaces'
-                                               ' else None}}')
+                            'all_interfaces': True
                         }
                     }
                 }
@@ -306,7 +305,7 @@ class OspfTemplate(object):
                 'processes': {
                     '{{ process_id }}_{{ vrf }}': {
                         'compatible': {
-                            'rfc1583': '{{ True if rfc1583 else None }}'
+                            'rfc1583': True
                         }
                     }
                 }
