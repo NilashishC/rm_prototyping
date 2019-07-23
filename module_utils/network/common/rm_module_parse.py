@@ -5,7 +5,6 @@ from ansible.errors import AnsibleUndefinedVariable
 
 from ansible import constants as C
 import ansible.template
-import q
 
 class RmModuleParse(object):
     def __init__(self, lines, tmplt):
