@@ -7,6 +7,9 @@
     eos_ospf:
       state: deleted
     register: result
+
+  - debug:
+      var: result
   - name: Collect cli test cases
     find:
       paths: "eos_ospf/tests/cli"

@@ -66,14 +66,11 @@ class OspfTemplate(object):
             'setval': _tmplt_process_id,
             'result': {
                 'processes': {
-                    '{process_id}_{vrf}': {
-                        'id': '{process_id}',
-                        'vrf': '{vrf}'
-                    },
-                },
-            },
-            'cast': {
-                'process_id': 'to_int',
+                    '{{ process_id }}_{{ vrf }}': {
+                        'id': '{{ process_id|int }}',
+                        'vrf': '{{ vrf }}'
+                    }
+                }
             },
             'shared': True
         },
@@ -86,18 +83,15 @@ class OspfTemplate(object):
                        ' {adjacency[exchange_start][threshold]}'),
             'result': {
                 'processes': {
-                    '{process_id}_{vrf}': {
+                    '{{ process_id }}_{{ vrf }}': {
                         'adjacency': {
                             'exchange_start': {
-                                'threshold': '{aest}'
+                                'threshold': '{{ aest|int }}'
                             }
                         }
-                    },
-                },
-            },
-            'cast': {
-                'aest': 'to_int',
-            },
+                    }
+                }
+            }
         },
         {
             'name': 'auto_cost.reference_bandwidth',
@@ -108,12 +102,12 @@ class OspfTemplate(object):
             'auto-cost reference-bandwidth {auto_cost[reference_bandwidth]}',
             'result': {
                 'processes': {
-                    '{process_id}_{vrf}': {
+                    '{{ process_id }}_{{ vrf }}': {
                         'auto_cost': {
-                            'reference_bandwidth': '{acrb}'
+                            'reference_bandwidth': '{{ acrb }}'
                         }
-                    },
-                },
+                    }
+                }
             },
             'cast': {
                 'acrb': 'to_int',
@@ -127,16 +121,16 @@ class OspfTemplate(object):
             'setval': 'area {area} {type}',
             'result': {
                 'processes': {
-                    '{process_id}_{vrf}': {
+                    '{{ process_id }}_{{ vrf }}': {
                         'areas': {
-                            '{area}': {
-                                'area': '{area}',
-                                'type': '{area_type}'
+                            '{{ area }}': {
+                                'area': '{{ area }}',
+                                'type': '{{ area_type }}'
                             }
                         }
-                    },
-                },
-            },
+                    }
+                }
+            }
         },
         {
             'name': 'area.default_cost',
@@ -147,19 +141,16 @@ class OspfTemplate(object):
             'compval': 'default_cost',
             'result': {
                 'processes': {
-                    '{process_id}_{vrf}': {
+                    '{{ process_id }}_{{ vrf }}': {
                         'areas': {
-                            '{area}': {
-                                'area': '{area}',
-                                'default_cost': '{default_cost}'
+                            '{{ area }}': {
+                                'area': '{{ area }}',
+                                'default_cost': '{{ default_cost|int }}'
                             }
                         }
-                    },
-                },
-            },
-            'cast': {
-                'default_cost': 'to_int',
-            },
+                    }
+                }
+            }
         },
         {
             'name': 'area.filter',
@@ -169,16 +160,16 @@ class OspfTemplate(object):
             'setval': 'area {area} filter {filter}',
             'result': {
                 'processes': {
-                    '{process_id}_{vrf}': {
+                    '{{ process_id }}_{{ vrf }}': {
                         'areas': {
-                            '{area}': {
-                                'area': '{area}',
-                                'filters': ['{filter}']
+                            '{{ area }}': {
+                                'area': '{{ area }}',
+                                'filters': ['{{ filter }}']
                             }
                         }
-                    },
-                },
-            },
+                    }
+                }
+            }
         },
         {
             'name': 'area.default_information',
@@ -192,27 +183,26 @@ class OspfTemplate(object):
             'setval': _tmplt_area_default_information,
             'result': {
                 'processes': {
-                    '{process_id}_{vrf}': {
+                    '{{ process_id }}_{{ vrf }}': {
                         'areas': {
-                            '{area}': {
-                                'area': '{area}',
-                                'type': '{area_type}',
+                            '{{ area }}': {
+                                'area': '{{ area }}',
+                                'type': '{{ area_type }}',
                                 'default_information': {
-                                    'metric': '{adi_metric}',
-                                    'metric_type': '{adi_metric_type}',
-                                    'nssa_only': '{d_nssa_only}',
+                                    'metric': ('{{ adi_metric|int'
+                                               ' if adi_metric != None'
+                                               ' else None }}'),
+                                    'metric_type': ('{{ adi_metric_type|int'
+                                                    ' if adi_metric_type'
+                                                    ' != None else None }}'),
+                                    'nssa_only': ('{{ True if d_nssa_only'
+                                                  ' else None }}'),
                                     'originate': True
                                 }
                             }
                         }
-                    },
-                },
-            },
-            'cast': {
-                'dio': 'to_bool',
-                'adi_metric': 'to_int',
-                'adi_metric_type': 'to_int',
-                'd_nssa_only': 'true_or_none'
+                    }
+                }
             }
         },
         {
@@ -225,19 +215,16 @@ class OspfTemplate(object):
             'compval': 'no_summary',
             'result': {
                 'processes': {
-                    '{process_id}_{vrf}': {
+                    '{{ process_id }}_{{ vrf }}': {
                         'areas': {
-                            '{area}': {
-                                'area': '{area}',
-                                'no_summary': '{no_summary}',
-                                'type': '{area_type}'
+                            '{{ area }}': {
+                                'area': '{{ area }}',
+                                'no_summary': True,
+                                'type': '{{ area_type }}'
                             }
                         }
-                    },
-                },
-            },
-            'cast': {
-                'no_summary': 'to_bool'
+                    }
+                }
             }
         },
         {
@@ -250,20 +237,18 @@ class OspfTemplate(object):
             'compval': 'nssa_only',
             'result': {
                 'processes': {
-                    '{process_id}_{vrf}': {
+                    '{{ process_id }}_{{ vrf }}': {
                         'areas': {
-                            '{area}': {
-                                'area': '{area}',
-                                'nssa_only': '{a_nssa_only}',
-                                'type': '{area_type}'
+                            '{{ area }}': {
+                                'area': '{{ area }}',
+                                'nssa_only': ('{{ True if a_nssa_only'
+                                              ' else None }}'),
+                                'type': '{{ area_type }}'
                             }
                         }
-                    },
-                },
-            },
-            'cast': {
-                'a_nssa_only': 'true_or_none',
-            },
+                    }
+                }
+            }
         },
         {
             'name': 'area.range',
@@ -276,23 +261,22 @@ class OspfTemplate(object):
             'remval': 'area {area} range {range}',
             'result': {
                 'processes': {
-                    '{process_id}_{vrf}': {
+                    '{{ process_id }}_{{ vrf }}': {
                         'areas': {
-                            '{area}': {
-                                'area': '{area}',
+                            '{{ area }}': {
+                                'area': '{{ area }}',
                                 'ranges': [{
-                                    'cost': '{cost}',
-                                    'not_advertise': '{not_advertise}',
-                                    'range': '{range}'
+                                    'cost': ('{{ cost|int if cost != None'
+                                             ' else None }}'),
+                                    'not_advertise': ('{{ True'
+                                                      ' if not_advertise'
+                                                      ' else None }}'),
+                                    'range': '{{ range }}'
                                     }]
                             }
                         }
-                    },
-                },
-            },
-            'cast': {
-                'cost': 'to_int',
-                'not_advertise': 'true_or_none'
+                    }
+                }
             }
         },
         {
@@ -303,16 +287,14 @@ class OspfTemplate(object):
             'setval': 'bfd all-interfaces',
             'result': {
                 'processes': {
-                    '{process_id}_{vrf}': {
+                    '{{ process_id }}_{{ vrf }}': {
                         'bfd': {
-                            'all_interfaces': '{all_interfaces}'
+                            'all_interfaces': ('{{ True if all_interfaces'
+                                               ' else None}}')
                         }
-                    },
-                },
-            },
-            'cast': {
-                'all_interfaces': 'true_or_none',
-            },
+                    }
+                }
+            }
         },
         {
             'name': 'compatible.rfc1583',
@@ -322,16 +304,13 @@ class OspfTemplate(object):
             'setval': 'compatible rfc1583',
             'result': {
                 'processes': {
-                    '{process_id}_{vrf}': {
+                    '{{ process_id }}_{{ vrf }}': {
                         'compatible': {
-                            'rfc1583': '{rfc1583}'
+                            'rfc1583': '{{ True if rfc1583 else None }}'
                         }
-                    },
-                },
-            },
-            'cast': {
-                'rfc1583': 'true_or_none',
-            },
+                    }
+                }
+            }
         },
         {
             'name': 'default_information',
@@ -346,23 +325,20 @@ class OspfTemplate(object):
             'remval': 'default-information originate',
             'result': {
                 'processes': {
-                    '{process_id}_{vrf}': {
+                    '{{ process_id }}_{{ vrf }}': {
                         'default_information': {
-                            'always': '{always}',
-                            'metric': '{di_metric}',
-                            'metric_type': '{di_metric_type}',
-                            'originate': '{no_dio}',
-                            'route_map': '{route_map}'
+                            'always': '{{ True if always else None }}',
+                            'metric': ('{{di_metric|int '
+                                       'if di_metric != None else None }}'),
+                            'metric_type': ('{{ di_metric_type|int'
+                                            ' if di_metric_type != None'
+                                            ' else None }}'),
+                            'originate': '{{ False if no_dio else True }}',
+                            'route_map': '{{ route_map }}'
                         }
-                    },
-                },
-            },
-            'cast': {
-                'always': 'true_or_none',
-                'di_metric': 'to_int',
-                'di_metric_type': 'to_int',
-                'no_dio': 'no_means_false',
-            },
+                    }
+                }
+            }
         },
         {
             'name': 'distance.external',
@@ -372,16 +348,13 @@ class OspfTemplate(object):
             'setval': 'distance ospf external {distance[external]}',
             'result': {
                 'processes': {
-                    '{process_id}_{vrf}': {
+                    '{{ process_id }}_{{ vrf }}': {
                         'distance': {
-                            'external': '{distance_external}'
+                            'external': '{{ distance_external|int }}'
                         }
-                    },
-                },
-            },
-            'cast': {
-                'distance_external': 'to_int',
-            },
+                    }
+                }
+            }
         },
         {
             'name': 'distance.intra_area',
@@ -391,16 +364,13 @@ class OspfTemplate(object):
             'setval': 'distance ospf intra-area {distance[intra_area]}',
             'result': {
                 'processes': {
-                    '{process_id}_{vrf}': {
+                    '{{ process_id }}_{{ vrf }}': {
                         'distance': {
-                            'intra_area': '{distance_intra_area}'
+                            'intra_area': '{{ distance_intra_area|int }}'
                         }
-                    },
-                },
-            },
-            'cast': {
-                'distance_intra_area': 'to_int',
-            },
+                    }
+                }
+            }
         },
         {
             'name': 'distance.inter_area',
@@ -410,16 +380,13 @@ class OspfTemplate(object):
             'setval': 'distance ospf inter-area {distance[inter_area]}',
             'result': {
                 'processes': {
-                    '{process_id}_{vrf}': {
+                    '{{ process_id }}_{{ vrf }}': {
                         'distance': {
-                            'inter_area': '{distance_inter_area}'
+                            'inter_area': '{{ distance_inter_area|int }}'
                         }
-                    },
-                },
-            },
-            'cast': {
-                'distance_inter_area': 'to_int',
-            },
+                    }
+                }
+            }
         },
         {
             'name': 'distribute_list',
@@ -431,14 +398,14 @@ class OspfTemplate(object):
                        ' {distribute_list[name]} in'),
             'result': {
                 'processes': {
-                    '{process_id}_{vrf}': {
+                    '{{ process_id }}_{{ vrf }}': {
                         'distribute_list': {
-                            'name': '{dl_name}',
-                            'type': '{dl_type}'
+                            'name': '{{ dl_name }}',
+                            'type': '{{ dl_type }}'
                         }
-                    },
-                },
-            },
+                    }
+                }
+            }
         },
         {
             'name': 'dn_bit_ignore',
@@ -446,11 +413,11 @@ class OspfTemplate(object):
             'setval': 'dn-bit-ignore',
             'result': {
                 'processes': {
-                    '{process_id}_{vrf}': {
+                    '{{ process_id }}_{{ vrf }}': {
                         'dn_bit_ignore': True
-                    },
-                },
-            },
+                    }
+                }
+            }
         },
         {
             'name': 'graceful_restart',
@@ -462,16 +429,15 @@ class OspfTemplate(object):
             'remval': 'graceful-restart',
             'result': {
                 'processes': {
-                    '{process_id}_{vrf}': {
+                    '{{ process_id }}_{{ vrf }}': {
                         'graceful_restart': {
                             'enable': True,
-                            'grace_period': '{grace_period}'
+                            'grace_period': ('{{ grace_period|int'
+                                             ' if grace_period != None'
+                                             ' else None }}')
                         }
-                    },
-                },
-            },
-            'cast': {
-                'grace_period': 'to_int'
+                    }
+                }
             }
         },
         {
@@ -483,12 +449,12 @@ class OspfTemplate(object):
             'compval': 'graceful_restart.helper',
             'result': {
                 'processes': {
-                    '{process_id}_{vrf}': {
+                    '{{ process_id }}_{{ vrf }}': {
                         'graceful_restart': {
                             'helper': False,
                         }
-                    },
-                },
-            },
-        },
+                    }
+                }
+            }
+        }
     ]
