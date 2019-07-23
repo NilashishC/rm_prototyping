@@ -80,7 +80,7 @@ class OspfTemplate(object):
                 \s+adjacency\sexchange-start\sthreshold\s
                 (?P<aest>\d+)$''', re.VERBOSE),
             'setval': ('adjacency exchange-start threshold'
-                       ' {adjacency[exchange_start][threshold]}'),
+                       ' {{ adjacency.exchange_start.threshold }}'),
             'result': {
                 'processes': {
                     '{{ process_id }}_{{ vrf|d() }}': {
@@ -98,8 +98,8 @@ class OspfTemplate(object):
             'getval': re.compile(r'''
                 \s+auto-cost\sreference-bandwidth\s
                 (?P<acrb>\d+)$''', re.VERBOSE),
-            'setval':
-            'auto-cost reference-bandwidth {auto_cost[reference_bandwidth]}',
+            'setval': ('auto-cost reference-bandwidth'
+                       ' {{ auto_cost.reference_bandwidth }}'),
             'result': {
                 'processes': {
                     '{{ process_id }}_{{ vrf|d() }}': {
@@ -118,7 +118,7 @@ class OspfTemplate(object):
             'getval': re.compile(r'''
                 \s+area\s(?P<area>\S+)\s
                 (?P<area_type>nssa|stub)$''', re.VERBOSE),
-            'setval': 'area {area} {type}',
+            'setval': 'area {{ area }} {{ type }}',
             'result': {
                 'processes': {
                     '{{ process_id }}_{{ vrf|d() }}': {
@@ -137,7 +137,7 @@ class OspfTemplate(object):
             'getval': re.compile(r'''
                 \s+area\s(?P<area>\S+)\s
                 default-cost\s(?P<default_cost>\S+)$''', re.VERBOSE),
-            'setval': 'area {area} default-cost {default_cost}',
+            'setval': 'area {{ area }} default-cost {{ default_cost }}',
             'compval': 'default_cost',
             'result': {
                 'processes': {
@@ -157,7 +157,7 @@ class OspfTemplate(object):
             'getval': re.compile(r'''
                 \s+area\s(?P<area>\S+)\s
                 filter\s(?P<filter>\S+)$''', re.VERBOSE),
-            'setval': 'area {area} filter {filter}',
+            'setval': 'area {{ area }} filter {{ filter }}',
             'result': {
                 'processes': {
                     '{{ process_id }}_{{ vrf|d() }}': {
@@ -206,7 +206,7 @@ class OspfTemplate(object):
                 \s+area\s(?P<area>\S+)\s
                 (?P<area_type>nssa|stub)\s
                 (?P<no_summary>no-summary)''', re.VERBOSE),
-            'setval': 'area {area} {type} no-summary',
+            'setval': 'area {{ area }} {{ type }} no-summary',
             'compval': 'no_summary',
             'result': {
                 'processes': {
@@ -228,7 +228,7 @@ class OspfTemplate(object):
                 \s+area\s(?P<area>\S+)\s
                 (?P<area_type>nssa|stub)
                 (\s(?P<a_nssa_only>nssa-only))?$''', re.VERBOSE),
-            'setval': 'area {area} {type} nssa-only',
+            'setval': 'area {{ area }} {{ type }} nssa-only',
             'compval': 'nssa_only',
             'result': {
                 'processes': {
@@ -252,7 +252,7 @@ class OspfTemplate(object):
                 (\s(?P<not_advertise>not-advertise))?
                 (\scost\s(?P<cost>\d+))?$''', re.VERBOSE),
             'setval': _tmplt_area_range,
-            'remval': 'area {area} range {range}',
+            'remval': 'area {{ area }} range {{ range }}',
             'result': {
                 'processes': {
                     '{{ process_id }}_{{ vrf|d() }}': {
@@ -333,7 +333,7 @@ class OspfTemplate(object):
             'getval': re.compile(r'''
                 \s+distance\sospf\sexternal\s
                 (?P<distance_external>\d+)$''', re.VERBOSE),
-            'setval': 'distance ospf external {distance[external]}',
+            'setval': 'distance ospf external {{ distance.external }}',
             'result': {
                 'processes': {
                     '{{ process_id }}_{{ vrf|d() }}': {
@@ -349,7 +349,7 @@ class OspfTemplate(object):
             'getval': re.compile(r'''
                 \s+distance\sospf\sintra-area\s
                 (?P<distance_intra_area>\d+)$''', re.VERBOSE),
-            'setval': 'distance ospf intra-area {distance[intra_area]}',
+            'setval': 'distance ospf intra-area {{ distance.intra_area }}',
             'result': {
                 'processes': {
                     '{{ process_id }}_{{ vrf|d() }}': {
@@ -365,7 +365,7 @@ class OspfTemplate(object):
             'getval': re.compile(r'''
                 \s+distance\sospf\sinter-area\s
                 (?P<distance_inter_area>\d+)$''', re.VERBOSE),
-            'setval': 'distance ospf inter-area {distance[inter_area]}',
+            'setval': 'distance ospf inter-area {{ distance.inter_area }}',
             'result': {
                 'processes': {
                     '{{ process_id }}_{{ vrf|d() }}': {
@@ -382,8 +382,8 @@ class OspfTemplate(object):
                 \s+distribute-list\s
                 (?P<dl_type>\S+)\s
                 (?P<dl_name>\S+)\sin$''', re.VERBOSE),
-            'setval': ('distribute-list {distribute_list[type]}'
-                       ' {distribute_list[name]} in'),
+            'setval': ('distribute-list {{ distribute_list.type }}'
+                       ' {{ distribute_list.name }} in'),
             'result': {
                 'processes': {
                     '{{ process_id }}_{{ vrf|d() }}': {
