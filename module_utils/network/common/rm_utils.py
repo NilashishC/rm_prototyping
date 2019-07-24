@@ -1,6 +1,9 @@
-
+""" these should eventually go into network/utils
+but are here now for ease.
+"""
 from functools import reduce  # forward compatibility for Python 3
 import operator
+
 
 def get_from_dict(data_dict, keypath):
     """ get from dictionary

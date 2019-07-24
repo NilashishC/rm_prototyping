@@ -15,7 +15,6 @@ from copy import deepcopy
 from ansible.module_utils.network. \
     nxos.rm_templates.snmp import SnmpTemplate
 from ansible.module_utils.network.common import utils
-from ansible.module_utils.network.common.utils import dict_merge
 from ansible.module_utils.network.common.rm_module_parse import RmModuleParse
 from ansible.module_utils.network.nxos.argspec.snmp.snmp import SnmpArgs
 
@@ -71,11 +70,12 @@ class SnmpFacts(object):
         if 'hosts' in current:
             current['hosts'] = sorted(current['hosts'],
                                       key=lambda k: (k['host'],
-                                                     k.get('udp_port', "")))
+                                                     str(k.get('udp_port',
+                                                               ''))))
 
-        for host in current.get('hosts', []):
-            if 'filter' in host.get('vrf', {}):
-                host['vrf']['filter'].sort()
+            for host in current['hosts']:
+                if 'filter' in host.get('vrf', {}):
+                    host['vrf']['filter'].sort()
 
         ansible_facts['ansible_network_resources'].pop('snmp', None)
         facts = {}
@@ -83,7 +83,6 @@ class SnmpFacts(object):
             params = utils.validate_config(self.argument_spec,
                                            {'config': current})
             params = utils.remove_empties(params)
-
             facts['snmp'] = params['config']
 
         ansible_facts['ansible_network_resources'].update(facts)

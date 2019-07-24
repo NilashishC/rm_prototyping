@@ -1,30 +1,22 @@
 import re
 from copy import deepcopy
-from ansible.module_utils.network.common.utils import dict_merge
-from ansible.errors import AnsibleUndefinedVariable
-
-from ansible import constants as C
-import ansible.template
+from ansible.module_utils.network.common.utils import dict_merge, Template
 
 class RmModuleParse(object):
     def __init__(self, lines, tmplt):
         self._lines = lines
         self._tmplt = tmplt
-        C.DEFAULT_JINJA2_NATIVE = True
-        self._templar = ansible.template.Templar(loader=None)
+        self._template = Template()
 
     def _deepformat(self, tmplt, data):
         wtmplt = deepcopy(tmplt)
-        self._templar._available_variables = data  # pylint: disable=W0212
         if isinstance(tmplt, str):
-            try:
-                return self._templar.do_template(tmplt)
-            except AnsibleUndefinedVariable:
-                return None
-
+            res = self._template(value=tmplt, variables=data,
+                                 fail_on_undefined=False)
+            return res
         if isinstance(tmplt, dict):
             for tkey, tval in tmplt.items():
-                ftkey = self._templar.do_template(tkey)
+                ftkey = self._template(tkey, data)
                 if ftkey != tkey:
                     wtmplt.pop(tkey)
                 if isinstance(tval, dict):

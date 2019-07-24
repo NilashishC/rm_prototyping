@@ -26,6 +26,15 @@
       - community: commstring
         host: 1.1.1.1
         message_type: traps
+        source_interface: Ethernet1/2
+        version: 2c
+        vrf:
+          filter:
+          - management2
+          use: management2
+      - community: commstring
+        host: 1.1.1.1
+        message_type: traps
         source_interface: Ethernet1/1
         udp_port: 23
         version: 2c
@@ -33,15 +42,6 @@
           filter:
           - management1
           use: management1
-      - community: commstring
-        host: 1.1.1.1
-        message_type: traps
-        source_interface: Ethernet1/2
-        version: 2c
-        vrf:
-          filter:
-          - management2
-          use: management2
       - community: commstring
         host: 1.1.1.1
         message_type: traps

@@ -1,11 +1,12 @@
-from ansible.errors import AnsibleUndefinedVariable
-import ansible.template
+from ansible.module_utils.network.common.utils import Template
 
 
 class RmModuleRender(object):
+    """ RmModuleRender
+    """
     def __init__(self, tmplt):
         self._tmplt = tmplt
-        self._templar = ansible.template.Templar(loader=None)
+        self._template = Template()
 
     def get_parser(self, name):
         """ get_parsers
@@ -18,11 +19,11 @@ class RmModuleRender(object):
             if callable(tmplt):
                 res = tmplt(data)
             else:
-                self._templar._available_variables = data
-                res = self._templar.do_template(tmplt)
-        except (KeyError, AnsibleUndefinedVariable):
+                res = self._template(value=tmplt, variables=data,
+                                     fail_on_undefined=False)
+        except KeyError:
             return None
-        if negate:
+        if res and negate:
             return 'no ' + res
         return res
 

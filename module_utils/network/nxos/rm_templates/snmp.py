@@ -1,3 +1,6 @@
+""" Note the quotes around password and privacy_password
+to prevent Template from converting it to an int
+"""
 import re
 
 
@@ -212,7 +215,7 @@ class SnmpTemplate(object):
             'setval': _tmplt_host,
             'result': {
                 'hosts': {
-                    '{{ host }}_{{ udp_port|d() }}': {
+                    '{{ host }}_{{ udp_port|d("") }}': {
                         'host': '{{ host }}',
                         'message_type': '{{ message_type }}',
                         'version': '{{ version }}',
@@ -237,7 +240,7 @@ class SnmpTemplate(object):
             'compval': 'filter',
             'result': {
                 'hosts': {
-                    '{{ host }}_{{ udp_port|d() }}': {
+                    '{{ host }}_{{ udp_port|d("") }}': {
                         'vrf': {
                             'filter': ['{{ filter_vrf }}']
                         }
@@ -258,7 +261,7 @@ class SnmpTemplate(object):
             'compval': 'vrf.use',
             'result': {
                 'hosts': {
-                    '{{ host }}_{{ udp_port|d() }}': {
+                    '{{ host }}_{{ udp_port|d("") }}': {
                         'vrf': {
                             'use': '{{ use_vrf }}'
                         }
@@ -277,7 +280,7 @@ class SnmpTemplate(object):
             'compval': 'source_interface',
             'result': {
                 'hosts': {
-                    '{{ host }}_{{ udp_port|d() }}': {
+                    '{{ host }}_{{ udp_port|d("") }}': {
                         'source_interface': '{{ source_interface }}'
                     }
                 }
@@ -358,14 +361,14 @@ class SnmpTemplate(object):
             'setval': _tmplt_user,
             'result': {
                 'users': {
-                    '{{ username }}{{ engine_id|d() }}': {
+                    '{{ username }}{{ engine_id|d("") }}': {
                         'aes_128': '{{ not not aes_128 }}',
                         'algorithm': '{{ algorithm }}',
                         'engine_id': '{{ engine_id }}',
                         'groups': ['{{ group }}'],
                         'localized_key': '{{ not not localized_key }}',
-                        'password': '{{ password }}',
-                        'privacy_password': '{{ privacy_password }}',
+                        'password': '"{{ password }}"',
+                        'privacy_password': '"{{ privacy_password }}"',
                         'username': '{{ username }}'
                     }
                 }
