@@ -16,7 +16,6 @@ from ansible.module_utils.network.ios.rm_templates.interfaces \
 from ansible.module_utils.network.common.utils import dict_merge
 from ansible.module_utils.network.common.rm_module import RmModule
 
-import q
 
 class Interfaces(RmModule):
     """
