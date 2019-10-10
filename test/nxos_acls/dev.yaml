@@ -7,12 +7,10 @@
   - nxos_acls:
       config: "{{ acls }}"
       state: merged
-    # check_mode: True
     register: result
   - debug:
       var: result
   - nxos_acls:
       config: "{{ acls }}"
       state: merged
-
     register: result

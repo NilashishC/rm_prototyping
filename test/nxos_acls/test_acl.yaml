@@ -42,7 +42,7 @@ acls:
     sequence: 14
     source:
       port_protocol:
-        eq: 100
+        eq: '100'
       prefix: 1.1.1.0/24
   - action: permit
     destination:
@@ -53,7 +53,7 @@ acls:
     sequence: 15
     source:
       port_protocol:
-        eq: 100
+        eq: '100'
       prefix: 1.1.1.0/24
   - action: permit
     destination:
@@ -126,7 +126,7 @@ acls:
       prefix: 2.2.2.2/32
     match:
       packet_length:
-        eq: 20
+        eq: '20'
     protocol: tcp
     sequence: 24
     source:
@@ -175,3 +175,11 @@ acls:
     source:
       address: 1.1.1.0
       wildcard_bits: 0.0.0.128
+  - action: permit
+    additional_parameters: host-isolated
+    destination:
+      any: true
+    protocol: icmp
+    sequence: 28
+    source:
+      prefix: 1.1.1.1/32

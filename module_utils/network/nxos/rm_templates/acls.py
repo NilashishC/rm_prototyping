@@ -68,6 +68,8 @@ def _tmplt_entry(entry):
                 command.append(udf['name'])
                 command.append(udf['value'])
                 command.append(udf['mask'])
+    if 'additional_parameters' in entry:
+        command.append(entry['additional_parameters'])
     if entry.get('log'):
         command.append('log')
     return ' '.join([str(part) for part in command])
@@ -134,6 +136,7 @@ class ACLsTemplate(object):
                 (\svlan\s(?P<m_vlan>\d+))?
                 (\s(?P<log>log))?
                 (\s)?
+                (?P<additional_parameters>.*?)?
                 $""",
                 re.VERBOSE,
             ),
@@ -143,7 +146,7 @@ class ACLsTemplate(object):
                     'entries': {
                         "{{ sequence }}": {
                             'sequence': "{{ sequence }}",
-                            'rem': "{{ rem }}",
+                            'additional_parameters': "{{ additional_parameters.strip() }}",
                             'action': "{{ action }}",
                             'log': "{{ not not log }}",
                             'protocol': "{{ protocol }}",
@@ -191,22 +194,22 @@ class ACLsTemplate(object):
                                 'fin': "{{ m_fin }}",
                                 'http_method': "{{ m_http_method }}",
                                 'packet_length': {
-                                    'eq': "{{ m_pl_eq }}",
-                                    'gt': "{{ m_pl_gt }}",
-                                    'lt': "{{ m_pl_lt }}",
+                                    'eq': "{{ m_pl_eq|int }}",
+                                    'gt': "{{ m_pl_gt|int }}",
+                                    'lt': "{{ m_pl_lt|int }}",
                                     'range': {
-                                        'start': "{{ m_pl_rstart }}",
-                                        'end': "{{ m_pl_rend }}"
+                                        'start': "{{ m_pl_rstart|int }}",
+                                        'end': "{{ m_pl_rend|int }}"
                                     },
                                 },
                                 'precedence': "{{ m_precedence }}",
                                 'psh': "{{ not not m_psh }}",
                                 'rst': "{{ not not m_rst }}",
                                 'syn': "{{ not not m_syn }}",
-                                'ttl': "{{ m_ttl }}",
+                                'ttl': "{{ m_ttl|int }}",
                                 'udf': "{{ m_udf_str }}",
                                 'urg': "{{ not not m_urg }}",
-                                'vlan': "{{ m_vlan }}"
+                                'vlan': "{{ m_vlan|int }}"
                             }
                         }
                     }

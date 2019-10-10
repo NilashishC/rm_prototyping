@@ -7,13 +7,13 @@
     nxos_facts:
       gather_network_resources:
       - acls
-  # - debug:
-  #     var: ansible_network_resources
+  - debug:
+      var: ansible_network_resources
+  - nxos_acls:
+      state: deleted
   - nxos_acls:
       config: "{{ ansible_network_resources['acls'] }}"
       state: merged
-    check_mode: True
     register: result
   - debug:
       var: result
-  

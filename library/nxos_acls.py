@@ -60,27 +60,138 @@ options:
         suboptions:
           action:
             type: str
+          additional_parameters:
+            type: str
           destination:
             type: dict
             suboptions:
               address:
                 type: str
+              addrgroup:
+                type: str
+              any:
+                type: bool
+              port_protocol:
+                type: dict
+                suboptions:
+                  eq:
+                    type: str
+                  gt:
+                    type: str
+                  lt:
+                    type: str
+                  neq:
+                    type: str
+                  portgroup:
+                    type: str
+                  range:
+                    type: dict
+                    suboptions:
+                      start:
+                        type: str
+                      end:
+                        type: str
               prefix:
                 type: str
               wildcard_bits:
                 type: str
+          log:
+            type: bool
+          match:
+            type: dict
+            suboptions:
+              ack:
+                type: bool
+              dscp:
+                type: str
+              established:
+                type: bool
+              fin:
+                type: bool
+              http_method:
+                type: str
+              packet_length:
+                type: dict
+                suboptions:
+                  eq:
+                    type: int
+                  gt:
+                    type: int
+                  lt:
+                    type: int
+                  neq:
+                    type: int
+                  range:
+                    type: dict
+                    suboptions:
+                      start:
+                        type: int
+                      end:
+                        type: int
+              precedence:
+                type: str
+              psh:
+                type: bool
+              rst:
+                type: bool
+              syn:
+                type: bool
+              ttl:
+                type: int
+              udf:
+                type: list
+                elements: dict
+                suboptions:
+                  mask:
+                    type: str
+                  name:
+                    type: str
+                  value:
+                    type: str
+              urg:
+                type: bool
+              vlan:
+                type: str
+          protocol:
+            type: str
+          remark:
+            type: str
           sequence:
+            required: True
             type: int
           source:
             type: dict
             suboptions:
               address:
                 type: str
+              addrgroup:
+                type: str
+              any:
+                type: bool
+              port_protocol:
+                type: dict
+                suboptions:
+                  eq:
+                    type: str
+                  gt:
+                    type: str
+                  lt:
+                    type: str
+                  neq:
+                    type: str
+                  portgroup:
+                    type: str
+                  range:
+                    type: dict
+                    suboptions:
+                      start:
+                        type: str
+                      end:
+                        type: str
               prefix:
                 type: str
               wildcard_bits:
                 type: str
-
   state:
     description:
       - The state the configuration should be left in.

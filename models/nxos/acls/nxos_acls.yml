@@ -31,31 +31,83 @@ DOCUMENTATION: |
         entries:
           description: The entries within the ACL
           elements: dict
+          required_together: [[action, protocol, source, destination]]
           type: list
           suboptions:
             action:
               type: str
+            additional_parameters:
+              type: str
             destination:
+              mutually_exclusive: [[address, addrgroup, any, prefix], [wildcard_bits, addrgroup, any, prefix]]
+              required_together: [[address, wildcard_bits]]
               type: dict
               suboptions:
                 address:
                   type: str
+                addrgroup:
+                  type: str
+                any:
+                  type: bool
+                port_protocol:
+                  type: dict
+                  mutually_exclusive: [[eq, lt, neq, portgroup, range], [eq, gt, neq, portgroup, range]]
+                  suboptions:
+                    eq:
+                      type: str
+                    gt:
+                      type: str
+                    lt:
+                      type: str
+                    neq:
+                      type: str
+                    portgroup:
+                      type: str
+                    range:
+                      type: dict
+                      suboptions:
+                        start:
+                          type: str
+                        end:
+                          type: str
                 prefix:
                   type: str
                 wildcard_bits:
                   type: str
+            log:
+              type: bool
             match:
               type: dict
               suboptions:
                 ack:
                   type: bool
                 dscp:
+                  type: str
                 established:
                   type: bool
                 fin:
                   type: bool
                 http_method:
                   type: str
+                packet_length:
+                  type: dict
+                  mutually_exclusive: [[eq, lt, neq, range], [eq, gt, neq, range]]
+                  suboptions:
+                    eq:
+                      type: int
+                    gt:
+                      type: int
+                    lt:
+                      type: int
+                    neq:
+                      type: int
+                    range:
+                      type: dict
+                      suboptions:
+                        start:
+                          type: int
+                        end:
+                          type: int
                 precedence:
                   type: str
                 psh:
@@ -66,24 +118,63 @@ DOCUMENTATION: |
                   type: bool
                 ttl:
                   type: int
+                udf:
+                  type: list
+                  elements: dict
+                  suboptions:
+                    mask:
+                      type: str
+                    name:
+                      type: str
+                    value:
+                      type: str
                 urg:
                   type: bool
                 vlan:
                   type: str
             protocol:
               type: str
+            remark:
+              type: str
             sequence:
+              required: True
               type: int
             source:
               type: dict
+              mutually_exclusive: [[address, addrgroup, any, prefix], [wildcard_bits, addrgroup, any, prefix]]
+              required_together: [[address, wildcard_bits]]
               suboptions:
                 address:
                   type: str
+                addrgroup:
+                  type: str
+                any:
+                  type: bool
+                port_protocol:
+                  type: dict
+                  mutually_exclusive: [[eq, lt, neq, portgroup, range], [eq, gt, neq, portgroup, range]]
+                  suboptions:
+                    eq:
+                      type: str
+                    gt:
+                      type: str
+                    lt:
+                      type: str
+                    neq:
+                      type: str
+                    portgroup:
+                      type: str
+                    range:
+                      type: dict
+                      suboptions:
+                        start:
+                          type: str
+                        end:
+                          type: str
                 prefix:
                   type: str
                 wildcard_bits:
                   type: str
-
     state:
       description:
         - The state the configuration should be left in.
