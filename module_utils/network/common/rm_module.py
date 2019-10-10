@@ -34,7 +34,11 @@ class RmModule(RmModuleRender):  # pylint: disable=R0902
     def result(self):
         """ result
         """
-        result = {'after': self.get_facts(self._empty_fact_val),
+        if self.state == 'gathered':
+            after = self._empty_fact_val
+        else:
+            after = self.get_facts(self._empty_fact_val)
+        result = {'after': after,
                   'changed': self.changed,
                   'commands': self.commands,
                   'before': self.before,

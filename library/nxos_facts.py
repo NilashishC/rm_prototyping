@@ -58,23 +58,23 @@ EXAMPLES = """
     gather_subset: all
     gather_network_resources: all
 
-# Collect only the snmp facts
+# Collect only the acls facts
 - nxos_facts:
     gather_subset:
       - !all
       - !min
     gather_network_resources:
-      - snmp
+      - acls
 
-# Do not collect snmp facts
+# Do not collect acls facts
 - nxos_facts:
     gather_network_resources:
-      - "!snmp"
+      - "!acls"
 
-# Collect snmp and minimal default facts
+# Collect acls and minimal default facts
 - nxos_facts:
     gather_subset: min
-    gather_network_resources: snmp
+    gather_network_resources: acls
 """
 
 RETURN = """

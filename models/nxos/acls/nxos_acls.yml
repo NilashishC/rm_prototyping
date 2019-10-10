@@ -1,0 +1,103 @@
+---
+GENERATOR_VERSION: '1.0'
+
+ANSIBLE_METADATA: |
+    {
+      'metadata_version': '1.1',
+      'status': ['preview'],
+      'supported_by': 'network'
+    }
+NETWORK_OS: nxos
+RESOURCE: acls
+COPYRIGHT: Copyright 2019 Red Hat
+
+DOCUMENTATION: |
+  module: nxos_acls
+  version_added: 2.9
+  short_description: Manage named ACLs on NX-OS
+  description: Manage Manage named ACLs on NX-OS
+  author: Bradley Thornton (cidrblock)
+  notes:
+    - Tested against <network_os> 7.3.(0)D1(1) on VIRL
+  options:
+    config:
+      description: A list of ACLs
+      type: list
+      elements: dict
+      suboptions:
+        name:
+          description: The name of the ACL
+          type: str
+        entries:
+          description: The entries within the ACL
+          elements: dict
+          type: list
+          suboptions:
+            action:
+              type: str
+            destination:
+              type: dict
+              suboptions:
+                address:
+                  type: str
+                prefix:
+                  type: str
+                wildcard_bits:
+                  type: str
+            match:
+              type: dict
+              suboptions:
+                ack:
+                  type: bool
+                dscp:
+                established:
+                  type: bool
+                fin:
+                  type: bool
+                http_method:
+                  type: str
+                precedence:
+                  type: str
+                psh:
+                  type: bool
+                rst:
+                  type: bool
+                syn:
+                  type: bool
+                ttl:
+                  type: int
+                urg:
+                  type: bool
+                vlan:
+                  type: str
+            protocol:
+              type: str
+            sequence:
+              type: int
+            source:
+              type: dict
+              suboptions:
+                address:
+                  type: str
+                prefix:
+                  type: str
+                wildcard_bits:
+                  type: str
+
+    state:
+      description:
+        - The state the configuration should be left in.
+      type: str
+      choices:
+        - deleted
+        - gathered
+        - merged
+        - overridden
+        - rendered
+        - replaced
+      default: merged
+EXAMPLES:
+- merged_example_01.txt
+- replaced_example_01.txt
+- overridden_example_01.txt
+- deleted_example_01.txt

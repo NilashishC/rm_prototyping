@@ -7,6 +7,6 @@ all:
       ansible_become_pass: "{{ lookup('env', 'ansible_become_pass') }}"
       ansible_become: True
       ansible_become_method: enable
-      ansible_facts_modules: eos_facts
+      ansible_facts_modules: "{{ ansible_network_os }}_facts"
       ansible_connection: network_cli
       ansible_python_interpreter: python

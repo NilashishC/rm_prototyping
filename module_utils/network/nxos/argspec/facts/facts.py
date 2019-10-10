@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#
 # -*- coding: utf-8 -*-
 # Copyright 2019 Red Hat
 # GNU General Public License v3.0+
@@ -17,12 +17,11 @@ class FactsArgs(object):  # pylint: disable=R0903
 
     choices = [
         'all',
-        'snmp',
+        'acls',
     ]
 
     argument_spec = {
         'gather_subset': dict(default=['!config'], type='list'),
-        'gather_network_resources': dict(default=['all'],
-                                         choices=choices,
+        'gather_network_resources': dict(choices=choices,
                                          type='list'),
     }

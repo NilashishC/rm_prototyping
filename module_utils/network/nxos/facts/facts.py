@@ -11,13 +11,11 @@ calls the appropriate facts gathering function
 
 from ansible.module_utils.network.nxos.argspec.facts.facts import FactsArgs
 from ansible.module_utils.network.common.facts.facts import FactsBase
-from ansible.module_utils.network.nxos.facts.snmp.snmp import SnmpFacts
+from ansible.module_utils.network.nxos.facts.acls.acls import AclsFacts
 
 
 FACT_LEGACY_SUBSETS = {}
-FACT_RESOURCE_SUBSETS = dict(
-    snmp=SnmpFacts,
-)
+FACT_RESOURCE_SUBSETS = dict(acls=AclsFacts)
 
 
 class Facts(FactsBase):
@@ -30,20 +28,24 @@ class Facts(FactsBase):
     def __init__(self, module):
         super(Facts, self).__init__(module)
 
-    def get_facts(self, legacy_facts_type=None, resource_facts_type=None, data=None):
+    def get_facts(
+        self, legacy_facts_type=None, resource_facts_type=None, data=None
+    ):
         """ Collect the facts for nxos
-
         :param legacy_facts_type: List of legacy facts types
         :param resource_facts_type: List of resource fact types
         :param data: previously collected conf
         :rtype: dict
         :return: the facts gathered
         """
-        netres_choices = FactsArgs.argument_spec['gather_network_resources'].get('choices', [])
         if self.VALID_RESOURCE_SUBSETS:
-            self.get_network_resources_facts(netres_choices, FACT_RESOURCE_SUBSETS, resource_facts_type, data)
+            self.get_network_resources_facts(
+                FACT_RESOURCE_SUBSETS, resource_facts_type, data
+            )
 
         if self.VALID_LEGACY_GATHER_SUBSETS:
-            self.get_network_legacy_facts(FACT_LEGACY_SUBSETS, legacy_facts_type)
+            self.get_network_legacy_facts(
+                FACT_LEGACY_SUBSETS, legacy_facts_type
+            )
 
         return self.ansible_facts, self._warnings

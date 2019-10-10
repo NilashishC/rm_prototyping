@@ -1,19 +1,24 @@
 - hosts: all
   gather_facts: false
   tasks:
-  - import_role:
-      name: "../../eos_ospf"
-  # - eos_config:
-  #     parents:
-  #     - router ospf 100
-  #     lines:
-  #     - default-information originate always metric 5 metric-type 1 route-map foo
-  - eos_facts:
-      gather_subset: '!min'
-      gather_network_resources:
-      - ospf
   - debug:
-      var: ansible_network_resources
+      var: ansible_facts
+
+  - gather_facts:
+  - debug:
+      var: ansible_facts
+  #     name: "../../eos_ospf"
+  # # - eos_config:
+  # #     parents:
+  # #     - router ospf 100
+  # #     lines:
+  # #     - default-information originate always metric 5 metric-type 1 route-map foo
+  # - eos_facts:
+  #     gather_subset: '!min'
+  #     gather_network_resources:
+  #     - ospf
+  # - debug:
+  #     var: ansible_network_resources
 
   # - name: Merge the config (idempotent)
   #   eos_ospf:

@@ -1,0 +1,18 @@
+- hosts: all
+  gather_facts: false
+  tasks:
+  - import_role:
+      name: "../../../rm_prototyping"
+  - include_vars: test_acl.yaml
+  - nxos_acls:
+      config: "{{ acls }}"
+      state: merged
+    # check_mode: True
+    register: result
+  - debug:
+      var: result
+  - nxos_acls:
+      config: "{{ acls }}"
+      state: merged
+
+    register: result
