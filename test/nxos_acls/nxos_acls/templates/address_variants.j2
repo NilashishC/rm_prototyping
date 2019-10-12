@@ -1,0 +1,8 @@
+ip access-list test
+{% set count = namespace(i=10) %}
+{% for source in address_variants %}
+{% for dest in address_variants %}
+{{ count.i }} permit ip {{ source }} {{ dest }}
+{% set count.i = count.i + 1 %}
+{% endfor %}
+{% endfor %}

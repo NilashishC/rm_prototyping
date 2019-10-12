@@ -1,0 +1,35 @@
+
+acls:
+  one:
+    data:
+    - name: test
+      entries:
+        - sequence: 10
+          action: permit
+          source:
+            any: true
+          destination:
+            any: true
+          protocol: icmp
+  two:
+    data:
+    - name: test
+      entries:
+        - sequence: 10
+          action: permit
+          source:
+            prefix: 10.1.1.1/32
+          destination:
+            prefix: 10.1.1.1/32
+          protocol: icmp
+  three:
+    data:
+    - name: test_2
+      entries:
+        - sequence: 10
+          action: permit
+          source:
+            prefix: 10.1.1.1/32
+          destination:
+            prefix: 10.1.1.1/32
+          protocol: icmp

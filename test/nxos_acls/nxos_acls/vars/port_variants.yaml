@@ -1,0 +1,7 @@
+port_variants:
+- eq 22
+- lt 22
+- gt 22
+- neq 22
+- range ftp telnet
+- portgroup test

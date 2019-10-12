@@ -3,14 +3,32 @@
   tasks:
   - import_role:
       name: "../../../rm_prototyping"
-  - include_vars: test_acl.yaml
+  # - set_fact:
+  #     parents:
+  #     - ip access-list foo
+  #     lines:
+  #     - 10 permit icmp 1.1.1.1/32 any host-isolated
+  #     - 20 permit tcp any any urg ack psh rst syn fin established precedence critical vlan 100 dscp cs3 packet-length eq 20 ttl 5 http-method put udf foo 0x0 0x1 log
+  #     - 30 permit tcp any any fragments urg ack psh rst syn fin established precedence critical packet-length eq 20 ttl 5 udf foo 0x0 0x1 log
+  #     - 40 permit udp any any precedence critical vlan 100 dscp cs3 packet-length eq 20 ttl 5 udf foo 0x0 0x1 log
+  #     - 50 permit ahp any any dscp cs5 fragments packet-length eq 20
+  #     - 60 permit ahp any any fragments vlan 100
+  #     - 70 permit icmp any any 200
+  #     - 80 permit icmp any any 100 101
+  # - nxos_config:
+  #     parents: "{{ parents }}"
+  #     lines: "{{ lines }}"
   - nxos_acls:
-      config: "{{ acls }}"
-      state: merged
-    register: result
+      state: gathered
+    register: current
   - debug:
-      var: result
-  - nxos_acls:
-      config: "{{ acls }}"
-      state: merged
-    register: result
+      var: current
+  # - nxos_acls:
+  #     config: "{{ current['before'] }}"
+  #     state: rendered
+  #   register: result
+  # - assert:
+  #     that: "{{ item.0|length == item.1|length }}"
+  #   with_together:
+  #   - "{{ result['commands'] }}"
+  #   - "{{ parents + lines }}"

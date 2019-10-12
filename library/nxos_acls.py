@@ -100,16 +100,111 @@ options:
           match:
             type: dict
             suboptions:
-              ack:
-                type: bool
               dscp:
                 type: str
-              established:
-                type: bool
-              fin:
+              fragments:
                 type: bool
               http_method:
                 type: str
+              icmp:
+                type: dict
+                suboptions:
+                  types:
+                    type: dict
+                    suboptions:
+                      administratively_prohibited:
+                        type: bool
+                      alternate_address:
+                        type: bool
+                      conversion_error:
+                        type: bool
+                      dod_host_prohibited:
+                        type: bool
+                      dod_net_prohibited:
+                        type: bool
+                      echo:
+                        type: bool
+                      echo_reply:
+                        type: bool
+                      general_parameter_problem:
+                        type: bool
+                      host_isolated:
+                        type: bool
+                      host_precedence_unreachable:
+                        type: bool
+                      host_redirect:
+                        type: bool
+                      host_tos_redirect:
+                        type: bool
+                      host_tos_unreachable:
+                        type: bool
+                      host_unknown:
+                        type: bool
+                      host_unreachable:
+                        type: bool
+                      information_reply:
+                        type: bool
+                      information_request:
+                        type: bool
+                      mask_reply:
+                        type: bool
+                      mask_request:
+                        type: bool
+                      message_code:
+                        type: int
+                      message_type:
+                        type: int
+                      mobile_redirect:
+                        type: bool
+                      net_redirect:
+                        type: bool
+                      net_tos_redirect:
+                        type: bool
+                      net_tos_unreachable:
+                        type: bool
+                      net_unreachable:
+                        type: bool
+                      network_unknown:
+                        type: bool
+                      no_room_for_option:
+                        type: bool
+                      option_missing:
+                        type: bool
+                      packet_too_big:
+                        type: bool
+                      parameter_problem:
+                        type: bool
+                      port_unreachable:
+                        type: bool
+                      precedence_unreachable:
+                        type: bool
+                      protocol_unreachable:
+                        type: bool
+                      reassembly_timeout:
+                        type: bool
+                      redirect:
+                        type: bool
+                      router_advertisement:
+                        type: bool
+                      router_solicitation:
+                        type: bool
+                      source_quench:
+                        type: bool
+                      source_route_failed:
+                        type: bool
+                      time_exceeded:
+                        type: bool
+                      timestamp_reply:
+                          type: bool
+                      timestamp_request:
+                        type: bool
+                      traceroute:
+                        type: bool
+                      ttl_exceeded:
+                        type: bool
+                      unreachable:
+                        type: bool
+
               packet_length:
                 type: dict
                 suboptions:
@@ -130,12 +225,26 @@ options:
                         type: int
               precedence:
                 type: str
-              psh:
-                type: bool
-              rst:
-                type: bool
-              syn:
-                type: bool
+              tcp:
+                type: dict
+                suboptions:
+                  flags:
+                    type: dict
+                    suboptions:
+                      ack:
+                        type: bool
+                      established:
+                        type: bool
+                      fin:
+                        type: bool
+                      psh:
+                        type: bool
+                      rst:
+                        type: bool
+                      syn:
+                        type: bool
+                      urg:
+                        type: bool
               ttl:
                 type: int
               udf:
@@ -148,8 +257,6 @@ options:
                     type: str
                   value:
                     type: str
-              urg:
-                type: bool
               vlan:
                 type: str
           protocol:

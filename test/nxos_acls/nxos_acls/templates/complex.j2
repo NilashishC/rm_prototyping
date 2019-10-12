@@ -1,0 +1,9 @@
+ip access-list {{ acl_name }}
+10 permit icmp {{ address }} {{ address }} host-isolated
+20 permit tcp {{ address }} {{ address }} urg ack psh rst syn fin established precedence critical vlan 100 dscp cs3 packet-length eq 20 ttl 5 http-method put udf foo 0x0 0x1 log
+30 permit tcp {{ address }} {{ address }} fragments urg ack psh rst syn fin established precedence critical packet-length eq 20 ttl 5 udf foo 0x0 0x1 log
+40 permit udp {{ address }} {{ address }} precedence critical vlan 100 dscp cs3 packet-length eq 20 ttl 5 udf foo 0x0 0x1 log
+50 permit ahp {{ address }} {{ address }} dscp cs5 fragments packet-length eq 20
+60 permit ahp {{ address }} {{ address }} fragments vlan 100
+70 permit icmp {{ address }} {{ address }} 200
+80 permit icmp {{ address }} {{ address }} 100 101

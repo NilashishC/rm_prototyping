@@ -21,7 +21,6 @@ from ansible.module_utils.network.nxos.argspec.acls.acls import AclsArgs
 
 from ansible.module_utils.network.common.rm_utils \
     import get_from_dict, compare_partial_dict
-import q
 class Acls(RmModule):
     """
     The nxos_acls class

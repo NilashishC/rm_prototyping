@@ -17,31 +17,42 @@ class RmModule(RmModuleRender):  # pylint: disable=R0902
         self._tmplt = kwargs.get('tmplt', None)
 
         self._connection = None
-        self._get_connection()
+        self.state = self._module.params['state']
 
-        self.before = deepcopy(self.get_facts(self._empty_fact_val))
+        self.before = self.gather_current()
         self.changed = False
         self.commands = []
         self.warnings = []
 
-        self.state = self._module.params['state']
         self.have = deepcopy(self.before)
         self.want = remove_empties(
             self._module.params).get('config', self._empty_fact_val)
+
+        self._get_connection()
         super(RmModule, self).__init__(tmplt=self._tmplt)
+
+    def gather_current(self):
+        if self.state == 'rendered':
+            return self._empty_fact_val
+        return deepcopy(self.get_facts(self._empty_fact_val))
 
     @property
     def result(self):
         """ result
         """
         if self.state == 'gathered':
+            before = self.before
             after = self._empty_fact_val
+        elif self.state == 'rendered':
+            before = self._empty_fact_val
+            after = self.want
         else:
+            before = self.before
             after = self.get_facts(self._empty_fact_val)
         result = {'after': after,
                   'changed': self.changed,
                   'commands': self.commands,
-                  'before': self.before,
+                  'before': before,
                   'warnings': self.warnings}
         return result
 
@@ -78,12 +89,14 @@ class RmModule(RmModuleRender):  # pylint: disable=R0902
         return facts
 
     def _get_connection(self):
-        if self._connection:
+        if self.state != 'rendered':
+            if self._connection:
+                return self._connection
+            # pylint: disable=W0212
+            self._connection = Connection(self._module._socket_path)
+            # pylint: enable=W0212
             return self._connection
-        # pylint: disable=W0212
-        self._connection = Connection(self._module._socket_path)
-        # pylint: enable=W0212
-        return self._connection
+        return None
 
     def compare(self, parsers, want=None, have=None):
         """ compare
@@ -114,6 +127,7 @@ class RmModule(RmModuleRender):  # pylint: disable=R0902
         """
         if self.commands:
             if not self._module.check_mode:
-                response = self._connection.edit_config(self.commands)
-                self.warnings.extend([r for r in response['response'] if r])
-                self.changed = True
+                if self.state != 'rendered':
+                    response = self._connection.edit_config(self.commands)
+                    self.warnings.extend([r for r in response['response'] if r])
+                    self.changed = True

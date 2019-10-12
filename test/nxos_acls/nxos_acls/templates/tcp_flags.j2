@@ -1,0 +1,4 @@
+ip access-list test
+{% for flagset in tcp_flags|all_perms %}
+{{ loop.index }} permit tcp 10.1.1.1/32 10.1.1.2/32 {{ flagset|join(' ') }}
+{% endfor %}

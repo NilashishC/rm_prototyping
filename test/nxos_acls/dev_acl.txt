@@ -1,0 +1,42 @@
+ip access-list foo
+  10 permit ip any any
+  11 permit ip any any
+  12 permit tcp 1.1.1.1/32 2.2.2.2/32
+  13 permit tcp 1.1.1.0/24 eq telnet 2.2.2.0/24 ack
+  14 permit tcp 1.1.1.0/24 eq 100 2.2.2.0/24 ack
+  15 permit tcp 1.1.1.0/24 eq 100 2.2.2.0/24 gt smtp
+  16 permit ospf 1.1.1.0 0.0.0.255 any
+  17 permit tcp any any http-method put
+  18 remark foo
+  19 permit ahp addrgroup foo addrgroup bar
+  20 deny udp any eq snmp any
+  21 permit tcp 1.1.1.1/32 neq telnet any
+  22 permit tcp 1.1.1.1/32 range ftp-data 22 any
+  23 permit tcp 1.1.1.1/32 portgroup pfoo 2.2.2.2/32 portgroup pfoo
+  24 permit tcp 1.1.1.1/32 2.2.2.2/32 packet-length eq 20
+  25 permit tcp 1.1.1.1/32 2.2.2.2/32 packet-length range 100 200
+  26 permit tcp 1.1.1.1/32 2.2.2.2/32 psh rst syn ttl 5 udf foo 0x0 0x0  bar 0x1 0x2
+  27 deny tcp 1.1.1.0 0.0.0.128 2.2.2.2/32 urg psh vlan 100 log
+  28 permit icmp 1.1.1.1/32 any host-isolated
+  29 permit pcp any any time-range trange
+  30 permit icmp 192.168.1.0/24 10.1.0.0/16 redirect
+  31 permit icmp 192.168.1.0/24 192.168.2.0/24 mask-reply dscp af42
+  32 permit icmp 192.168.1.0/24 192.168.2.0/24 mask-request dscp af42
+  33 permit tcp 1.1.1.1/32 2.2.2.2/32 fin packet-length eq 20
+  34 permit tcp 1.1.1.1/32 2.2.2.2/32 established packet-length eq 20
+  35 permit tcp 1.1.1.1/32 2.2.2.2/32 psh packet-length eq 20
+  36 permit tcp 1.1.1.1/32 2.2.2.2/32 urg vlan 100 packet-length eq 20
+  37 permit tcp any any urg psh rst syn fin established
+  38 permit tcp any any urg psh rst syn fin established
+  39 permit tcp any any urg psh rst syn fin established precedence critical
+  40 permit tcp any any urg ack psh rst syn fin established precedence critical
+  41 permit tcp any any urg ack psh rst syn fin established precedence critical dscp cs3
+  42 permit tcp any any urg ack psh rst syn fin established precedence critical dscp cs3 http-method put
+  43 permit tcp any any urg ack psh rst syn fin established precedence critical dscp cs3 http-method put
+  44 permit tcp any any urg ack psh rst syn fin established precedence critical dscp cs3 packet-length eq 20 ttl 5 http-method put log
+  45 permit tcp any any urg ack psh rst syn fin established precedence critical dscp cs3 packet-length eq 20 ttl 5 http-method put udf foo 0x0 0x
+1 log
+  46 permit tcp any any urg ack psh rst syn fin established precedence critical dscp cs3 packet-length eq 20 ttl 5 vlan 100 http-method put udf f
+oo 0x0 0x1 log
+  47 permit udp any any precedence critical dscp cs3 packet-length eq 20 ttl 5 vlan 100 udf foo 0x0 0x1 log
+  48 permit udp any any precedence critical dscp cs3 packet-length eq 20 ttl 5 vlan 100 udf foo 0x0 0x1 log

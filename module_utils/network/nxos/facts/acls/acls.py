@@ -59,6 +59,9 @@ class AclsFacts(object):
                                                       'mask': x[2]}
                                                      for x in [y.split() for y in re.findall(r'\S+\s\S+\s\S+', entry['match']['udf'].strip())]]
 
+        # Sort the ACLs by name
+        objs = sorted(objs, key=lambda k, sk='name': k[sk])
+
         ansible_facts["ansible_network_resources"].pop("acls", None)
         facts = {}
         if objs:

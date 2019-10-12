@@ -1,0 +1,43 @@
+# merged
+- include_vars: state_acls.yaml
+- name: Apply the ACL (merged)
+  nxos_acls:
+    config: "{{ acls['one']['data'] }}"
+  register: merged
+- name: Confirm before = after
+  assert:
+    that: merged['after'] == acls['one']['data']
+
+# replaced
+- name: Apply the ACL (replaced)
+  nxos_acls:
+    config: "{{ acls['two']['data'] }}"
+    state: replaced
+  register: replaced
+- name: Confirm before = after
+  assert:
+    that: replaced['after'] == acls['two']['data']
+
+# overridden
+- name: Apply the ACL (overridden in place)
+  nxos_acls:
+    config: "{{ acls['one']['data'] }}"
+    state: overridden
+  register: overridden
+- name: Confirm before = after
+  assert:
+    that: overridden['after'] == acls['one']['data']
+
+# overridden
+- name: Apply the ACL (overridden different acl)
+  nxos_acls:
+    config: "{{ acls['three']['data'] }}"
+    state: overridden
+  register: overridden
+- name: Confirm before = after
+  assert:
+    that: overridden['after'] == acls['three']['data']
+
+- name: Remove all ACLs
+  nxos_acls:
+    state: deleted

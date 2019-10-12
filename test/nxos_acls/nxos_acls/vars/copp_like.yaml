@@ -1,0 +1,789 @@
+acls:
+- entries:
+  - action: permit
+    destination:
+      prefix: 224.0.1.39/32
+    protocol: ip
+    sequence: 10
+    source:
+      any: true
+  - action: permit
+    destination:
+      prefix: 224.0.1.40/32
+    protocol: ip
+    sequence: 20
+    source:
+      any: true
+  name: test-system-p-acl-auto-rp
+- entries:
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: bgp
+    protocol: tcp
+    sequence: 10
+    source:
+      any: true
+      port_protocol:
+        gt: '1023'
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        gt: '1023'
+    protocol: tcp
+    sequence: 20
+    source:
+      any: true
+      port_protocol:
+        eq: bgp
+  name: test-system-p-acl-bgp
+- entries:
+  - action: permit
+    destination:
+      any: true
+    protocol: udp
+    sequence: 10
+    source:
+      any: true
+      port_protocol:
+        eq: bootpc
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: bootps
+    protocol: udp
+    sequence: 20
+    source:
+      any: true
+      port_protocol:
+        neq: bootps
+  name: test-system-p-acl-dhcp
+- entries:
+  - action: permit
+    destination:
+      any: true
+    protocol: udp
+    sequence: 10
+    source:
+      any: true
+      port_protocol:
+        eq: bootps
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: bootpc
+    protocol: udp
+    sequence: 20
+    source:
+      any: true
+  name: test-system-p-acl-dhcp-relay-response
+- entries:
+  - action: permit
+    destination:
+      any: true
+    protocol: eigrp
+    sequence: 10
+    source:
+      any: true
+  name: test-system-p-acl-eigrp
+- entries:
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: ftp-data
+    protocol: tcp
+    sequence: 10
+    source:
+      any: true
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: ftp
+    protocol: tcp
+    sequence: 20
+    source:
+      any: true
+  - action: permit
+    destination:
+      any: true
+    protocol: tcp
+    sequence: 30
+    source:
+      any: true
+      port_protocol:
+        eq: ftp-data
+  - action: permit
+    destination:
+      any: true
+    protocol: tcp
+    sequence: 40
+    source:
+      any: true
+      port_protocol:
+        eq: ftp
+  name: test-system-p-acl-ftp
+- entries:
+  - action: permit
+    destination:
+      port_protocol:
+        eq: '1985'
+      prefix: 224.0.0.0/24
+    protocol: udp
+    sequence: 10
+    source:
+      any: true
+  name: test-system-p-acl-hsrp
+- entries:
+  - action: permit
+    destination:
+      any: true
+    protocol: tcp
+    sequence: 10
+    source:
+      any: true
+      port_protocol:
+        eq: www
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: www
+    protocol: tcp
+    sequence: 20
+    source:
+      any: true
+  name: test-system-p-acl-http
+- entries:
+  - action: permit
+    destination:
+      any: true
+    protocol: tcp
+    sequence: 10
+    source:
+      any: true
+      port_protocol:
+        eq: '443'
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: '443'
+    protocol: tcp
+    sequence: 20
+    source:
+      any: true
+  name: test-system-p-acl-https
+- entries:
+  - action: permit
+    destination:
+      any: true
+    match:
+      icmp:
+        types:
+          echo: true
+    protocol: icmp
+    sequence: 10
+    source:
+      any: true
+  - action: permit
+    destination:
+      any: true
+    match:
+      icmp:
+        types:
+          echo_reply: true
+    protocol: icmp
+    sequence: 20
+    source:
+      any: true
+  name: test-system-p-acl-icmp
+- entries:
+  - action: permit
+    destination:
+      prefix: 224.0.0.0/3
+    protocol: igmp
+    sequence: 10
+    source:
+      any: true
+  name: test-system-p-acl-igmp
+- entries:
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: '639'
+    protocol: tcp
+    sequence: 10
+    source:
+      any: true
+      port_protocol:
+        gt: '1023'
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        gt: '1023'
+    protocol: tcp
+    sequence: 20
+    source:
+      any: true
+      port_protocol:
+        eq: '639'
+  name: test-system-p-acl-msdp
+- entries:
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: ntp
+    protocol: udp
+    sequence: 10
+    source:
+      any: true
+  - action: permit
+    destination:
+      any: true
+    protocol: udp
+    sequence: 20
+    source:
+      any: true
+      port_protocol:
+        eq: ntp
+  name: test-system-p-acl-ntp
+- entries:
+  - action: permit
+    destination:
+      any: true
+    protocol: tcp
+    sequence: 10
+    source:
+      any: true
+      port_protocol:
+        eq: '6653'
+  name: test-system-p-acl-openflow
+- entries:
+  - action: permit
+    destination:
+      any: true
+    protocol: ospf
+    sequence: 10
+    source:
+      any: true
+  name: test-system-p-acl-ospf
+- entries:
+  - action: permit
+    destination:
+      prefix: 224.0.0.0/24
+    protocol: pim
+    sequence: 10
+    source:
+      any: true
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: pim-auto-rp
+    protocol: udp
+    sequence: 20
+    source:
+      any: true
+  - action: permit
+    destination:
+      prefix: 224.0.0.13/32
+    protocol: ip
+    sequence: 30
+    source:
+      any: true
+  name: test-system-p-acl-pim
+- entries:
+  - action: permit
+    destination:
+      prefix: 224.0.0.13/32
+    protocol: udp
+    sequence: 10
+    source:
+      any: true
+  name: test-system-p-acl-pim-mdt-join
+- entries:
+  - action: permit
+    destination:
+      any: true
+    protocol: pim
+    sequence: 10
+    source:
+      any: true
+  name: test-system-p-acl-pim-reg
+- entries:
+  - action: permit
+    destination:
+      port_protocol:
+        eq: '319'
+      prefix: 224.0.1.129/32
+    protocol: udp
+    sequence: 10
+    source:
+      any: true
+  - action: permit
+    destination:
+      port_protocol:
+        eq: '320'
+      prefix: 224.0.1.129/32
+    protocol: udp
+    sequence: 20
+    source:
+      any: true
+  name: test-system-p-acl-ptp
+- entries:
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: '319'
+    protocol: udp
+    sequence: 10
+    source:
+      any: true
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: '320'
+    protocol: udp
+    sequence: 20
+    source:
+      any: true
+  name: test-system-p-acl-ptp-uc
+- entries:
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: '1812'
+    protocol: udp
+    sequence: 10
+    source:
+      any: true
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: '1813'
+    protocol: udp
+    sequence: 20
+    source:
+      any: true
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: '1645'
+    protocol: udp
+    sequence: 30
+    source:
+      any: true
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: '1646'
+    protocol: udp
+    sequence: 40
+    source:
+      any: true
+  - action: permit
+    destination:
+      any: true
+    protocol: udp
+    sequence: 50
+    source:
+      any: true
+      port_protocol:
+        eq: '1812'
+  - action: permit
+    destination:
+      any: true
+    protocol: udp
+    sequence: 60
+    source:
+      any: true
+      port_protocol:
+        eq: '1813'
+  - action: permit
+    destination:
+      any: true
+    protocol: udp
+    sequence: 70
+    source:
+      any: true
+      port_protocol:
+        eq: '1645'
+  - action: permit
+    destination:
+      any: true
+    protocol: udp
+    sequence: 80
+    source:
+      any: true
+      port_protocol:
+        eq: '1646'
+  name: test-system-p-acl-radius
+- entries:
+  - action: permit
+    destination:
+      port_protocol:
+        eq: rip
+      prefix: 224.0.0.0/24
+    protocol: udp
+    sequence: 10
+    source:
+      any: true
+  name: test-system-p-acl-rip
+- entries:
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: '115'
+    protocol: tcp
+    sequence: 10
+    source:
+      any: true
+  - action: permit
+    destination:
+      any: true
+    protocol: tcp
+    sequence: 20
+    source:
+      any: true
+      port_protocol:
+        eq: '115'
+  name: test-system-p-acl-sftp
+- entries:
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: snmp
+    protocol: udp
+    sequence: 10
+    source:
+      any: true
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: snmptrap
+    protocol: udp
+    sequence: 20
+    source:
+      any: true
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: '161'
+    protocol: tcp
+    sequence: 30
+    source:
+      any: true
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: '162'
+    protocol: tcp
+    sequence: 40
+    source:
+      any: true
+  name: test-system-p-acl-snmp
+- entries:
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: '22'
+    protocol: tcp
+    sequence: 10
+    source:
+      any: true
+  - action: permit
+    destination:
+      any: true
+    protocol: tcp
+    sequence: 20
+    source:
+      any: true
+      port_protocol:
+        eq: '22'
+  name: test-system-p-acl-ssh
+- entries:
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: tacacs
+    protocol: tcp
+    sequence: 10
+    source:
+      any: true
+  - action: permit
+    destination:
+      any: true
+    protocol: tcp
+    sequence: 20
+    source:
+      any: true
+      port_protocol:
+        eq: tacacs
+  name: test-system-p-acl-tacacs
+- entries:
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: telnet
+    protocol: tcp
+    sequence: 10
+    source:
+      any: true
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: '107'
+    protocol: tcp
+    sequence: 20
+    source:
+      any: true
+  - action: permit
+    destination:
+      any: true
+    protocol: tcp
+    sequence: 30
+    source:
+      any: true
+      port_protocol:
+        eq: telnet
+  - action: permit
+    destination:
+      any: true
+    protocol: tcp
+    sequence: 40
+    source:
+      any: true
+      port_protocol:
+        eq: '107'
+  name: test-system-p-acl-telnet
+- entries:
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: tftp
+    protocol: udp
+    sequence: 10
+    source:
+      any: true
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: '1758'
+    protocol: udp
+    sequence: 20
+    source:
+      any: true
+  - action: permit
+    destination:
+      any: true
+    protocol: udp
+    sequence: 30
+    source:
+      any: true
+      port_protocol:
+        eq: tftp
+  - action: permit
+    destination:
+      any: true
+    protocol: udp
+    sequence: 40
+    source:
+      any: true
+      port_protocol:
+        eq: '1758'
+  name: test-system-p-acl-tftp
+- entries:
+  - action: permit
+    destination:
+      any: true
+    match:
+      icmp:
+        types:
+          ttl_exceeded: true
+    protocol: icmp
+    sequence: 10
+    source:
+      any: true
+  - action: permit
+    destination:
+      any: true
+    match:
+      icmp:
+        types:
+          port_unreachable: true
+    protocol: icmp
+    sequence: 20
+    source:
+      any: true
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        range:
+          end: '33534'
+          start: '33434'
+    protocol: udp
+    sequence: 30
+    source:
+      any: true
+  name: test-system-p-acl-traceroute
+- entries:
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: '1434'
+    protocol: udp
+    sequence: 10
+    source:
+      any: true
+  name: test-system-p-acl-undesirable
+- entries:
+  - action: permit
+    destination:
+      any: true
+      port_protocol:
+        eq: '3200'
+    protocol: udp
+    sequence: 10
+    source:
+      any: true
+  name: test-system-p-acl-vpc
+- entries:
+  - action: permit
+    destination:
+      prefix: 224.0.0.18/32
+    protocol: ip
+    sequence: 10
+    source:
+      any: true
+  name: test-system-p-acl-vrrp
+
+commands:
+- ip access-list test-system-p-acl-auto-rp
+- 10 permit ip any 224.0.1.39/32
+- 20 permit ip any 224.0.1.40/32
+- ip access-list test-system-p-acl-bgp
+- 10 permit tcp any gt 1023 any eq bgp
+- 20 permit tcp any eq bgp any gt 1023
+- ip access-list test-system-p-acl-dhcp
+- 10 permit udp any eq bootpc any
+- 20 permit udp any neq bootps any eq bootps
+- ip access-list test-system-p-acl-dhcp-relay-response
+- 10 permit udp any eq bootps any
+- 20 permit udp any any eq bootpc
+- ip access-list test-system-p-acl-eigrp
+- 10 permit eigrp any any
+- ip access-list test-system-p-acl-ftp
+- 10 permit tcp any any eq ftp-data
+- 20 permit tcp any any eq ftp
+- 30 permit tcp any eq ftp-data any
+- 40 permit tcp any eq ftp any
+- ip access-list test-system-p-acl-hsrp
+- 10 permit udp any 224.0.0.0/24 eq 1985
+- ip access-list test-system-p-acl-http
+- 10 permit tcp any eq www any
+- 20 permit tcp any any eq www
+- ip access-list test-system-p-acl-https
+- 10 permit tcp any eq 443 any
+- 20 permit tcp any any eq 443
+- ip access-list test-system-p-acl-icmp
+- 10 permit icmp any any echo
+- 20 permit icmp any any echo-reply
+- ip access-list test-system-p-acl-igmp
+- 10 permit igmp any 224.0.0.0/3
+- ip access-list test-system-p-acl-msdp
+- 10 permit tcp any gt 1023 any eq 639
+- 20 permit tcp any eq 639 any gt 1023
+- ip access-list test-system-p-acl-ntp
+- 10 permit udp any any eq ntp
+- 20 permit udp any eq ntp any
+- ip access-list test-system-p-acl-openflow
+- 10 permit tcp any eq 6653 any
+- ip access-list test-system-p-acl-ospf
+- 10 permit ospf any any
+- ip access-list test-system-p-acl-pim
+- 10 permit pim any 224.0.0.0/24
+- 20 permit udp any any eq pim-auto-rp
+- 30 permit ip any 224.0.0.13/32
+- ip access-list test-system-p-acl-pim-mdt-join
+- 10 permit udp any 224.0.0.13/32
+- ip access-list test-system-p-acl-pim-reg
+- 10 permit pim any any
+- ip access-list test-system-p-acl-ptp
+- 10 permit udp any 224.0.1.129/32 eq 319
+- 20 permit udp any 224.0.1.129/32 eq 320
+- ip access-list test-system-p-acl-ptp-uc
+- 10 permit udp any any eq 319
+- 20 permit udp any any eq 320
+- ip access-list test-system-p-acl-radius
+- 10 permit udp any any eq 1812
+- 20 permit udp any any eq 1813
+- 30 permit udp any any eq 1645
+- 40 permit udp any any eq 1646
+- 50 permit udp any eq 1812 any
+- 60 permit udp any eq 1813 any
+- 70 permit udp any eq 1645 any
+- 80 permit udp any eq 1646 any
+- ip access-list test-system-p-acl-rip
+- 10 permit udp any 224.0.0.0/24 eq rip
+- ip access-list test-system-p-acl-sftp
+- 10 permit tcp any any eq 115
+- 20 permit tcp any eq 115 any
+- ip access-list test-system-p-acl-snmp
+- 10 permit udp any any eq snmp
+- 20 permit udp any any eq snmptrap
+- 30 permit tcp any any eq 161
+- 40 permit tcp any any eq 162
+- ip access-list test-system-p-acl-ssh
+- 10 permit tcp any any eq 22
+- 20 permit tcp any eq 22 any
+- ip access-list test-system-p-acl-tacacs
+- 10 permit tcp any any eq tacacs
+- 20 permit tcp any eq tacacs any
+- ip access-list test-system-p-acl-telnet
+- 10 permit tcp any any eq telnet
+- 20 permit tcp any any eq 107
+- 30 permit tcp any eq telnet any
+- 40 permit tcp any eq 107 any
+- ip access-list test-system-p-acl-tftp
+- 10 permit udp any any eq tftp
+- 20 permit udp any any eq 1758
+- 30 permit udp any eq tftp any
+- 40 permit udp any eq 1758 any
+- ip access-list test-system-p-acl-traceroute
+- 10 permit icmp any any ttl-exceeded
+- 20 permit icmp any any port-unreachable
+- 30 permit udp any any range 33434 33534
+- ip access-list test-system-p-acl-undesirable
+- 10 permit udp any any eq 1434
+- ip access-list test-system-p-acl-vpc
+- 10 permit udp any any eq 3200
+- ip access-list test-system-p-acl-vrrp
+- 10 permit ip any 224.0.0.18/32

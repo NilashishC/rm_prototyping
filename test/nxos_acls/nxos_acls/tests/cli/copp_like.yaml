@@ -1,0 +1,23 @@
+- include_vars: copp_like.yaml
+- name: Apply the ACLs
+  nxos_acls:
+    config: "{{ acls }}"
+  register: merged
+- debug:
+    var: merged
+- name: Remove all ACLs
+  nxos_acls:
+    state: deleted
+- name: Set a fact for the two command sets slice and sorted by ACL name
+  set_fact:
+    left: "{{ (merged['commands']|join('\n')).split('ip access-list ')|sort }}"
+    right: "{{ (commands|join('\n')).split('ip access-list ')|sort }}"
+- name: Compare the after to the source ACLs
+  assert:
+    that: "{{ merged['after'] == acls }}"
+- name: Confirm commands issued = commands expected
+  assert:
+    that: "{{ item.0|trim() == item.1|trim() }}"
+  with_together:
+  - "{{ left }}"
+  - "{{ right }}"

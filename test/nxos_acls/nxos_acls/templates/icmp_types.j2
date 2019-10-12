@@ -1,0 +1,4 @@
+ip access-list test
+{% for item in icmp_types %}
+{{ loop.index*10 }} permit icmp any any {{ item }}
+{% endfor %}

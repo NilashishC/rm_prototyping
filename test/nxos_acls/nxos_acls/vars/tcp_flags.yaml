@@ -1,0 +1,8 @@
+tcp_flags:
+- urg
+- ack
+- psh
+- rst
+- syn
+- fin
+- established

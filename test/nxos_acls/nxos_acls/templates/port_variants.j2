@@ -1,0 +1,8 @@
+ip access-list test
+{% set count = namespace(i=10) %}
+{% for port_a in port_variants %}
+{% for port_b in port_variants %}
+{{ count.i }} permit tcp 10.1.1.1/32 {{ port_a }} 10.1.1.2/32 {{ port_b }}
+{% set count.i = count.i + 1 %}
+{% endfor %}
+{% endfor %}
