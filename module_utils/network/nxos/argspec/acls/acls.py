@@ -157,7 +157,7 @@ class AclsArgs(object):  # pylint: disable=R0903
                                                                                           'name': {'type': 'str'},
                                                                                           'value': {'type': 'str'}},
                                                                               'type': 'list'},
-                                                                      'vlan': {'type': 'str'}},
+                                                                      'vlan': {'type': 'int'}},
                                                           'type': 'dict'},
                                                 'protocol': {'type': 'str'},
                                                 'remark': {'type': 'str'},

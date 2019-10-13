@@ -1,0 +1,27 @@
+- name: Define an ACL
+  set_fact:
+    config: "{{ lookup('template', 'additional_parameters.j2') }}"
+- debug:
+    var: config
+- name: Apply the ACL
+  cli_config:
+    config: "{{ config }}"
+- name: Gather current config
+  nxos_acls:
+    state: gathered
+  register: current
+- name: Remove all ACLs
+  nxos_acls:
+    state: deleted
+- name: Reapply previous config
+  nxos_acls:
+    config: "{{ current['before'] }}"
+  register: reapplied
+- debug:
+    var: reapplied
+- name: Remove all config
+  nxos_acls:
+    state: deleted
+- name: Confirm commands issued = commands templated
+  assert:
+    that: "{{ reapplied['commands']|trim() == config.splitlines()|trim() }}"

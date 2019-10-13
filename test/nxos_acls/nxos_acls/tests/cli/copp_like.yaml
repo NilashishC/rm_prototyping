@@ -3,8 +3,6 @@
   nxos_acls:
     config: "{{ acls }}"
   register: merged
-- debug:
-    var: merged
 - name: Remove all ACLs
   nxos_acls:
     state: deleted

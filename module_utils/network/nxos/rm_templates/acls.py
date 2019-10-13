@@ -1,5 +1,5 @@
 import re
-import q
+
 
 def _tmplt_address(side):
     command = []
