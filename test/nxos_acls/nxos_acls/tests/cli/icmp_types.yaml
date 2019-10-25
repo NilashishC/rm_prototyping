@@ -2,8 +2,6 @@
 - name: Define an ACL
   set_fact:
     config: "{{ lookup('template', 'icmp_types.j2') }}"
-- debug:
-    var: config
 - name: Apply the ACL
   cli_config:
     config: "{{ config }}"

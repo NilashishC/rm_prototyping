@@ -62,6 +62,12 @@ class AclsFacts(object):
         # Sort the ACLs by name
         objs = sorted(objs, key=lambda k, sk='name': k[sk])
 
+        # Sort the ACEs
+        for obj in objs:
+            if 'entries' in obj:
+                obj['entries'] = sorted(obj['entries'],
+                                        key=lambda k, sk='sequence': k[sk])
+
         ansible_facts["ansible_network_resources"].pop("acls", None)
         facts = {}
         if objs:

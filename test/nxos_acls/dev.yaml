@@ -3,6 +3,24 @@
   tasks:
   - import_role:
       name: "../../../rm_prototyping"
+  - set_fact:
+      acls:
+        one:
+          data:
+          - name: test
+            entries:
+              - sequence: 10
+                action: permit
+                source:
+                  any: true
+                destination:
+                  any: true
+                protocol: icmp
+  - nxos_acls:
+     config: "{{ acls['one']['data'] }}"
+     state: rendered
+    register: result
+
   # - set_fact:
   #     parents:
   #     - ip access-list foo
@@ -18,11 +36,11 @@
   # - nxos_config:
   #     parents: "{{ parents }}"
   #     lines: "{{ lines }}"
-  - nxos_acls:
-      state: gathered
-    register: current
-  - debug:
-      var: current
+  # - nxos_acls:
+  #     state: gathered
+  #   register: current
+  # - debug:
+  #     var: current
   # - nxos_acls:
   #     config: "{{ current['before'] }}"
   #     state: rendered

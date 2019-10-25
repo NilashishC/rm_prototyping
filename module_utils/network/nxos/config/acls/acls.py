@@ -17,7 +17,7 @@ from ansible.module_utils.network.nxos.facts.facts import Facts
 from ansible.module_utils.network.common.rm_module import RmModule
 from ansible.module_utils.network.common.utils import validate_config
 from ansible.module_utils.network.nxos.argspec.acls.acls import AclsArgs
-
+from collections import OrderedDict
 
 from ansible.module_utils.network.common.rm_utils \
     import get_from_dict, compare_partial_dict
@@ -56,8 +56,9 @@ class Acls(RmModule):
                 if 'match' in entry and 'udf' in entry['match']:
                     entry['match']['udf'] = {udf['name']: udf
                                              for udf in entry['match']['udf']}
-            acl['entries'] = {entry['sequence']: entry
-                              for entry in acl.get('entries', [])}
+            acl['entries'] = {entry['sequence']: entry for entry in acl.get('entries', [])}
+            # sort the entries by key so commands are applied in order
+            acl['entries'] = OrderedDict(sorted(acl['entries'].items()))
         return xfrmd
 
     @staticmethod

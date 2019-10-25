@@ -82,135 +82,127 @@ def _tmplt_entry(entry):
 
 
 def re_acl_start(proto):
-    regex = re.compile(
-        r"""
+    regex = r"""
         ^\s+(?P<sequence>\d+)
         \s(?P<action>(permit|deny))
         \s(?P<protocol>PROTO)
-        """, re.VERBOSE)
-    return regex.pattern.replace('PROTO', proto)
+        """
+    return regex.replace('PROTO', proto)
 
 
 def re_address(val):
-    regex = re.compile(
-        r"""
+    regex = r"""
         ((\s(?P<VAL_any>any))|
         (\s(?P<VAL_network_prefix>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/\d{1,2}))|
         (\s(?P<VAL_network_address>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s(?P<VAL_wildcard>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}))|
         (\saddrgroup\s(?P<VAL_addrgroup>\S+)))
-        """, re.VERBOSE)
-    return regex.pattern.replace('VAL', val)
+        """
+    return regex.replace('VAL', val)
 
 
 def re_port(val):
-    regex = re.compile(
-        r"""
+    regex = r"""
         (\seq\s(?P<VAL_port_eq>\S+))?
         (\sgt\s(?P<VAL_port_gt>\S+))?
         (\slt\s(?P<VAL_port_lt>\S+))?
         (\sneq\s(?P<VAL_port_neq>\S+))?
         (\sportgroup\s(?P<VAL_port_portgroup>\S+))?
         (\srange\s(?P<VAL_range_start>\S+)\s(?P<VAL_range_end>\S+))?
-        """, re.VERBOSE)
-    return regex.pattern.replace('VAL', val)
+        """
+    return regex.replace('VAL', val)
 
 
-def re_tcp_flags():
-    regex = re.compile(
-        r"""
-        (\s(?P<m_urg>urg))?
-        (\s(?P<m_ack>ack))?
-        (\s(?P<m_psh>psh))?
-        (\s(?P<m_rst>rst))?
-        (\s(?P<m_syn>syn))?
-        (\s(?P<m_fin>fin))?
-        (\s(?P<m_established>established))?
-        """, re.VERBOSE)
-    return regex.pattern
+RE_TCP_FLAGS = r"""
+    (\s(?P<m_urg>urg))?
+    (\s(?P<m_ack>ack))?
+    (\s(?P<m_psh>psh))?
+    (\s(?P<m_rst>rst))?
+    (\s(?P<m_syn>syn))?
+    (\s(?P<m_fin>fin))?
+    (\s(?P<m_established>established))?
+    """
 
+RE_PACKET_DEF = r"""
+    (\sprecedence\s(?P<m_precedence>\S+))?
+    (\sdscp\s(?P<m_dscp>\S+))?
+    (\s(?P<m_fragments>fragments))?
+    (\spacket-length\seq\s(?P<m_pl_eq>\d+))?
+    (\spacket-length\sgt\s(?P<m_pl_gt>\d+))?
+    (\spacket-length\slt\s(?P<m_pl_lt>\d+))?
+    (\spacket-length\sneq\s(?P<m_pl_neq>\d+))?
+    (\spacket-length\srange\s(?P<m_pl_rstart>\d+)\s(?P<m_pl_rend>\d+))?
+    (\sttl\s(?P<m_ttl>\d+))?
+    (\svlan\s(?P<m_vlan>\d+))?
+    (\shttp-method\s(?P<m_http_method>\S+))?
+    (\sudf(?P<m_udf_str>(\s+\S+\s0x\S+\s0x\S+)+))?
+    (\s(?P<log>log))?
+    """
 
-def re_packet_def():
-    regex = re.compile(
-        r"""
-        (\sprecedence\s(?P<m_precedence>\S+))?
-        (\sdscp\s(?P<m_dscp>\S+))?
-        (\s(?P<m_fragments>fragments))?
-        (\spacket-length\seq\s(?P<m_pl_eq>\d+))?
-        (\spacket-length\sgt\s(?P<m_pl_gt>\d+))?
-        (\spacket-length\slt\s(?P<m_pl_lt>\d+))?
-        (\spacket-length\sneq\s(?P<m_pl_neq>\d+))?
-        (\spacket-length\srange\s(?P<m_pl_rstart>\d+)\s(?P<m_pl_rend>\d+))?
-        (\sttl\s(?P<m_ttl>\d+))?
-        (\svlan\s(?P<m_vlan>\d+))?
-        (\shttp-method\s(?P<m_http_method>\S+))?
-        (\sudf(?P<m_udf_str>(\s+\S+\s0x\S+\s0x\S+)+))?
-        (\s(?P<log>log))?
-        """, re.VERBOSE)
-    return regex.pattern
+RE_UNPARSED = r"""
+    (\s)?
+    (?P<additional_parameters>.*)?
+    """
 
+# break the icmp types into 4 groups to avoid hitting the 100 named capture
+# group limit in earlier version of python
+RE_ICMP_T1 = r"""
+    ((\s(?P<icmp_message_type>\d+))|
+    (\s(?P<icmp_message_code>\d+))|
+    (\s(?P<icmp_administratively_prohibited>administratively-prohibited))|
+    (\s(?P<icmp_alternate_address>alternate-address))|
+    (\s(?P<icmp_conversion_error>conversion-error))|
+    (\s(?P<icmp_dod_host_prohibited>dod-host-prohibited))|
+    (\s(?P<icmp_dod_net_prohibited>dod-net-prohibited))|
+    (\s(?P<icmp_echo_reply>echo-reply))|
+    (\s(?P<icmp_echo>echo))|
+    (\s(?P<icmp_general_parameter_problem>general-parameter-problem))|
+    (\s(?P<icmp_host_isolated>host-isolated))|
+    (\s(?P<icmp_host_precedence_unreachable>host-precedence-unreachable)))
+    """
 
-def re_unparsed():
-    regex = re.compile(
-        r"""
-        (\s)?
-        (?P<additional_parameters>.*)?
-        """, re.VERBOSE)
-    return regex.pattern
+RE_ICMP_T2 = r"""
+    ((\s(?P<icmp_host_redirect>host-redirect))|
+    (\s(?P<icmp_host_tos_redirect>host-tos-redirect))|
+    (\s(?P<icmp_host_tos_unreachable>host-tos-unreachable))|
+    (\s(?P<icmp_host_unknown>host-unknown))|
+    (\s(?P<icmp_host_unreachable>host-unreachable))|
+    (\s(?P<icmp_information_reply>information-reply))|
+    (\s(?P<icmp_information_request>information-request))|
+    (\s(?P<icmp_mask_reply>mask-reply))|
+    (\s(?P<icmp_mask_request>mask-request))|
+    (\s(?P<icmp_mobile_redirect>mobile-redirect))|
+    (\s(?P<icmp_net_redirect>net-redirect)))
+    """
 
+RE_ICMP_T3 = r"""
+    ((\s(?P<icmp_net_tos_redirect>net-tos-redirect))|
+    (\s(?P<icmp_net_tos_unreachable>net-tos-unreachable))|
+    (\s(?P<icmp_net_unreachable>net-unreachable))|
+    (\s(?P<icmp_network_unknown>network-unknown))|
+    (\s(?P<icmp_no_room_for_option>no-room-for-option))|
+    (\s(?P<icmp_option_missing>option-missing))|
+    (\s(?P<icmp_packet_too_big>packet-too-big))|
+    (\s(?P<icmp_parameter_problem>parameter-problem))|
+    (\s(?P<icmp_port_unreachable>port-unreachable))|
+    (\s(?P<icmp_precedence_unreachable>precedence-unreachable)))
+    """
 
-def re_icmp_types():
-    regex = re.compile(
-        r"""
-        (\s(?P<icmp_message_type>\d+))?
-        (\s(?P<icmp_message_code>\d+))?
-        (\s(?P<icmp_administratively_prohibited>administratively-prohibited))?
-        (\s(?P<icmp_alternate_address>alternate-address))?
-        (\s(?P<icmp_conversion_error>conversion-error))?
-        (\s(?P<icmp_dod_host_prohibited>dod-host-prohibited))?
-        (\s(?P<icmp_dod_net_prohibited>dod-net-prohibited))?
-        (\s(?P<icmp_echo_reply>echo-reply))?
-        (\s(?P<icmp_echo>echo))?
-        (\s(?P<icmp_general_parameter_problem>general-parameter-problem))?
-        (\s(?P<icmp_host_isolated>host-isolated))?
-        (\s(?P<icmp_host_precedence_unreachable>host-precedence-unreachable))?
-        (\s(?P<icmp_host_redirect>host-redirect))?
-        (\s(?P<icmp_host_tos_redirect>host-tos-redirect))?
-        (\s(?P<icmp_host_tos_unreachable>host-tos-unreachable))?
-        (\s(?P<icmp_host_unknown>host-unknown))?
-        (\s(?P<icmp_host_unreachable>host-unreachable))?
-        (\s(?P<icmp_information_reply>information-reply))?
-        (\s(?P<icmp_information_request>information-request))?
-        (\s(?P<icmp_mask_reply>mask-reply))?
-        (\s(?P<icmp_mask_request>mask-request))?
-        (\s(?P<icmp_mobile_redirect>mobile-redirect))?
-        (\s(?P<icmp_net_redirect>net-redirect))?
-        (\s(?P<icmp_net_tos_redirect>net-tos-redirect))?
-        (\s(?P<icmp_net_tos_unreachable>net-tos-unreachable))?
-        (\s(?P<icmp_net_unreachable>net-unreachable))?
-        (\s(?P<icmp_network_unknown>network-unknown))?
-        (\s(?P<icmp_no_room_for_option>no-room-for-option))?
-        (\s(?P<icmp_option_missing>option-missing))?
-        (\s(?P<icmp_packet_too_big>packet-too-big))?
-        (\s(?P<icmp_parameter_problem>parameter-problem))?
-        (\s(?P<icmp_port_unreachable>port-unreachable))?
-        (\s(?P<icmp_precedence_unreachable>precedence-unreachable))?
-        (\s(?P<icmp_protocol_unreachable>protocol-unreachable))?
-        (\s(?P<icmp_reassembly_timeout>reassembly-timeout))?
-        (\s(?P<icmp_redirect>redirect))?
-        (\s(?P<icmp_router_advertisement>router-advertisement))?
-        (\s(?P<icmp_router_solicitation>router-solicitation))?
-        (\s(?P<icmp_source_quench>source-quench))?
-        (\s(?P<icmp_source_route_failed>source-route-failed))?
-        (\s(?P<icmp_time_exceeded>time-exceeded))?
-        (\s(?P<icmp_time_range>time-range))?
-        (\s(?P<icmp_timestamp_reply>timestamp-reply))?
-        (\s(?P<icmp_timestamp_request>timestamp-request))?
-        (\s(?P<icmp_traceroute>traceroute))?
-        (\s(?P<icmp_ttl_exceeded>ttl-exceeded))?
-        (\s(?P<icmp_unreachable>unreachable))?
-        """, re.VERBOSE)
-    return regex.pattern
-
+RE_ICMP_T4 = r"""
+    ((\s(?P<icmp_protocol_unreachable>protocol-unreachable))|
+    (\s(?P<icmp_reassembly_timeout>reassembly-timeout))|
+    (\s(?P<icmp_redirect>redirect))|
+    (\s(?P<icmp_router_advertisement>router-advertisement))|
+    (\s(?P<icmp_router_solicitation>router-solicitation))|
+    (\s(?P<icmp_source_quench>source-quench))|
+    (\s(?P<icmp_source_route_failed>source-route-failed))|
+    (\s(?P<icmp_time_exceeded>time-exceeded))|
+    (\s(?P<icmp_time_range>time-range))|
+    (\s(?P<icmp_timestamp_reply>timestamp-reply))|
+    (\s(?P<icmp_timestamp_request>timestamp-request))|
+    (\s(?P<icmp_traceroute>traceroute))|
+    (\s(?P<icmp_ttl_exceeded>ttl-exceeded))|
+    (\s(?P<icmp_unreachable>unreachable)))
+    """
 
 class ACLsTemplate(object):
 
@@ -366,9 +358,9 @@ class ACLsTemplate(object):
                 re_port('src') +
                 re_address('dest') +
                 re_port('dest') +
-                re_tcp_flags() +
-                re_packet_def() +
-                re_unparsed()
+                RE_TCP_FLAGS +
+                RE_PACKET_DEF +
+                RE_UNPARSED
                 , re.VERBOSE),
             'setval': _tmplt_entry,
             "result": RESULT
@@ -381,8 +373,8 @@ class ACLsTemplate(object):
                 re_port('src') +
                 re_address('dest') +
                 re_port('dest') +
-                re_packet_def() +
-                re_unparsed()
+                RE_PACKET_DEF +
+                RE_UNPARSED
                 , re.VERBOSE),
             'setval': _tmplt_entry,
             "result": RESULT
@@ -393,9 +385,48 @@ class ACLsTemplate(object):
                 re_acl_start(proto="icmp") +
                 re_address('source') +
                 re_address('dest') +
-                re_icmp_types() +
-                re_packet_def() +
-                re_unparsed()
+                RE_ICMP_T1 +
+                RE_PACKET_DEF +
+                RE_UNPARSED
+                , re.VERBOSE),
+            'setval': _tmplt_entry,
+            "result": RESULT
+        },
+        {
+            "name": "entry",
+            "getval": re.compile(
+                re_acl_start(proto="icmp") +
+                re_address('source') +
+                re_address('dest') +
+                RE_ICMP_T2 +
+                RE_PACKET_DEF +
+                RE_UNPARSED
+                , re.VERBOSE),
+            'setval': _tmplt_entry,
+            "result": RESULT
+        },
+        {
+            "name": "entry",
+            "getval": re.compile(
+                re_acl_start(proto="icmp") +
+                re_address('source') +
+                re_address('dest') +
+                RE_ICMP_T3 +
+                RE_PACKET_DEF +
+                RE_UNPARSED
+                , re.VERBOSE),
+            'setval': _tmplt_entry,
+            "result": RESULT
+        },
+        {
+            "name": "entry",
+            "getval": re.compile(
+                re_acl_start(proto="icmp") +
+                re_address('source') +
+                re_address('dest') +
+                RE_ICMP_T4 +
+                RE_PACKET_DEF +
+                RE_UNPARSED
                 , re.VERBOSE),
             'setval': _tmplt_entry,
             "result": RESULT
@@ -406,8 +437,8 @@ class ACLsTemplate(object):
                 re_acl_start(proto="\\S+") +
                 re_address('source') +
                 re_address('dest') +
-                re_packet_def() +
-                re_unparsed()
+                RE_PACKET_DEF +
+                RE_UNPARSED
                 , re.VERBOSE),
             'setval': _tmplt_entry,
             "result": RESULT
